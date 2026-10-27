@@ -11,14 +11,13 @@
   
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <!-- Google Rasmiy OAuth 2.0 kutubxonasi -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
 
   <style>
     :root {
       --bg-gradient: radial-gradient(circle at 50% 20%, #eff6ff 0%, #dbeafe 50%, #bfdbfe 100%);
-      --glass-panel: rgba(255, 255, 255, 0.90);
-      --glass-border: rgba(255, 255, 255, 0.95);
+      --glass-panel: rgba(255, 255, 255, 0.92);
+      --glass-border: rgba(255, 255, 255, 0.96);
       --glass-shadow: 0 30px 80px -20px rgba(12, 53, 94, 0.18), 0 15px 30px rgba(255, 255, 255, 0.8) inset;
       --card-bg: linear-gradient(145deg, #ffffff 40%, #f0f9ff 100%);
       --surface-bg: #ffffff;
@@ -67,255 +66,205 @@
       box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.14);
     }
     .phone-prefix-tag {
-      padding: 11px 10px 11px 12px; background: rgba(2, 132, 199, 0.08);
-      color: var(--primary-dark); font-weight: 800; font-size: 0.85rem;
+      padding: 11px 10px; background: rgba(2, 132, 199, 0.08);
+      color: var(--primary-dark); font-weight: 800; font-size: 0.84rem;
       border-right: 1px solid var(--input-border); white-space: nowrap;
-      user-select: none; display: inline-flex; align-items: center; gap: 4px;
+      user-select: none; display: inline-flex; align-items: center; gap: 4px; flex-shrink: 0;
     }
     .phone-digits-input {
       border: none !important; outline: none !important; background: transparent !important;
       width: 100%; padding: 11px 12px; font-size: 0.9rem; font-weight: 800;
-      color: var(--text-main); letter-spacing: 0.6px;
+      color: var(--text-main); letter-spacing: 0.5px; min-width: 0;
     }
 
-    /* PAROL KUCHLILIGINI KO'RSATUVCHI INDIKATOR */
-    .pass-strength-bar {
-      height: 5px; width: 100%; background: var(--input-border);
-      border-radius: 6px; overflow: hidden; margin-top: 5px;
-    }
-    .pass-strength-fill {
-      height: 100%; width: 0%; transition: width 0.3s ease, background 0.3s ease;
-    }
+    .pass-strength-bar { height: 5px; width: 100%; background: var(--input-border); border-radius: 6px; overflow: hidden; margin-top: 5px; }
+    .pass-strength-fill { height: 100%; width: 0%; transition: width 0.3s ease, background 0.3s ease; }
 
-    /* 6 XONALI TELEGRAM OTP KOD KATAKCHALARI */
-    .otp-boxes-row {
-      display: flex; justify-content: center; gap: 8px; margin: 16px 0;
-    }
+    .otp-boxes-row { display: flex; justify-content: center; gap: 8px; margin: 14px 0; }
     .otp-digit-box {
-      width: 46px; height: 54px; border-radius: 12px; border: 2px solid var(--input-border);
-      background: var(--input-bg); color: var(--primary-dark); font-size: 1.35rem; font-weight: 900;
+      width: 45px; height: 52px; border-radius: 12px; border: 2px solid var(--input-border);
+      background: var(--input-bg); color: var(--primary-dark); font-size: 1.3rem; font-weight: 900;
       text-align: center; outline: none; transition: var(--transition);
     }
-    .otp-digit-box:focus {
-      border-color: #0088cc; background: var(--surface-bg);
-      box-shadow: 0 0 0 4px rgba(0, 136, 204, 0.15); transform: translateY(-2px);
-    }
+    .otp-digit-box:focus { border-color: #0088cc; background: var(--surface-bg); box-shadow: 0 0 0 4px rgba(0, 136, 204, 0.15); }
 
-    /* TELEGRAM PUSH XABARNOMA BANNERI (OTP KOD UCHUN) */
-    .tg-push-banner {
-      position: fixed; top: 18px; left: 50%; transform: translateX(-50%);
-      z-index: 6000; width: 92%; max-width: 420px;
-      background: #1e293b; color: #ffffff; border: 1.5px solid #38bdf8;
-      border-radius: 18px; padding: 14px 16px; box-shadow: 0 20px 50px rgba(0,0,0,0.45);
-      display: none; align-items: center; justify-content: space-between; gap: 12px;
-      animation: fadeIn 0.3s ease;
+    /* YUQORI BAR (MOBILDA SINIB QOLMAYDI) */
+    .top-info-bar {
+      background: rgba(2, 132, 199, 0.1); border: 1px solid rgba(2, 132, 199, 0.2);
+      border-radius: 14px; padding: 8px 14px; display: flex; justify-content: space-between;
+      align-items: center; font-size: 0.76rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 10px;
+      backdrop-filter: blur(10px); gap: 8px; flex-wrap: nowrap;
+    }
+    .top-info-left { display: flex; align-items: center; gap: 10px; white-space: nowrap; flex-shrink: 0; }
+    .top-info-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .top-info-bar span { display: inline-flex; align-items: center; gap: 4px; white-space: nowrap; }
+
+    .lang-select {
+      background: var(--surface-bg); color: var(--text-main); border: 1px solid var(--input-border);
+      height: 30px; padding: 0 6px; border-radius: 9px; font-weight: 800; font-size: 0.72rem; cursor: pointer; outline: none;
+    }
+    .icon-toggle-btn {
+      background: var(--surface-bg); color: var(--text-main); border: 1px solid var(--input-border);
+      height: 30px; padding: 0 9px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center;
+      gap: 4px; font-size: 0.72rem; font-weight: 800; cursor: pointer; transition: var(--transition); white-space: nowrap; flex-shrink: 0;
+    }
+    .icon-toggle-btn.ai-tour-btn {
+      background: linear-gradient(135deg, rgba(2, 132, 199, 0.14), rgba(56, 189, 248, 0.22));
+      border-color: rgba(2, 132, 199, 0.35); color: var(--primary-dark);
     }
 
     /* 1. RO'YXATDAN O'TISH DARVOZASI */
     #mandatoryAuthGate {
-      position: relative; z-index: 50; width: 100%; max-width: 520px; margin: 8px auto 24px;
+      position: relative; z-index: 50; width: 100%; max-width: 520px; margin: 6px auto 24px;
       background: var(--surface-bg); border: 2px solid var(--glass-border);
-      border-radius: 28px; box-shadow: var(--glass-shadow); overflow: hidden;
+      border-radius: 26px; box-shadow: var(--glass-shadow); overflow: hidden;
     }
     .auth-top-showcase {
       background: linear-gradient(135deg, #0284c7 0%, #0f172a 100%);
-      color: #ffffff; padding: 18px 22px; position: relative; overflow: hidden;
+      color: #ffffff; padding: 18px 20px; position: relative; overflow: hidden;
     }
-    .auth-top-showcase::after {
-      content: ''; position: absolute; right: -30px; top: -30px; width: 130px; height: 130px;
-      border-radius: 50%; background: rgba(56, 189, 248, 0.15); pointer-events: none;
-    }
-    .auth-brand-row {
-      display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px;
-    }
+    .auth-brand-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
     .auth-brand-left { display: flex; align-items: center; gap: 10px; }
-    .auth-brand-left img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #38bdf8; background: #fff; }
+    .auth-brand-left img { width: 40px; height: 40px; border-radius: 50%; border: 2px solid #38bdf8; background: #fff; flex-shrink: 0; }
     .auth-staff-pill {
       background: rgba(255, 255, 255, 0.14); color: #bae6fd; border: 1px solid rgba(255,255,255,0.2);
       padding: 5px 11px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; cursor: pointer;
-      display: inline-flex; align-items: center; gap: 5px; transition: var(--transition);
+      display: inline-flex; align-items: center; gap: 5px; white-space: nowrap;
     }
-    .auth-staff-pill:hover { background: rgba(255, 255, 255, 0.25); color: #fff; }
 
     .auth-story-slider {
       background: rgba(255, 255, 255, 0.12); border: 1px solid rgba(255, 255, 255, 0.18);
       border-radius: 16px; padding: 11px 14px; backdrop-filter: blur(8px);
-      display: flex; align-items: center; justify-content: space-between; gap: 12px;
-      cursor: pointer; transition: var(--transition);
+      display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer;
     }
-    .auth-story-slider:hover { background: rgba(255, 255, 255, 0.18); }
     .story-slide-left { display: flex; align-items: center; gap: 11px; flex: 1; min-width: 0; }
     .story-icon-circle {
       width: 36px; height: 36px; border-radius: 12px; background: #38bdf8; color: #0f172a;
       display: flex; align-items: center; justify-content: center; font-weight: 900; flex-shrink: 0;
     }
-    .story-text-wrap h5 { font-size: 0.84rem; font-weight: 800; color: #ffffff; margin-bottom: 1px; }
-    .story-text-wrap p { font-size: 0.72rem; color: #dbeafe; line-height: 1.3; }
+    .story-text-wrap h5 { font-size: 0.82rem; font-weight: 800; color: #ffffff; margin-bottom: 1px; }
+    .story-text-wrap p { font-size: 0.71rem; color: #dbeafe; line-height: 1.3; }
     .story-dots-col { display: flex; flex-direction: column; gap: 4px; align-items: center; }
     .story-dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.35); transition: var(--transition); }
     .story-dot.active { height: 14px; border-radius: 8px; background: #38bdf8; }
 
-    .auth-gate-body { padding: 22px 24px 26px; background: var(--surface-bg); }
+    .auth-gate-body { padding: 20px 22px 24px; background: var(--surface-bg); }
     .social-auth-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
     .btn-social {
       padding: 12px 10px; border-radius: 14px; border: 1.5px solid var(--input-border); background: var(--input-bg);
-      color: var(--text-main); font-weight: 800; font-size: 0.82rem; cursor: pointer; display: flex; align-items: center;
-      justify-content: center; gap: 8px; transition: var(--transition); white-space: nowrap;
+      color: var(--text-main); font-weight: 800; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center;
+      justify-content: center; gap: 7px; transition: var(--transition); white-space: nowrap;
     }
-    .btn-social:hover { transform: translateY(-2px); border-color: var(--primary); background: var(--surface-bg); box-shadow: 0 6px 16px rgba(2,132,199,0.12); }
     .btn-social.telegram { background: rgba(0, 136, 204, 0.09); border-color: rgba(0, 136, 204, 0.35); color: #0088cc; }
     .btn-social.google { background: rgba(234, 67, 53, 0.06); border-color: rgba(234, 67, 53, 0.28); }
-    .divider-line { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 0.71rem; font-weight: 800; margin: 10px 0 14px; }
+    .divider-line { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 0.7rem; font-weight: 800; margin: 10px 0 14px; }
     .divider-line::before, .divider-line::after { content: ''; flex: 1; border-bottom: 1px solid var(--input-border); }
     .divider-line span { padding: 0 10px; }
-
-    /* YUQORI BAR */
-    .top-info-bar {
-      background: rgba(2, 132, 199, 0.1); border: 1px solid rgba(2, 132, 199, 0.2);
-      border-radius: 16px; padding: 8px 16px; display: flex; justify-content: space-between;
-      align-items: center; font-size: 0.78rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 12px;
-      backdrop-filter: blur(10px); gap: 8px;
-    }
-    .top-info-left, .top-info-right { display: flex; align-items: center; gap: 8px; }
-    .top-info-bar span { display: inline-flex; align-items: center; gap: 5px; }
-
-    .lang-select {
-      background: var(--surface-bg); color: var(--text-main); border: 1px solid var(--input-border);
-      padding: 5px 8px; border-radius: 10px; font-weight: 700; font-size: 0.75rem; cursor: pointer; outline: none;
-    }
-    .icon-toggle-btn {
-      background: var(--surface-bg); color: var(--text-main); border: 1px solid var(--input-border);
-      height: 32px; padding: 0 10px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center;
-      gap: 5px; font-size: 0.74rem; font-weight: 800; cursor: pointer; transition: var(--transition); flex-shrink: 0;
-    }
-    .icon-toggle-btn:hover { border-color: var(--primary); color: var(--primary); }
-    .icon-toggle-btn.ai-tour-btn {
-      background: linear-gradient(135deg, rgba(2, 132, 199, 0.12), rgba(56, 189, 248, 0.2));
-      border-color: rgba(2, 132, 199, 0.35); color: var(--primary-dark);
-    }
 
     /* ASOSIY OYNA */
     .main-board {
       background: var(--glass-panel); backdrop-filter: blur(28px) saturate(190%);
       -webkit-backdrop-filter: blur(28px) saturate(190%); border: 2px solid var(--glass-border);
-      border-radius: 32px; padding: 28px 36px; box-shadow: var(--glass-shadow);
-      display: flex; flex-direction: column; gap: 24px; overflow: hidden;
+      border-radius: 30px; padding: 26px 32px; box-shadow: var(--glass-shadow);
+      display: flex; flex-direction: column; gap: 22px; overflow: hidden; width: 100%;
     }
 
-    .top-bar { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--input-border); padding-bottom: 16px; gap: 14px; flex-wrap: wrap; }
-    .top-bar-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; }
+    .top-bar { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--input-border); padding-bottom: 14px; gap: 12px; flex-wrap: wrap; width: 100%; }
+    .top-bar-header { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; flex-wrap: nowrap; }
 
-    .brand-logo { display: flex; align-items: center; gap: 10px; cursor: pointer; text-decoration: none; flex-shrink: 0; }
-    .brand-img { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 2px solid var(--cyan); background-color: #fff; flex-shrink: 0; }
-    .brand-title { font-size: 1.45rem; font-weight: 900; color: var(--primary-dark); line-height: 1; }
-    .brand-sub { font-size: 0.68rem; font-weight: 800; color: var(--primary); letter-spacing: 1.2px; margin-top: 2px; }
+    .brand-logo { display: flex; align-items: center; gap: 9px; cursor: pointer; text-decoration: none; flex-shrink: 0; min-width: 0; }
+    .brand-img { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid var(--cyan); background-color: #fff; flex-shrink: 0; }
+    .brand-title { font-size: 1.35rem; font-weight: 900; color: var(--primary-dark); line-height: 1; }
+    .brand-sub { font-size: 0.64rem; font-weight: 800; color: var(--primary); letter-spacing: 1px; margin-top: 2px; white-space: nowrap; }
 
-    .header-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+    .header-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 
     .nav-wrapper { display: flex; align-items: center; justify-content: space-between; width: 100%; }
     .nav-pills { display: flex; align-items: center; gap: 6px; list-style: none; flex-wrap: wrap; }
-    .nav-btn { background: transparent; border: none; color: var(--text-muted); font-weight: 700; font-size: 0.88rem; cursor: pointer; padding: 9px 16px; border-radius: 20px; transition: var(--transition); display: inline-flex; align-items: center; gap: 6px; }
+    .nav-btn { background: transparent; border: none; color: var(--text-muted); font-weight: 700; font-size: 0.86rem; cursor: pointer; padding: 9px 15px; border-radius: 20px; transition: var(--transition); display: inline-flex; align-items: center; gap: 6px; }
     .nav-btn:hover, .nav-btn.active { color: var(--primary-dark); background: var(--surface-bg); box-shadow: 0 4px 12px rgba(0,0,0,0.06); }
 
-    .btn-pill { padding: 9px 16px; border-radius: 24px; font-weight: 700; font-size: 0.84rem; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 6px; transition: var(--transition); white-space: nowrap; }
+    .btn-pill { padding: 9px 14px; border-radius: 22px; font-weight: 800; font-size: 0.8rem; border: none; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 5px; transition: var(--transition); white-space: nowrap; flex-shrink: 0; }
     .btn-pill-cyan { background: linear-gradient(135deg, #bae6fd 0%, #7dd3fc 100%); color: #0369a1; }
-    .btn-pill-blue { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; box-shadow: 0 4px 14px rgba(2, 132, 199, 0.3); }
+    .btn-pill-blue { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.28); }
     .btn-pill-outline { background: var(--surface-bg); color: var(--text-main); border: 1.5px solid var(--input-border); }
-    .btn-pill:hover { transform: translateY(-1px); filter: brightness(1.04); }
 
     .view-content { display: none; animation: fadeIn 0.25s ease-out forwards; }
     .view-content.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
     /* 2. BOYITILGAN HERO BANNER */
-    .hero-layout { display: grid; grid-template-columns: 1.18fr 0.82fr; gap: 28px; align-items: start; }
+    .hero-layout { display: grid; grid-template-columns: 1.18fr 0.82fr; gap: 26px; align-items: start; }
     .hero-header-wrap {
-      display: flex; align-items: center; justify-content: space-between; gap: 24px;
-      margin-bottom: 24px; background: var(--card-bg); padding: 26px 28px; border-radius: 26px;
+      display: flex; align-items: center; justify-content: space-between; gap: 22px;
+      margin-bottom: 22px; background: var(--card-bg); padding: 24px; border-radius: 24px;
       border: 1.5px solid var(--glass-border); box-shadow: 0 14px 34px rgba(2, 132, 199, 0.08);
-      position: relative; overflow: hidden;
     }
-    .hero-content-col { flex: 1; display: flex; flex-direction: column; gap: 12px; }
+    .hero-content-col { flex: 1; display: flex; flex-direction: column; gap: 11px; min-width: 0; }
     .hero-top-badge {
       display: inline-flex; align-items: center; gap: 6px; align-self: flex-start;
       background: rgba(2, 132, 199, 0.12); color: var(--primary-dark);
-      padding: 5px 12px; border-radius: 20px; font-size: 0.74rem; font-weight: 800;
+      padding: 5px 11px; border-radius: 18px; font-size: 0.72rem; font-weight: 800; line-height: 1.3;
     }
-    .main-heading { font-size: 2.05rem; font-weight: 900; line-height: 1.18; color: var(--text-heading); }
+    .main-heading { font-size: 2rem; font-weight: 900; line-height: 1.18; color: var(--text-heading); }
     .main-heading span { background: linear-gradient(135deg, #0284c7, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .hero-about-desc { font-size: 0.84rem; color: var(--text-muted); line-height: 1.55; font-weight: 500; }
-    .hero-feature-pills { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 2px; }
+    .hero-about-desc { font-size: 0.83rem; color: var(--text-muted); line-height: 1.55; font-weight: 500; }
+    .hero-feature-pills { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 2px; }
     .hero-feature-pill {
       background: var(--surface-bg); border: 1px solid var(--input-border);
-      padding: 6px 11px; border-radius: 12px; font-size: 0.73rem; font-weight: 700;
+      padding: 6px 10px; border-radius: 12px; font-size: 0.72rem; font-weight: 700;
       color: var(--text-main); display: inline-flex; align-items: center; gap: 6px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.03);
     }
-    .hero-stats-mini {
-      display: flex; align-items: center; gap: 20px; padding-top: 10px;
-      border-top: 1px dashed var(--input-border); margin-top: 4px;
-    }
-    .hero-stat-item strong { font-size: 1.05rem; font-weight: 900; color: var(--primary-dark); display: block; line-height: 1.1; }
-    .hero-stat-item span { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; }
+    .hero-stats-mini { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding-top: 10px; border-top: 1px dashed var(--input-border); margin-top: 4px; }
+    .hero-stat-item strong { font-size: 1rem; font-weight: 900; color: var(--primary-dark); display: block; line-height: 1.15; }
+    .hero-stat-item span { font-size: 0.68rem; color: var(--text-muted); font-weight: 700; display: block; line-height: 1.25; margin-top: 2px; }
 
     .hero-building-img {
-      width: 195px; height: 225px; object-fit: cover; border-radius: 20px;
+      width: 190px; height: 220px; object-fit: cover; border-radius: 20px;
       box-shadow: 0 16px 32px rgba(2, 132, 199, 0.18); border: 3.5px solid var(--surface-bg);
-      flex-shrink: 0; animation: floatBuilding 4.5s ease-in-out infinite;
+      flex-shrink: 0;
     }
-    @keyframes floatBuilding { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
     
-    .section-title { font-size: 1.1rem; font-weight: 800; color: var(--text-heading); display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .section-title-left { display: flex; align-items: center; gap: 8px; }
+    .section-title { font-size: 1.05rem; font-weight: 800; color: var(--text-heading); display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 8px; }
+    .section-title-left { display: flex; align-items: center; gap: 7px; }
 
-    /* 3. AQLLI AI SPOTLIGHT TOUR */
+    /* AQLLI AI SPOTLIGHT TOUR */
     .tour-backdrop {
       position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
       background: rgba(15, 23, 42, 0.62); backdrop-filter: blur(3px);
       z-index: 4000; display: none; opacity: 0; transition: opacity 0.3s ease;
     }
     .tour-backdrop.active { display: block; opacity: 1; }
-
     .tour-highlight-target {
-      position: relative !important;
-      z-index: 4005 !important;
+      position: relative !important; z-index: 4005 !important;
       box-shadow: 0 0 0 6px rgba(56, 189, 248, 0.7), 0 20px 50px rgba(0, 0, 0, 0.4) !important;
-      border-radius: 24px !important;
-      transition: all 0.35s ease !important;
+      border-radius: 24px !important; transition: all 0.35s ease !important;
     }
-
     .ai-tour-card {
-      position: fixed; z-index: 4010; width: 350px; max-width: calc(100vw - 24px);
+      position: fixed; z-index: 4010; width: 340px; max-width: calc(100vw - 24px);
       background: var(--surface-bg); color: var(--text-main);
       border: 2px solid var(--cyan); border-radius: 22px; padding: 18px 20px;
       box-shadow: 0 24px 60px rgba(2, 132, 199, 0.45);
       display: none; flex-direction: column; gap: 12px;
-      transition: top 0.35s cubic-bezier(0.4, 0, 0.2, 1), left 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      transition: top 0.35s ease, left 0.35s ease;
     }
-    .ai-tour-card.active { display: flex; animation: fadeIn 0.25s ease; }
+    .ai-tour-card.active { display: flex; }
     .ai-tour-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
     .ai-avatar-pulse {
-      width: 38px; height: 38px; border-radius: 50%;
-      background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff;
+      width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff;
       display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-      box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.25);
     }
-    .ai-tour-step-badge {
-      font-size: 0.7rem; font-weight: 800; color: var(--primary);
-      background: rgba(2, 132, 199, 0.12); padding: 3px 9px; border-radius: 12px;
-    }
-    .ai-tour-body h4 { font-size: 0.98rem; font-weight: 900; color: var(--text-heading); margin-bottom: 4px; }
-    .ai-tour-body p { font-size: 0.8rem; color: var(--text-muted); line-height: 1.5; }
+    .ai-tour-step-badge { font-size: 0.7rem; font-weight: 800; color: var(--primary); background: rgba(2, 132, 199, 0.12); padding: 3px 9px; border-radius: 12px; }
+    .ai-tour-body h4 { font-size: 0.96rem; font-weight: 900; color: var(--text-heading); margin-bottom: 4px; }
+    .ai-tour-body p { font-size: 0.79rem; color: var(--text-muted); line-height: 1.5; }
     .ai-tour-footer { display: flex; align-items: center; justify-content: space-between; padding-top: 8px; border-top: 1px solid var(--input-border); }
     .tour-dots { display: flex; gap: 5px; }
-    .tour-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--input-border); transition: var(--transition); }
+    .tour-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--input-border); }
     .tour-dot.active { width: 18px; border-radius: 10px; background: var(--primary); }
 
-    /* XIZMATLAR VA SHIFOKORLAR */
     .services-grid-dynamic { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 22px; }
     .diag-card-3d { background: var(--card-bg); padding: 16px 12px; border-radius: 20px; box-shadow: 0 8px 20px rgba(2, 132, 199, 0.06); border: 1.5px solid var(--glass-border); display: flex; flex-direction: column; align-items: center; text-align: center; cursor: pointer; transition: var(--transition); }
-    .diag-card-3d:hover { transform: translateY(-4px); border-color: var(--cyan); }
-    .diag-icon-sphere { width: 54px; height: 54px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ffffff 0%, #cce7fe 60%, #8ac3fc 100%); display: flex; align-items: center; justify-content: center; color: #0284c7; margin-bottom: 10px; overflow: hidden; border: 2px solid #ffffff; flex-shrink: 0; }
+    .diag-icon-sphere { width: 52px; height: 52px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ffffff 0%, #cce7fe 60%, #8ac3fc 100%); display: flex; align-items: center; justify-content: center; color: #0284c7; margin-bottom: 10px; overflow: hidden; border: 2px solid #ffffff; flex-shrink: 0; }
     .diag-icon-sphere img { width: 100%; height: 100%; object-fit: cover; }
     .diag-card-3d h4 { font-size: 0.88rem; font-weight: 800; color: var(--text-main); margin-bottom: 4px; }
     .diag-card-3d p { font-size: 0.72rem; color: var(--text-muted); line-height: 1.35; }
@@ -323,22 +272,19 @@
 
     .doctors-row-dynamic { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
     .doc-item { background: var(--surface-bg); padding: 12px; border-radius: 18px; border: 1.5px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04); cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap: 10px; }
-    .doc-item:hover { transform: translateY(-3px); border-color: var(--cyan); }
     .doc-item h4 { font-size: 0.85rem; font-weight: 800; color: var(--text-main); }
     .doc-item p { font-size: 0.72rem; color: var(--text-muted); }
     .doc-avatar-3d { width: 42px; height: 42px; min-width: 42px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #e0f2fe 10%, #38bdf8 100%); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; }
 
-    /* O'NG PANEL: LAB VA BOOKING */
     .right-section { display: flex; flex-direction: column; gap: 18px; }
     .lab-check-box { background: var(--card-bg); border: 1.5px solid var(--glass-border); border-radius: 24px; padding: 20px; box-shadow: 0 12px 28px rgba(2, 132, 199, 0.1); }
-    .lab-check-title { font-size: 1.12rem; font-weight: 800; color: var(--text-heading); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
-    .lab-input-container { background: var(--surface-bg); border: 1.5px solid var(--input-border); border-radius: 18px; padding: 6px; display: flex; align-items: center; gap: 8px; }
-    .lab-input-field { border: none; outline: none; width: 100%; padding-left: 12px; font-size: 0.95rem; font-weight: 800; color: var(--primary-dark); text-transform: uppercase; background: transparent; }
-    .btn-lab-check { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; border: none; padding: 10px 18px; border-radius: 14px; font-weight: 700; font-size: 0.85rem; cursor: pointer; white-space: nowrap; }
+    .lab-check-title { font-size: 1.1rem; font-weight: 800; color: var(--text-heading); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .lab-input-container { background: var(--surface-bg); border: 1.5px solid var(--input-border); border-radius: 16px; padding: 5px; display: flex; align-items: center; gap: 6px; }
+    .lab-input-field { border: none; outline: none; width: 100%; padding-left: 10px; font-size: 0.92rem; font-weight: 800; color: var(--primary-dark); text-transform: uppercase; background: transparent; min-width: 0; }
+    .btn-lab-check { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; border: none; padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: 0.82rem; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
 
     .booking-pod { background: var(--surface-bg); border: 1.5px solid var(--glass-border); border-radius: 24px; padding: 20px; box-shadow: 0 14px 30px rgba(15, 23, 42, 0.05); }
     .booking-input, .admin-input { width: 100%; padding: 11px 14px; border-radius: 12px; border: 1.5px solid var(--input-border); font-size: 0.85rem; font-weight: 600; outline: none; transition: var(--transition); background: var(--input-bg); color: var(--text-main); }
-    .booking-input:focus, .admin-input:focus { border-color: var(--primary); background: var(--surface-bg); box-shadow: 0 0 0 3px rgba(2, 132, 199, 0.12); }
     
     .cal-header-bar { display: flex; justify-content: space-between; align-items: center; margin: 10px 0 8px; }
     .cal-month-title { font-size: 0.88rem; font-weight: 800; color: var(--text-heading); }
@@ -357,29 +303,29 @@
     .custom-time-box label { font-size: 0.78rem; font-weight: 700; color: var(--text-muted); }
     .custom-time-input { border: none; background: transparent; font-weight: 800; color: var(--primary-dark); font-size: 0.88rem; outline: none; }
 
-    .btn-submit-3d { width: 100%; background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%); color: #ffffff; padding: 13px; border-radius: 14px; font-weight: 800; font-size: 0.92rem; border: none; cursor: pointer; box-shadow: 0 8px 20px rgba(2, 132, 199, 0.28); transition: var(--transition); }
+    .btn-submit-3d { width: 100%; background: linear-gradient(135deg, #0284c7 0%, #38bdf8 100%); color: #ffffff; padding: 13px; border-radius: 14px; font-weight: 800; font-size: 0.9rem; border: none; cursor: pointer; box-shadow: 0 8px 20px rgba(2, 132, 199, 0.28); transition: var(--transition); }
 
     .auth-tabs { display: flex; gap: 6px; margin-bottom: 14px; background: var(--input-bg); padding: 5px; border-radius: 14px; border: 1px solid var(--input-border); }
-    .auth-tab { flex: 1; padding: 9px; border: none; background: transparent; color: var(--text-muted); font-weight: 800; font-size: 0.84rem; border-radius: 10px; cursor: pointer; transition: var(--transition); }
-    .auth-tab.active { background: var(--primary); color: #fff; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.25); }
+    .auth-tab { flex: 1; padding: 9px; border: none; background: transparent; color: var(--text-muted); font-weight: 800; font-size: 0.82rem; border-radius: 10px; cursor: pointer; }
+    .auth-tab.active { background: var(--primary); color: #fff; }
 
     /* SHAXSIY PROFIL DIZAYNI */
-    .profile-grid { display: grid; grid-template-columns: 1fr 1.6fr; gap: 22px; align-items: start; }
+    .profile-grid { display: grid; grid-template-columns: 1.05fr 1.45fr; gap: 22px; align-items: start; }
     .med-id-card {
       background: linear-gradient(135deg, #0284c7 0%, #0f172a 100%); color: #ffffff;
-      border-radius: 24px; padding: 24px; position: relative; overflow: hidden;
+      border-radius: 24px; padding: 22px; position: relative; overflow: hidden;
       box-shadow: 0 18px 40px rgba(2, 132, 199, 0.28);
     }
-    .med-id-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-    .med-id-badge { background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; }
+    .med-id-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 8px; }
+    .med-id-badge { background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; white-space: nowrap; }
     .med-id-meta { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.15); font-size: 0.78rem; }
     .med-id-meta div span { display: block; color: #bae6fd; font-size: 0.68rem; }
-    .med-id-meta div strong { font-size: 0.85rem; }
+    .med-id-meta div strong { font-size: 0.84rem; }
 
-    .profile-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 18px; }
-    .stat-box { background: var(--surface-bg); border: 1.5px solid var(--glass-border); border-radius: 18px; padding: 14px; text-align: center; }
-    .stat-box h3 { font-size: 1.4rem; font-weight: 900; color: var(--primary); }
-    .stat-box p { font-size: 0.74rem; color: var(--text-muted); font-weight: 700; }
+    .profile-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
+    .stat-box { background: var(--surface-bg); border: 1.5px solid var(--glass-border); border-radius: 18px; padding: 12px 8px; text-align: center; }
+    .stat-box h3 { font-size: 1.3rem; font-weight: 900; color: var(--primary); }
+    .stat-box p { font-size: 0.72rem; color: var(--text-muted); font-weight: 700; }
 
     .cabinet-card-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; }
     .cabinet-item-card {
@@ -394,57 +340,49 @@
     .status-cancelled { background: #fee2e2; color: #b91c1c; }
 
     /* PRO ADMIN PANEL */
-    .admin-dashboard { background: var(--surface-bg); border-radius: 24px; padding: 24px; border: 1px solid var(--glass-border); }
-    .admin-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 22px; }
-    .kpi-card {
-      background: var(--card-bg); border: 1.5px solid var(--input-border); border-radius: 18px;
-      padding: 16px; display: flex; align-items: center; gap: 14px;
-    }
-    .kpi-icon { width: 46px; height: 46px; border-radius: 14px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-    .kpi-card h4 { font-size: 1.35rem; font-weight: 900; color: var(--text-heading); line-height: 1.1; }
-    .kpi-card p { font-size: 0.74rem; color: var(--text-muted); font-weight: 700; }
+    .admin-dashboard { background: var(--surface-bg); border-radius: 24px; padding: 22px; border: 1px solid var(--glass-border); }
+    .admin-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
+    .kpi-card { background: var(--card-bg); border: 1.5px solid var(--input-border); border-radius: 18px; padding: 14px; display: flex; align-items: center; gap: 12px; }
+    .kpi-icon { width: 44px; height: 44px; border-radius: 14px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .kpi-card h4 { font-size: 1.25rem; font-weight: 900; color: var(--text-heading); line-height: 1.1; }
+    .kpi-card p { font-size: 0.72rem; color: var(--text-muted); font-weight: 700; }
 
     .admin-nav { display: flex; gap: 8px; border-bottom: 2px solid var(--input-border); padding-bottom: 10px; margin-bottom: 18px; overflow-x: auto; }
-    .admin-tab-btn { background: none; border: none; font-size: 0.84rem; font-weight: 700; color: var(--text-muted); cursor: pointer; padding: 8px 14px; border-radius: 10px; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
+    .admin-tab-btn { background: none; border: none; font-size: 0.82rem; font-weight: 700; color: var(--text-muted); cursor: pointer; padding: 8px 12px; border-radius: 10px; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
     .admin-tab-btn.active { color: #0369a1; background: #e0f2fe; }
     .admin-section { display: none; }
     .admin-section.active { display: block; }
     .admin-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
-    .admin-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.82rem; }
-    .admin-table th, .admin-table td { padding: 11px 12px; text-align: left; border-bottom: 1px solid var(--input-border); color: var(--text-main); }
+    .admin-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: 0.8rem; }
+    .admin-table th, .admin-table td { padding: 10px; text-align: left; border-bottom: 1px solid var(--input-border); color: var(--text-main); }
     .admin-table th { background: var(--input-bg); font-weight: 800; }
-    .action-btn { padding: 6px 10px; border-radius: 8px; border: none; font-weight: 700; font-size: 0.73rem; cursor: pointer; }
+    .action-btn { padding: 6px 10px; border-radius: 8px; border: none; font-weight: 700; font-size: 0.72rem; cursor: pointer; }
     .btn-edit { background: #e0f2fe; color: #0369a1; margin-right: 4px; }
     .btn-delete { background: #fee2e2; color: #b91c1c; }
     .btn-add { background: #0284c7; color: #fff; padding: 9px 14px; border-radius: 10px; font-weight: 700; border: none; cursor: pointer; font-size: 0.8rem; display: inline-flex; align-items: center; gap: 6px; }
 
-    /* MODALLAR */
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.68); backdrop-filter: blur(6px); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 16px; }
-    .modal-box { background: var(--surface-bg); color: var(--text-main); width: 100%; max-width: 460px; border-radius: 24px; padding: 24px; position: relative; border: 1px solid var(--glass-border); max-height: 90vh; overflow-y: auto; }
-    .modal-close { position: absolute; top: 14px; right: 14px; background: var(--input-bg); color: var(--text-main); border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.68); backdrop-filter: blur(6px); z-index: 2000; display: none; align-items: center; justify-content: center; padding: 14px; }
+    .modal-box { background: var(--surface-bg); color: var(--text-main); width: 100%; max-width: 460px; border-radius: 24px; padding: 22px; position: relative; border: 1px solid var(--glass-border); max-height: 90vh; overflow-y: auto; }
+    .modal-close { position: absolute; top: 14px; right: 14px; background: var(--input-bg); color: var(--text-main); border: none; width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: 800; }
 
-    .google-acc-item {
-      display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 14px;
-      border: 1.5px solid var(--input-border); margin-bottom: 10px; cursor: pointer; transition: var(--transition);
-    }
+    .google-acc-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 14px; border: 1.5px solid var(--input-border); margin-bottom: 10px; cursor: pointer; transition: var(--transition); }
     .google-acc-item:hover { border-color: var(--primary); background: var(--input-bg); }
 
     /* MOBIL APP BAR */
     .mobile-bottom-nav {
       display: none; position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1400;
       background: var(--surface-bg); border-top: 1px solid var(--input-border);
-      padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
+      padding: 6px 6px calc(6px + env(safe-area-inset-bottom));
       box-shadow: 0 -8px 25px rgba(0, 0, 0, 0.08);
       justify-content: space-around; align-items: center;
     }
     .mob-nav-item {
-      background: none; border: none; color: var(--text-muted); font-size: 0.68rem; font-weight: 700;
-      display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 8px; border-radius: 12px;
+      background: none; border: none; color: var(--text-muted); font-size: 0.68rem; font-weight: 800;
+      display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; padding: 4px 6px; border-radius: 12px; flex: 1;
     }
     .mob-nav-item.active { color: var(--primary); }
 
-    /* CHAT VIDJETI */
-    .chat-fab { position: fixed; bottom: 24px; right: 24px; z-index: 1500; width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff; border: none; box-shadow: 0 10px 24px rgba(2, 132, 199, 0.4); cursor: pointer; display: none; align-items: center; justify-content: center; }
+    .chat-fab { position: fixed; bottom: 24px; right: 24px; z-index: 1500; width: 52px; height: 52px; border-radius: 50%; background: linear-gradient(135deg, #0284c7, #38bdf8); color: #fff; border: none; box-shadow: 0 10px 24px rgba(2, 132, 199, 0.4); cursor: pointer; display: none; align-items: center; justify-content: center; font-size: 1.3rem; }
     .chat-window { position: fixed; bottom: 86px; right: 20px; z-index: 1500; width: 330px; max-width: calc(100vw - 24px); background: var(--surface-bg); border: 1.5px solid var(--glass-border); border-radius: 20px; box-shadow: 0 20px 50px rgba(0,0,0,0.25); display: none; flex-direction: column; overflow: hidden; }
     .chat-header { background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; font-weight: 800; font-size: 0.88rem; }
     .chat-messages { padding: 12px; height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; background: var(--input-bg); }
@@ -458,37 +396,58 @@
     #toastContainer { position: fixed; top: 16px; right: 16px; z-index: 5000; display: flex; flex-direction: column; gap: 8px; max-width: 90vw; }
     .toast-item { background: var(--surface-bg); color: var(--text-main); border-left: 4px solid #0284c7; padding: 12px 16px; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.18); font-size: 0.82rem; font-weight: 700; }
 
-    footer { background: #090e17; color: #94a3b8; border-radius: 24px; padding: 28px 24px 18px; margin-top: 20px; }
-    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 24px; padding-bottom: 18px; border-bottom: 1px solid #1e293b; }
+    footer { background: #090e17; color: #94a3b8; border-radius: 24px; padding: 26px 22px 18px; margin-top: 20px; }
+    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 22px; padding-bottom: 18px; border-bottom: 1px solid #1e293b; }
     .footer-col h4 { color: #ffffff; margin-bottom: 10px; font-size: 0.9rem; }
     .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 0.82rem; }
     .footer-col a { color: #94a3b8; text-decoration: none; }
 
-    /* RESPONSIVE */
+    /* ====================================================
+       MOBIL MOSLASHUVCHANLIK (SKRINSHOTDAGI XATOLAR TUZATILDI)
+       ==================================================== */
     @media (max-width: 1024px) {
-      .hero-layout, .profile-grid, .footer-grid { grid-template-columns: 1fr !important; gap: 20px; }
+      .hero-layout, .profile-grid, .footer-grid { grid-template-columns: 1fr !important; gap: 18px; }
       .admin-kpi-grid { grid-template-columns: repeat(2, 1fr); }
     }
 
     @media (max-width: 768px) {
-      body { padding: 8px 8px 84px 8px; }
+      body { padding: 6px 6px 82px 6px; }
       .hide-mobile { display: none !important; }
-      #mandatoryAuthGate { margin: 4px auto 16px; border-radius: 22px; }
-      .auth-top-showcase { padding: 14px 16px; }
-      .auth-gate-body { padding: 18px 16px 22px; }
+
+      .top-info-bar {
+        padding: 7px 10px; border-radius: 12px; margin-bottom: 8px; gap: 4px;
+      }
+      .top-info-left { font-size: 0.72rem; }
+      .icon-toggle-btn { height: 28px; padding: 0 8px; font-size: 0.68rem; }
+      .lang-select { height: 28px; padding: 0 4px; font-size: 0.68rem; }
+
+      #mandatoryAuthGate { margin: 2px auto 14px; border-radius: 22px; }
+      .auth-top-showcase { padding: 14px 14px; }
+      .auth-gate-body { padding: 16px 14px 20px; }
       .form-two-col { grid-template-columns: 1fr !important; gap: 10px !important; }
-      .main-board { padding: 14px 12px; border-radius: 22px; gap: 16px; }
+
+      .main-board { padding: 12px 12px; border-radius: 22px; gap: 14px; }
       .nav-wrapper { display: none; }
-      .admin-kpi-grid { grid-template-columns: 1fr; gap: 8px; }
-      .hero-header-wrap { flex-direction: column; text-align: left; padding: 18px 16px; }
-      .main-heading { font-size: 1.55rem !important; }
-      .hero-building-img { width: 100%; height: 175px; }
-      .services-grid-dynamic, .doctors-row-dynamic { grid-template-columns: 1fr !important; }
+
+      .top-bar { padding-bottom: 10px; }
+      .top-bar-header { gap: 6px; }
+      .brand-logo { gap: 7px; }
+      .brand-img { width: 34px; height: 34px; }
+      .brand-title { font-size: 1.15rem; }
+      .brand-sub { font-size: 0.54rem; letter-spacing: 0.6px; }
+
+      .header-actions { gap: 5px; }
+      .header-actions .btn-pill { padding: 7px 10px; font-size: 0.72rem; border-radius: 16px; }
+
+      .hero-header-wrap { flex-direction: column; text-align: left; padding: 16px 14px; gap: 14px; }
+      .main-heading { font-size: 1.48rem !important; }
+      .hero-building-img { width: 100%; height: 170px; }
+
+      .services-grid-dynamic, .doctors-row-dynamic, .admin-kpi-grid { grid-template-columns: 1fr !important; gap: 10px; }
       .diag-card-3d { flex-direction: row; text-align: left; padding: 12px; gap: 12px; }
       .diag-icon-sphere { margin-bottom: 0; }
-      .booking-name-phone-row { flex-direction: column !important; }
-      .chat-fab { bottom: 76px; right: 14px; width: 46px; height: 46px; }
-      .chat-window { bottom: 130px; right: 12px; }
+      .chat-fab { bottom: 74px; right: 12px; width: 46px; height: 46px; }
+      .chat-window { bottom: 128px; right: 10px; }
       .admin-table { display: block; overflow-x: auto; white-space: nowrap; }
       .otp-digit-box { width: 40px; height: 48px; font-size: 1.2rem; }
     }
@@ -499,28 +458,14 @@
   <canvas id="bgCanvas"></canvas>
   <div id="toastContainer"></div>
 
-  <!-- TELEGRAM OTP SIMULYATOR XABARNOMASI -->
-  <div class="tg-push-banner" id="tgPushBanner">
-    <div style="display:flex; align-items:center; gap:10px;">
-      <div style="width:38px; height:38px; border-radius:50%; background:#0088cc; display:flex; align-items:center; justify-content:center; flex-shrink:0;">
-        <i data-lucide="send" style="width:18px; height:18px; color:#fff;"></i>
-      </div>
-      <div>
-        <div style="font-size:0.75rem; color:#38bdf8; font-weight:800;">@HumoMed_Auth_Bot • hozirgina</div>
-        <div style="font-size:0.84rem; font-weight:700;">Tasdiqlash kodingiz: <b id="tgPushCodeText" style="color:#38bdf8; font-size:1rem; letter-spacing:1px;">000000</b></div>
-      </div>
-    </div>
-    <button class="btn-pill btn-pill-cyan" style="padding:6px 12px; font-size:0.74rem;" onclick="autoFillOtpFromPush()">Avto-terish</button>
-  </div>
-
   <!-- AQLLI AI EKSKURSIYA YORDAMCHISI -->
   <div class="tour-backdrop" id="aiTourBackdrop" onclick="endAiSpotlightTour()"></div>
   <div class="ai-tour-card" id="aiTourCard">
     <div class="ai-tour-header">
       <div style="display: flex; align-items: center; gap: 10px;">
-        <div class="ai-avatar-pulse"><i data-lucide="bot" style="width: 20px; height: 20px;"></i></div>
+        <div class="ai-avatar-pulse"><i data-lucide="bot" style="width: 18px; height: 18px;"></i></div>
         <div>
-          <div style="font-size: 0.72rem; font-weight: 800; color: var(--primary);">HUMO AI YORDAMCHI</div>
+          <div style="font-size: 0.7rem; font-weight: 800; color: var(--primary);">HUMO AI YORDAMCHI</div>
           <div class="ai-tour-step-badge" id="aiTourStepBadge">1 / 4 qadam</div>
         </div>
       </div>
@@ -533,36 +478,34 @@
     <div class="ai-tour-footer">
       <div class="tour-dots" id="aiTourDots"></div>
       <div style="display: flex; gap: 6px;">
-        <button class="btn-pill btn-pill-outline" style="padding: 6px 12px; font-size: 0.75rem;" onclick="endAiSpotlightTour()">Yopish</button>
-        <button class="btn-pill btn-pill-blue" style="padding: 6px 14px; font-size: 0.75rem;" id="aiTourNextBtn" onclick="nextAiTourStep()">Keyingisi →</button>
+        <button class="btn-pill btn-pill-outline" style="padding: 6px 12px; font-size: 0.74rem;" onclick="endAiSpotlightTour()">Yopish</button>
+        <button class="btn-pill btn-pill-blue" style="padding: 6px 14px; font-size: 0.74rem;" id="aiTourNextBtn" onclick="nextAiTourStep()">Keyingisi →</button>
       </div>
     </div>
   </div>
 
   <div class="app-container">
-    <!-- YUQORI TILLAR VA AI EKSKURSIYA PANELI -->
+    <!-- YUQORI TILLAR VA AI EKSKURSIYA PANELI (SINIB QOLMAYDI) -->
     <div class="top-info-bar">
       <div class="top-info-left">
-        <span><i data-lucide="phone" style="width: 14px;"></i> <a href="tel:+998712000000" style="color:inherit; text-decoration:none;">+998 71 200 00 00</a></span>
-        <span class="hide-mobile"><i data-lucide="shield-check" style="width: 14px; color:#10b981;"></i> <span>SHA-256 Shifrlangan</span></span>
+        <span>📞 <a href="tel:+998712000000" style="color:inherit; text-decoration:none;">+998 71 200-00-00</a></span>
+        <span class="hide-mobile">📍 <span data-i18n="address">Toshkent sh., Yashnobod tumani</span></span>
       </div>
       <div class="top-info-right">
-        <button class="icon-toggle-btn ai-tour-btn" id="topAiTourBtn" style="display: none;" onclick="startAiSpotlightTour()" title="AI Yordamchi saytni ko'rsatib beradi">
-          <i data-lucide="sparkles" style="width: 14px; color: var(--primary);"></i> <span data-i18n="guide_btn">AI Ekskursiya</span>
+        <button class="icon-toggle-btn ai-tour-btn" id="topAiTourBtn" style="display: none;" onclick="startAiSpotlightTour()">
+          ✨ <span data-i18n="guide_btn">AI Ekskursiya</span>
         </button>
         <select id="langSelector" class="lang-select" onchange="changeLanguage(this.value)">
           <option value="uz">🇺🇿 UZ</option>
           <option value="ru">🇷🇺 RU</option>
           <option value="en">🇬🇧 EN</option>
         </select>
-        <button class="icon-toggle-btn" onclick="toggleDarkMode()" title="Tungi rejim">
-          <i data-lucide="moon" id="themeIcon" style="width: 15px;"></i>
-        </button>
+        <button class="icon-toggle-btn" onclick="toggleDarkMode()" title="Tungi rejim">🌙</button>
       </div>
     </div>
 
     <!-- ==========================================================
-         HIMOYALANGAN RO'YXATDAN O'TISH DARVOZASI (TELEGRAM OTP + GOOGLE OAUTH)
+         REAL RO'YXATDAN O'TISH DARVOZASI (TELEGRAM OTP + GOOGLE OAUTH)
          ========================================================== -->
     <div id="mandatoryAuthGate">
       <div class="auth-top-showcase">
@@ -570,21 +513,19 @@
           <div class="auth-brand-left">
             <img src="humo_logo.jpg" onerror="this.src='https://cdn-icons-png.flaticon.com/512/2966/2966327.png'" alt="Humo Med" />
             <div>
-              <div style="font-size: 1.25rem; font-weight: 900; line-height: 1.1;">Humo Med</div>
-              <div style="font-size: 0.66rem; color: #38bdf8; font-weight: 800; letter-spacing: 1px;">HIMOYALANGAN KLINIKA PORTALI</div>
+              <div style="font-size: 1.22rem; font-weight: 900; line-height: 1.1;">Humo Med</div>
+              <div style="font-size: 0.64rem; color: #38bdf8; font-weight: 800; letter-spacing: 0.8px;">YASHNOBOD KLINIKASI PORTALI</div>
             </div>
           </div>
-          <button type="button" class="auth-staff-pill" onclick="openAdminModalFromGate()">
-            <i data-lucide="key-round" style="width: 13px;"></i> Xodimlar
-          </button>
+          <button type="button" class="auth-staff-pill" onclick="openAdminModalFromGate()">🔑 Xodimlar</button>
         </div>
 
-        <div class="auth-story-slider" onclick="nextAuthStorySlide()" title="Keyingi ma'lumotni ko'rish uchun bosing">
+        <div class="auth-story-slider" onclick="nextAuthStorySlide()">
           <div class="story-slide-left">
             <div class="story-icon-circle" id="authStoryIcon">🔐</div>
             <div class="story-text-wrap">
-              <h5 id="authStoryTitle">1. Telegram OTP va Google OAuth</h5>
-              <p id="authStoryDesc">Telegramga keluvchi 6 xonali maxfiy kod yoki Google hisob orqali kiring.</p>
+              <h5 id="authStoryTitle">1. Telegram Bot va Google orqali kirish</h5>
+              <p id="authStoryDesc">Telegram botdan 6 xonali tasdiqlash kodi oling yoki Google hisobda kiring.</p>
             </div>
           </div>
           <div class="story-dots-col" id="authStoryDots">
@@ -598,13 +539,12 @@
       <div class="auth-gate-body">
         <div style="margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
           <div>
-            <h3 style="font-size: 1.2rem; font-weight: 900; color: var(--text-heading);" data-i18n="auth_welcome">Xush kelibsiz!</h3>
-            <p style="font-size: 0.76rem; color: var(--text-muted);" data-i18n="auth_choose_method">Tasdiqlangan kirish usulini tanlang:</p>
+            <h3 style="font-size: 1.18rem; font-weight: 900; color: var(--text-heading);" data-i18n="auth_welcome">Xush kelibsiz!</h3>
+            <p style="font-size: 0.75rem; color: var(--text-muted);" data-i18n="auth_choose_method">O‘zingizga qulay usulda tizimga kiring:</p>
           </div>
-          <span style="font-size: 0.68rem; font-weight: 800; color: #10b981; background: rgba(16,185,129,0.1); padding: 4px 9px; border-radius: 12px;">🛡️ SHA-256</span>
+          <span style="font-size: 0.68rem; font-weight: 800; color: #10b981; background: rgba(16,185,129,0.1); padding: 4px 8px; border-radius: 12px;">🛡️ SHA-256</span>
         </div>
 
-        <!-- TELEGRAM OTP VA GOOGLE AKKAUNT TUGMALARI -->
         <div class="social-auth-grid">
           <button type="button" class="btn-social telegram" onclick="openTelegramOtpModal()">
             <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.69-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.35-.49.96-.75 3.78-1.65 6.31-2.74 7.58-3.27 3.61-1.51 4.35-1.77 4.84-1.78.11 0 .35.03.5.16.13.1.17.24.18.34.02.08.02.24.01.38z"/></svg>
@@ -616,18 +556,17 @@
           </button>
         </div>
 
-        <div class="divider-line"><span data-i18n="or_email">YOKI TELEFON VA SHIFRLANGAN PAROL ORQALI</span></div>
+        <div class="divider-line"><span data-i18n="or_email">YOKI TELEFON VA PAROL ORQALI</span></div>
 
         <div class="auth-tabs">
           <button type="button" class="auth-tab active" id="tabRegBtn" onclick="switchAuthTab('register')" data-i18n="reg_tab">Ro‘yxatdan o‘tish</button>
           <button type="button" class="auth-tab" id="tabLoginBtn" onclick="switchAuthTab('login')" data-i18n="login_tab">Kirish (Akkaunt bor)</button>
         </div>
 
-        <!-- RO'YXATDAN O'TISH FORMASI -->
         <form id="patientRegForm" onsubmit="event.preventDefault(); registerPatient();">
           <div style="margin-bottom: 10px;">
             <label style="font-size: 0.75rem; font-weight: 700; display:block; margin-bottom:4px;">Ism va Familiyangiz *</label>
-            <input type="text" id="regName" class="booking-input" placeholder="Masalan: Sardor Aliyev" required />
+            <input type="text" id="regName" class="booking-input" placeholder="Masalan: Sardor Aliyev" minlength="3" required />
           </div>
 
           <div class="form-two-col" style="display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 8px; margin-bottom: 10px;">
@@ -657,15 +596,14 @@
               </select>
             </div>
             <div>
-              <label style="font-size: 0.75rem; font-weight: 700; display:block; margin-bottom:4px;">Himoyalangan parol *</label>
+              <label style="font-size: 0.75rem; font-weight: 700; display:block; margin-bottom:4px;">Parol yaratish *</label>
               <input type="password" id="regPass" class="booking-input" placeholder="Kamida 6 ta belgi" oninput="checkPasswordStrength(this.value)" required />
               <div class="pass-strength-bar"><div class="pass-strength-fill" id="passStrengthFill"></div></div>
             </div>
           </div>
-          <button type="submit" class="btn-submit-3d">🔒 Ro‘yxatdan O‘tish va Saytga Kirish →</button>
+          <button type="submit" class="btn-submit-3d">🔒 Ro‘yxatdan O‘tish va Kirish →</button>
         </form>
 
-        <!-- KIRISH FORMASI -->
         <form id="patientLoginForm" style="display: none;" onsubmit="event.preventDefault(); loginPatient();">
           <div style="margin-bottom: 12px;">
             <label style="font-size: 0.75rem; font-weight: 700; display:block; margin-bottom:4px;">Telefon raqamingiz *</label>
@@ -684,7 +622,7 @@
     </div>
 
     <!-- ==========================================================
-         ASOSIY SAYT KONTENTI
+         ASOSIY SAYT KONTENTI (MOBILDA KESILMAYDI)
          ========================================================== -->
     <div class="main-board" id="mainSiteBoard" style="display: none;">
       <div class="top-bar">
@@ -699,11 +637,11 @@
 
           <div class="header-actions" id="tourTargetCabinet">
             <button class="btn-pill btn-pill-outline" id="userAuthBtn" onclick="switchNavView('cabinet')">
-              <i data-lucide="user-check" style="width: 15px; color: var(--primary);"></i>
+              <i data-lucide="user-check" style="width: 14px; color: var(--primary);"></i>
               <span id="userAuthBtnText">Kabinet</span>
             </button>
             <button class="btn-pill btn-pill-blue" onclick="scrollToBooking()">
-              <i data-lucide="calendar-plus" style="width: 15px;"></i>
+              <i data-lucide="calendar-plus" style="width: 14px;"></i>
               <span data-i18n="book_btn">Qabulga yozilish</span>
             </button>
           </div>
@@ -711,11 +649,11 @@
 
         <div class="nav-wrapper">
           <ul class="nav-pills">
-            <li><button class="nav-btn active" id="nav-home" onclick="switchNavView('home')"><i data-lucide="home" style="width:15px;"></i> <span data-i18n="nav_home">Asosiy</span></button></li>
-            <li><button class="nav-btn" id="nav-services" onclick="switchNavView('services')"><i data-lucide="activity" style="width:15px;"></i> <span data-i18n="nav_services">Xizmatlar</span></button></li>
-            <li><button class="nav-btn" id="nav-doctors" onclick="switchNavView('doctors')"><i data-lucide="stethoscope" style="width:15px;"></i> <span data-i18n="nav_doctors">Shifokorlar</span></button></li>
-            <li><button class="nav-btn" id="nav-lab" onclick="switchNavView('lab')"><i data-lucide="file-check-2" style="width:15px;"></i> <span data-i18n="nav_lab">Tahlillar</span></button></li>
-            <li><button class="nav-btn" id="nav-cabinet" onclick="switchNavView('cabinet')"><i data-lucide="id-card" style="width:15px;"></i> <span data-i18n="nav_cabinet">Shaxsiy kabinet</span></button></li>
+            <li><button class="nav-btn active" id="nav-home" onclick="switchNavView('home')">🏠 <span data-i18n="nav_home">Asosiy</span></button></li>
+            <li><button class="nav-btn" id="nav-services" onclick="switchNavView('services')">🩺 <span data-i18n="nav_services">Xizmatlar</span></button></li>
+            <li><button class="nav-btn" id="nav-doctors" onclick="switchNavView('doctors')">👨‍⚕️ <span data-i18n="nav_doctors">Shifokorlar</span></button></li>
+            <li><button class="nav-btn" id="nav-lab" onclick="switchNavView('lab')">🧪 <span data-i18n="nav_lab">Tahlillar</span></button></li>
+            <li><button class="nav-btn" id="nav-cabinet" onclick="switchNavView('cabinet')">🪪 <span data-i18n="nav_cabinet">Shaxsiy kabinet</span></button></li>
           </ul>
         </div>
       </div>
@@ -727,8 +665,7 @@
             <div class="hero-header-wrap" id="tourTargetHero">
               <div class="hero-content-col">
                 <div class="hero-top-badge">
-                  <i data-lucide="shield-check" style="width: 14px;"></i>
-                  <span data-i18n="hero_badge">Yashnobod tumanidagi zamonaviy raqamli klinika</span>
+                  🛡️ <span data-i18n="hero_badge">Yashnobod tumanidagi zamonaviy raqamli klinika</span>
                 </div>
                 <h1 class="main-heading" id="heroMainHeading">
                   Salomatligingiz —<br/><span>Humo Klinikasi</span> bilan<br/>ishonchli qo‘llarda
@@ -737,9 +674,9 @@
                   Ushbu onlayn platforma orqali uydan chiqmasdan malakali shifokorlar qabuliga navbatsiz yozilishingiz, laboratoriya va MRT natijalarini PDF shaklda yuklab olishingiz hamda elektron tibbiy kartangizni yuritishingiz mumkin.
                 </p>
                 <div class="hero-feature-pills">
-                  <span class="hero-feature-pill"><i data-lucide="scan" style="width:14px; color:var(--primary);"></i> <span data-i18n="feat_1">1.5 Tesla MRT & 150+ Tahlillar</span></span>
-                  <span class="hero-feature-pill"><i data-lucide="calendar-check" style="width:14px; color:#10b981;"></i> <span data-i18n="feat_2">Navbatsiz Onlayn Qabul</span></span>
-                  <span class="hero-feature-pill"><i data-lucide="file-down" style="width:14px; color:#f59e0b;"></i> <span data-i18n="feat_3">24/7 Elektron Natija</span></span>
+                  <span class="hero-feature-pill">🔬 <span data-i18n="feat_1">1.5 Tesla MRT & 150+ Tahlillar</span></span>
+                  <span class="hero-feature-pill">⚡ <span data-i18n="feat_2">Navbatsiz Onlayn Qabul</span></span>
+                  <span class="hero-feature-pill">📄 <span data-i18n="feat_3">24/7 Elektron Natija</span></span>
                 </div>
                 <div class="hero-stats-mini">
                   <div class="hero-stat-item">
@@ -761,7 +698,7 @@
 
             <div id="tourTargetServices">
               <div class="section-title">
-                <div class="section-title-left"><i data-lucide="activity" style="color: var(--primary); width: 20px;"></i> <span data-i18n="sec_services">Zamonaviy Diagnostika & Xizmatlar</span></div>
+                <div class="section-title-left">🩺 <span data-i18n="sec_services">Zamonaviy Diagnostika & Xizmatlar</span></div>
                 <button class="btn-pill btn-pill-outline" style="padding: 5px 12px; font-size: 0.74rem;" onclick="switchNavView('services')">Barchasi →</button>
               </div>
               <div class="services-grid-dynamic" id="servicesFrontendList"></div>
@@ -769,31 +706,30 @@
 
             <div style="margin-top: 8px;">
               <div class="section-title">
-                <div class="section-title-left"><i data-lucide="user-check" style="color: var(--primary); width: 20px;"></i> <span data-i18n="sec_doctors">Bizning Shifokorlar</span></div>
+                <div class="section-title-left">👨‍⚕️ <span data-i18n="sec_doctors">Bizning Shifokorlar</span></div>
                 <button class="btn-pill btn-pill-outline" style="padding: 5px 12px; font-size: 0.74rem;" onclick="switchNavView('doctors')">Barchasi →</button>
               </div>
               <div class="doctors-row-dynamic" id="doctorsFrontendList"></div>
             </div>
           </div>
 
-          <!-- O'NG PANEL: LAB VA NAVBAT -->
           <div class="right-section">
             <div class="lab-check-box" id="tourTargetLab">
-              <div class="lab-check-title"><i data-lucide="file-check-2" style="color: var(--primary);"></i> <span data-i18n="lab_title">Online Tibbiy Tahlillar</span></div>
+              <div class="lab-check-title">🧪 <span data-i18n="lab_title">Online Tibbiy Tahlillar</span></div>
               <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 10px;" data-i18n="lab_prompt">Tahlil chekingizdagi kodni kiriting:</p>
               <div class="lab-input-container">
                 <input type="text" id="directLabInput" class="lab-input-field" placeholder="HM-0077" value="HM-0077" onkeydown="if(event.key==='Enter') executeLabCheck('directLabInput');" />
                 <button class="btn-lab-check" onclick="executeLabCheck('directLabInput')" data-i18n="check_btn">Tekshirish</button>
               </div>
               <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px; font-size: 0.7rem; color: var(--text-muted);">
-                <span><span style="display:inline-block; width:7px; height:7px; background:#10b981; border-radius:50%; margin-right:4px;"></span> Firebase: <b>Himoyalangan (24/7)</b></span>
+                <span><span style="display:inline-block; width:7px; height:7px; background:#10b981; border-radius:50%; margin-right:4px;"></span> Firebase: <b>Real-Time (24/7)</b></span>
                 <span id="syncTimestamp">Sinxronlangan</span>
               </div>
             </div>
 
             <div class="booking-pod" id="bookingBox">
               <div style="font-size: 1.08rem; font-weight: 800; color: var(--text-heading); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
-                <span data-i18n="book_title">Qabulga Yozilish</span><i data-lucide="calendar" style="color: var(--primary); width: 20px;"></i>
+                <span data-i18n="book_title">Qabulga Yozilish</span><span>📅</span>
               </div>
 
               <div class="booking-name-phone-row" style="display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px;">
@@ -825,7 +761,7 @@
                 <button type="button" class="slot-btn" onclick="pickSlotTime(this, '18:00')">18:00</button>
               </div>
               <div class="custom-time-box">
-                <label for="customTimeInput"><i data-lucide="clock" style="width: 14px; vertical-align:middle;"></i> <span data-i18n="free_time">Boshqa vaqt:</span></label>
+                <label for="customTimeInput">⏰ <span data-i18n="free_time">Boshqa vaqt:</span></label>
                 <input type="time" id="customTimeInput" class="custom-time-input" onchange="pickCustomTime(this.value)" />
               </div>
 
@@ -859,7 +795,7 @@
           </div>
           <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.75rem; padding-top: 16px; flex-wrap: wrap; gap: 10px;">
             <div>&copy; 2026 Humo Med. Barcha huquqlar himoyalangan.</div>
-            <a class="admin-secret-link" onclick="handleAdminClick()" style="color:#38bdf8; cursor:pointer;"><i data-lucide="lock" style="width: 13px;"></i> <span data-i18n="staff_login">Xodimlar (Admin) boshqaruvi</span></a>
+            <a class="admin-secret-link" onclick="handleAdminClick()" style="color:#38bdf8; cursor:pointer;">🔒 <span data-i18n="staff_login">Xodimlar (Admin) boshqaruvi</span></a>
           </div>
         </footer>
       </div>
@@ -894,7 +830,7 @@
         </div>
       </div>
 
-      <!-- 5. SHAXSIY KABINET -->
+      <!-- 5. SHAXSIY KABINET (TO'LIQ PROFIL TAHRIRLASH BILAN) -->
       <div id="view-cabinet" class="view-content">
         <div class="profile-grid">
           <div>
@@ -912,17 +848,38 @@
               </div>
               <div class="med-id-meta">
                 <div><span>Qon guruhi</span><strong id="cardUserBlood">Kiritilmagan</strong></div>
-                <div><span>Ro‘yxatdan o‘tgan</span><strong id="cardUserCreated">-</strong></div>
+                <div><span>Tug‘ilgan sana</span><strong id="cardUserBirth">Kiritilmagan</strong></div>
                 <div style="grid-column: span 2;"><span>Allergiya / Tibbiy eslatma</span><strong id="cardUserAllergy">Yo‘q</strong></div>
               </div>
             </div>
 
+            <!-- TO'LIQ SHAXSIY PROFIL TAHRIRLASH PANELI -->
             <div class="booking-pod" style="margin-top: 16px; padding: 18px;">
-              <h4 style="font-size: 0.95rem; font-weight: 800; margin-bottom: 12px;">⚙️ Tibbiy Ma’lumotlarni Tahrirlash</h4>
+              <h4 style="font-size: 0.96rem; font-weight: 800; margin-bottom: 12px; color: var(--text-heading);">✏️ Shaxsiy va Tibbiy Ma’lumotlarni Tahrirlash</h4>
+              
+              <div style="margin-bottom: 10px;">
+                <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); display:block; margin-bottom:3px;">Ism va Familiyangiz *</label>
+                <input type="text" id="profNameInput" class="booking-input" style="padding: 9px 12px;" placeholder="Ism va Familiya" />
+              </div>
+
               <div class="form-two-col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
                 <div>
-                  <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted);">Qon guruhi</label>
-                  <select id="profBloodInput" class="booking-input" style="padding: 8px;">
+                  <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); display:block; margin-bottom:3px;">Telefon raqam *</label>
+                  <div class="phone-field-wrap">
+                    <span class="phone-prefix-tag" style="padding: 9px 8px;">+998</span>
+                    <input type="tel" id="profPhoneInput" class="phone-digits-input" style="padding: 9px 8px;" maxlength="12" inputmode="numeric" oninput="formatUzPhoneInput(this)" />
+                  </div>
+                </div>
+                <div>
+                  <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); display:block; margin-bottom:3px;">Email manzil</label>
+                  <input type="email" id="profEmailInput" class="booking-input" style="padding: 9px 12px;" placeholder="example@mail.com" />
+                </div>
+              </div>
+
+              <div class="form-two-col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                <div>
+                  <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); display:block; margin-bottom:3px;">Qon guruhi</label>
+                  <select id="profBloodInput" class="booking-input" style="padding: 9px 10px;">
                     <option value="Kiritilmagan">Tanlang</option>
                     <option value="O (I) Rh+">O (I) Rh+</option>
                     <option value="A (II) Rh+">A (II) Rh+</option>
@@ -932,22 +889,24 @@
                   </select>
                 </div>
                 <div>
-                  <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted);">Telefon raqam</label>
-                  <div class="phone-field-wrap">
-                    <span class="phone-prefix-tag" style="padding: 8px;">+998</span>
-                    <input type="tel" id="profPhoneInput" class="phone-digits-input" style="padding: 8px;" maxlength="12" inputmode="numeric" oninput="formatUzPhoneInput(this)" />
-                  </div>
+                  <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); display:block; margin-bottom:3px;">Tug‘ilgan sana</label>
+                  <input type="date" id="profBirthInput" class="booking-input" style="padding: 9px 10px;" />
                 </div>
               </div>
-              <div style="margin-bottom: 12px;">
-                <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted);">Allergiya yoki surunkali kasallik eslatmasi</label>
-                <input type="text" id="profAllergyInput" class="booking-input" style="padding: 8px;" placeholder="Masalan: Penitsillinga allergiya..." />
+
+              <div style="margin-bottom: 10px;">
+                <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); display:block; margin-bottom:3px;">Allergiya yoki surunkali kasallik eslatmasi</label>
+                <input type="text" id="profAllergyInput" class="booking-input" style="padding: 9px 12px;" placeholder="Masalan: Penitsillinga allergiya..." />
               </div>
-              <div style="display: flex; gap: 8px;">
-                <button class="btn-pill btn-pill-blue" style="flex: 1;" onclick="savePatientProfileMeta()">Saqlash</button>
-                <button class="btn-pill btn-pill-outline" style="color: #b91c1c; border-color: #fecaca;" onclick="logoutPatient()">
-                  <i data-lucide="log-out" style="width: 14px;"></i> Akauntdan chiqish
-                </button>
+
+              <div style="margin-bottom: 14px;">
+                <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); display:block; margin-bottom:3px;">Yangi parol (o‘zgartirmoqchi bo‘lsangiz kiriting)</label>
+                <input type="password" id="profNewPassInput" class="booking-input" style="padding: 9px 12px;" placeholder="Bo‘sh qoldirsangiz eski parol qoladi" />
+              </div>
+
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn-pill btn-pill-blue" style="flex: 1; padding: 11px;" onclick="savePatientProfileMeta()">💾 O‘zgarishlarni Saqlash</button>
+                <button class="btn-pill btn-pill-outline" style="color: #b91c1c; border-color: #fecaca; padding: 11px;" onclick="logoutPatient()">🚪 Chiqish</button>
               </div>
             </div>
           </div>
@@ -969,12 +928,12 @@
             </div>
 
             <div class="section-title">
-              <div class="section-title-left"><i data-lucide="calendar-clock" style="color: var(--primary); width: 19px;"></i> Mening Navbatlarim va Holati</div>
+              <div class="section-title-left">📅 Mening Navbatlarim va Holati</div>
             </div>
             <div class="cabinet-card-list" id="patientBookingsCards"></div>
 
             <div class="section-title">
-              <div class="section-title-left"><i data-lucide="flask-conical" style="color: var(--primary); width: 19px;"></i> Mening Tahlil Natijalarim</div>
+              <div class="section-title-left">🧪 Mening Tahlil Natijalarim</div>
             </div>
             <div class="cabinet-card-list" id="patientLabsCards"></div>
           </div>
@@ -986,39 +945,39 @@
         <div class="admin-dashboard">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
             <div>
-              <h2 style="font-size: 1.4rem; color: var(--text-heading); font-weight: 900;">Humo Med — Pro CRM & Admin Boshqaruv Markazi</h2>
-              <p style="font-size: 0.8rem; color: var(--text-muted);">Barcha parollar SHA-256 kriptografik xesh orqali himoyalangan.</p>
+              <h2 style="font-size: 1.35rem; color: var(--text-heading); font-weight: 900;">Humo Med — Pro CRM & Admin Boshqaruv Markazi</h2>
+              <p style="font-size: 0.78rem; color: var(--text-muted);">Barcha sozlamalar va foydalanuvchilar Firebase bulutida real vaqtda ishlaydi.</p>
             </div>
             <div style="display: flex; gap: 8px;">
-              <button class="btn-add" style="background:#059669;" onclick="fetchFullDatabaseFromServer()"><i data-lucide="refresh-cw" style="width:14px;"></i> Sinxronlash</button>
+              <button class="btn-add" style="background:#059669;" onclick="fetchFullDatabaseFromServer()">🔄 Sinxronlash</button>
               <button class="action-btn btn-delete" style="padding: 9px 14px;" onclick="adminLogout()">Adminlikdan chiqish</button>
             </div>
           </div>
 
           <div class="admin-kpi-grid">
             <div class="kpi-card">
-              <div class="kpi-icon"><i data-lucide="calendar-check-2"></i></div>
+              <div class="kpi-icon">📅</div>
               <div>
                 <h4 id="kpiTotalBookings">0</h4>
                 <p>Jami navbatlar (<span id="kpiPendingBookings">0</span> faol)</p>
               </div>
             </div>
             <div class="kpi-card">
-              <div class="kpi-icon" style="background:#dcfce7; color:#15803d;"><i data-lucide="users"></i></div>
+              <div class="kpi-icon" style="background:#dcfce7; color:#15803d;">👥</div>
               <div>
                 <h4 id="kpiTotalUsers">0</h4>
                 <p>Ro‘yxatdan o‘tgan bemorlar</p>
               </div>
             </div>
             <div class="kpi-card">
-              <div class="kpi-icon" style="background:#fef3c7; color:#b45309;"><i data-lucide="file-spreadsheet"></i></div>
+              <div class="kpi-icon" style="background:#fef3c7; color:#b45309;">🧪</div>
               <div>
                 <h4 id="kpiTotalLabs">0</h4>
                 <p>Yuklangan tahlillar</p>
               </div>
             </div>
             <div class="kpi-card">
-              <div class="kpi-icon" style="background:#f3e8ff; color:#7e22ce;"><i data-lucide="wallet"></i></div>
+              <div class="kpi-icon" style="background:#f3e8ff; color:#7e22ce;">💳</div>
               <div>
                 <h4 id="kpiEstRevenue">0 so‘m</h4>
                 <p>Taxminiy qabullar hajmi</p>
@@ -1027,12 +986,12 @@
           </div>
 
           <div class="admin-nav">
-            <button class="admin-tab-btn active" onclick="switchAdminSection('sec-bookings')"><i data-lucide="inbox" style="width:16px;"></i> Navbatlar Boshqaruvi</button>
-            <button class="admin-tab-btn" onclick="switchAdminSection('sec-lab')"><i data-lucide="flask-conical" style="width:16px;"></i> Tahlillar</button>
-            <button class="admin-tab-btn" onclick="switchAdminSection('sec-users')"><i data-lucide="users" style="width:16px;"></i> Bemorlar (CRM)</button>
-            <button class="admin-tab-btn" onclick="switchAdminSection('sec-services')"><i data-lucide="layers" style="width:16px;"></i> Xizmatlar</button>
-            <button class="admin-tab-btn" onclick="switchAdminSection('sec-doctors')"><i data-lucide="stethoscope" style="width:16px;"></i> Shifokorlar</button>
-            <button class="admin-tab-btn" onclick="switchAdminSection('sec-settings')"><i data-lucide="shield" style="width:16px;"></i> Xavfsizlik & Bot</button>
+            <button class="admin-tab-btn active" onclick="switchAdminSection('sec-bookings', this)">📥 Navbatlar</button>
+            <button class="admin-tab-btn" onclick="switchAdminSection('sec-lab', this)">🧪 Tahlillar</button>
+            <button class="admin-tab-btn" onclick="switchAdminSection('sec-users', this)">👥 Bemorlar (CRM)</button>
+            <button class="admin-tab-btn" onclick="switchAdminSection('sec-services', this)">🩺 Xizmatlar</button>
+            <button class="admin-tab-btn" onclick="switchAdminSection('sec-doctors', this)">👨‍⚕️ Shifokorlar</button>
+            <button class="admin-tab-btn" onclick="switchAdminSection('sec-settings', this)">🤖 Bot & Xavfsizlik</button>
           </div>
 
           <div id="sec-bookings" class="admin-section active">
@@ -1045,11 +1004,11 @@
                   <option value="Tasdiqlandi">✅ Tasdiqlandi</option>
                   <option value="Yakunlandi">🏁 Yakunlandi</option>
                 </select>
-                <button class="btn-add" onclick="exportBookingsToCSV()"><i data-lucide="download" style="width:14px;"></i> Excel/CSV yuklash</button>
+                <button class="btn-add" onclick="exportBookingsToCSV()">📥 Excel/CSV</button>
               </div>
             </div>
             <table class="admin-table">
-              <thead><tr><th>Bemor</th><th>Telefon</th><th>Xizmat & Shifokor</th><th>Sana & Vaqt</th><th>Status (Holat)</th><th>Amallar</th></tr></thead>
+              <thead><tr><th>Bemor</th><th>Telefon</th><th>Xizmat & Shifokor</th><th>Sana & Vaqt</th><th>Status</th><th>Amal</th></tr></thead>
               <tbody id="adminBookingsTable"></tbody>
             </table>
           </div>
@@ -1070,7 +1029,7 @@
               <input type="text" id="adminUserSearch" class="admin-input" style="max-width: 320px;" placeholder="🔍 Bemor ismi, email yoki telefoni..." oninput="renderAdminTables()" />
             </div>
             <table class="admin-table">
-              <thead><tr><th>Tibbiy ID</th><th>F.I.SH</th><th>Tasdiqlangan Usul</th><th>Telefon / Kontakt</th><th>Qon guruhi</th><th>Parol Xeshi</th><th>Amal</th></tr></thead>
+              <thead><tr><th>Tibbiy ID</th><th>F.I.SH</th><th>Usul</th><th>Telefon / Email</th><th>Qon guruhi</th><th>Eslatma</th><th>Amal</th></tr></thead>
               <tbody id="adminUsersTable"></tbody>
             </table>
           </div>
@@ -1098,20 +1057,25 @@
           </div>
 
           <div id="sec-settings" class="admin-section">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 18px;">
               <div style="background: var(--input-bg); padding: 18px; border-radius: 16px; border: 1px solid var(--input-border);">
-                <h4 style="margin-bottom: 10px;">🔐 Admin Login va Parolni Yangilash (SHA-256)</h4>
+                <h4 style="margin-bottom: 8px;">🤖 Real Telegram Bot & Google OAuth (Firebase’da saqlanadi)</h4>
+                <p style="font-size:0.74rem; color:var(--text-muted); margin-bottom:10px;">Shu yerga Bot username va Tokeningizni kiritsangiz, barcha foydalanuvchilarning telefonida Real Telegram OTP ishlaydi:</p>
+                <label style="font-size:0.72rem; font-weight:700;">Telegram Bot Username (@ siz):</label>
+                <input type="text" id="cfgTgBotUsername" class="admin-input" style="margin-bottom: 8px;" placeholder="Masalan: HumoMed_bot" />
+                <label style="font-size:0.72rem; font-weight:700;">Telegram Bot Token:</label>
+                <input type="text" id="cfgTgBotToken" class="admin-input" style="margin-bottom: 8px;" placeholder="123456789:AAH..." />
+                <label style="font-size:0.72rem; font-weight:700;">Google Client ID (OAuth 2.0):</label>
+                <input type="text" id="cfgGoogleClientId" class="admin-input" style="margin-bottom: 12px;" placeholder="xxxx.apps.googleusercontent.com" />
+                <button class="btn-submit-3d" onclick="saveOAuthConfigToFirebase()">☁️ Firebase Bulutga Saqlash</button>
+              </div>
+
+              <div style="background: var(--input-bg); padding: 18px; border-radius: 16px; border: 1px solid var(--input-border);">
+                <h4 style="margin-bottom: 10px;">🔐 Admin Login va Parolni Yangilash</h4>
                 <input type="password" id="oldAdminPass" class="admin-input" style="margin-bottom: 10px;" placeholder="Joriy parol">
                 <input type="text" id="newAdminLogin" class="admin-input" style="margin-bottom: 10px;" placeholder="Yangi Login">
                 <input type="password" id="newAdminPass" class="admin-input" style="margin-bottom: 12px;" placeholder="Yangi Parol">
                 <button class="btn-submit-3d" onclick="updateAdminAuth()">Xeshlab Saqlash</button>
-              </div>
-              <div style="background: var(--input-bg); padding: 18px; border-radius: 16px; border: 1px solid var(--input-border);">
-                <h4 style="margin-bottom: 10px;">🤖 Telegram OTP Bot & Google OAuth Sozlamasi</h4>
-                <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:10px;">Telegram Bot Token kiritilsa, 6 xonali kod to‘g‘ridan-to‘g‘ri bemorning Telegramiga boradi:</p>
-                <input type="text" id="cfgTgBotToken" class="admin-input" style="margin-bottom: 10px;" placeholder="Telegram Bot Token (123456:ABC-DEF...)" />
-                <input type="text" id="cfgGoogleClientId" class="admin-input" style="margin-bottom: 12px;" placeholder="Google Client ID (....apps.googleusercontent.com)" />
-                <button class="btn-submit-3d" onclick="saveOAuthConfig()">Integratsiyani Saqlash</button>
               </div>
             </div>
           </div>
@@ -1121,75 +1085,71 @@
     </div>
   </div>
 
-  <!-- MOBIL PASTKI NAVIGATSIYA PANELI -->
+  <!-- MOBIL PASTKI NAVIGATSIYA PANELI (HAR DOIM TUSHUNARLI MATN BILAN) -->
   <nav class="mobile-bottom-nav" id="mobileAppBar" style="display: none;">
     <button class="mob-nav-item active" id="mob-home" onclick="switchNavView('home')">
-      <i data-lucide="home" style="width: 20px; height: 20px;"></i>
+      <i data-lucide="home" style="width: 19px; height: 19px;"></i>
       <span data-i18n="nav_home">Asosiy</span>
     </button>
     <button class="mob-nav-item" id="mob-services" onclick="switchNavView('services')">
-      <i data-lucide="activity" style="width: 20px; height: 20px;"></i>
+      <i data-lucide="activity" style="width: 19px; height: 19px;"></i>
       <span data-i18n="nav_services">Xizmatlar</span>
     </button>
     <button class="mob-nav-item" id="mob-doctors" onclick="switchNavView('doctors')">
-      <i data-lucide="stethoscope" style="width: 20px; height: 20px;"></i>
+      <i data-lucide="stethoscope" style="width: 19px; height: 19px;"></i>
       <span data-i18n="nav_doctors">Shifokorlar</span>
     </button>
     <button class="mob-nav-item" id="mob-lab" onclick="switchNavView('lab')">
-      <i data-lucide="file-check-2" style="width: 20px; height: 20px;"></i>
+      <i data-lucide="file-check-2" style="width: 19px; height: 19px;"></i>
       <span data-i18n="nav_lab">Tahlillar</span>
     </button>
     <button class="mob-nav-item" id="mob-cabinet" onclick="switchNavView('cabinet')">
-      <i data-lucide="user" style="width: 20px; height: 20px;"></i>
+      <i data-lucide="user" style="width: 19px; height: 19px;"></i>
       <span id="mobCabinetText">Kabinet</span>
     </button>
   </nav>
 
   <!-- ==========================================================
-       YANGI: TELEGRAMGA 6 XONALI KOD BORISH ORQALI KIRISH MODALI (2 BOSQICHLI)
+       REAL TELEGRAM KOD (OTP) MODALI (NIKNEYMSIZ — FAQAT ISM VA +998 RAQAM)
        ========================================================== -->
   <div class="modal-overlay" id="telegramAuthModal">
     <div class="modal-box">
-      <button class="modal-close" onclick="closeModals()"><i data-lucide="x" style="width: 16px;"></i></button>
+      <button class="modal-close" onclick="closeModals()">✕</button>
 
-      <!-- 1-BOSQICH: MA'LUMOT KIRITISH VA KOD YUBORISH -->
+      <!-- 1-BOSQICH: FAQAT ISM VA TELEFON KIRITISH -->
       <div id="tgOtpStep1">
         <div style="text-align: center; margin-bottom: 16px;">
-          <div style="width: 54px; height: 54px; border-radius: 50%; background: #0088cc; color: #fff; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px; box-shadow: 0 8px 20px rgba(0,136,204,0.35);">
-            <i data-lucide="send" style="width: 24px; height: 24px;"></i>
-          </div>
-          <h3 style="font-size: 1.22rem; font-weight: 900;">Telegram Kod (OTP) orqali Kirish</h3>
-          <p style="font-size: 0.78rem; color: var(--text-muted);">Ma’lumotlaringizni kiriting — Telegramingizga <b>6 xonali tasdiqlash kodi</b> yuboriladi:</p>
+          <div style="width: 54px; height: 54px; border-radius: 50%; background: #0088cc; color: #fff; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px; font-size: 1.4rem;">✈️</div>
+          <h3 style="font-size: 1.2rem; font-weight: 900;">Telegram orqali Ro‘yxatdan O‘tish</h3>
+          <p style="font-size: 0.78rem; color: var(--text-muted);">Ismingiz va telefon raqamingizni kiriting (nikneym shart emas):</p>
         </div>
         <form onsubmit="event.preventDefault(); sendTelegramOtpCode();">
-          <div style="margin-bottom: 10px;">
-            <label style="font-size:0.74rem; font-weight:700; display:block; margin-bottom:4px;">Ism va Familiyangiz *</label>
-            <input type="text" id="tgFullName" class="admin-input" placeholder="Masalan: Sardor Aliyev" required />
+          <div style="margin-bottom: 12px;">
+            <label style="font-size:0.75rem; font-weight:700; display:block; margin-bottom:4px;">Ism va Familiyangiz *</label>
+            <input type="text" id="tgFullName" class="admin-input" placeholder="Masalan: Sardor Aliyev" minlength="3" required />
           </div>
-          <div style="margin-bottom: 10px;">
-            <label style="font-size:0.74rem; font-weight:700; display:block; margin-bottom:4px;">Telegram @username yoki Chat ID *</label>
-            <input type="text" id="tgUsername" class="admin-input" placeholder="@username yoki Telegram ID" required />
-          </div>
-          <div style="margin-bottom: 14px;">
-            <label style="font-size:0.74rem; font-weight:700; display:block; margin-bottom:4px;">Telefon raqamingiz *</label>
+          <div style="margin-bottom: 16px;">
+            <label style="font-size:0.75rem; font-weight:700; display:block; margin-bottom:4px;">Telefon raqamingiz *</label>
             <div class="phone-field-wrap">
               <span class="phone-prefix-tag">🇺🇿 +998</span>
               <input type="tel" id="tgPhone" class="phone-digits-input" placeholder="90 123 45 67" maxlength="12" inputmode="numeric" oninput="formatUzPhoneInput(this)" required />
             </div>
           </div>
-          <button type="submit" class="btn-submit-3d" style="background: #0088cc;">📲 Telegramga Tasdiqlash Kodini Yuborish</button>
+          <button type="submit" class="btn-submit-3d" style="background: #0088cc;">📲 Telegram Botdan Kod Olish →</button>
         </form>
       </div>
 
-      <!-- 2-BOSQICH: 6 XONALI KODNI KIRITISH VA TASDIQLASH -->
+      <!-- 2-BOSQICH: TELEGRAM BOTDAN KOD OLISH VA 6 XONALI KODNI TASDIQLASH -->
       <div id="tgOtpStep2" style="display: none; text-align: center;">
-        <div style="width: 52px; height: 52px; border-radius: 50%; background: rgba(16,185,129,0.15); color: #10b981; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px;">
-          <i data-lucide="shield-check" style="width: 26px; height: 26px;"></i>
-        </div>
-        <h3 style="font-size: 1.2rem; font-weight: 900;">6 Xonali Kodni Kiriting</h3>
-        <p style="font-size: 0.78rem; color: var(--text-muted); margin-top: 4px;">
-          <b id="tgTargetDisplay" style="color:#0088cc;"></b> manziliga va Firebase OTP tarmog‘iga maxfiy kod yuborildi.
+        <div style="width: 50px; height: 50px; border-radius: 50%; background: rgba(0,136,204,0.12); color: #0088cc; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px; font-size: 1.3rem;">🔐</div>
+        <h3 style="font-size: 1.15rem; font-weight: 900;">Telegram Bot orqali Tasdiqlash</h3>
+        <p style="font-size: 0.77rem; color: var(--text-muted); margin: 6px 0 12px; line-height: 1.45;">
+          Quyidagi ko‘k tugmani bosib <b>Telegram botimizga</b> kiring va <b>«START»</b> tugmasini bosing — bot sizga 6 xonali kodni beradi:
         </p>
+
+        <a id="tgBotDeepLinkBtn" href="https://t.me/" target="_blank" class="btn-submit-3d" style="background: #0088cc; display: inline-flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; margin-bottom: 12px;" onclick="pollTelegramBotUpdates()">
+          ✈️ Telegram Botni Ochish va Kod Olish
+        </a>
 
         <div class="otp-boxes-row" id="otpInputsContainer">
           <input type="text" class="otp-digit-box" maxlength="1" inputmode="numeric" oninput="handleOtpBoxInput(this, 0)" onkeydown="handleOtpKeyDown(event, 0)" />
@@ -1200,43 +1160,39 @@
           <input type="text" class="otp-digit-box" maxlength="1" inputmode="numeric" oninput="handleOtpBoxInput(this, 5)" onkeydown="handleOtpKeyDown(event, 5)" />
         </div>
 
-        <div style="font-size: 0.76rem; color: var(--text-muted); margin-bottom: 14px;">
-          Kod amal qilish muddati: <b id="otpTimerText" style="color:var(--primary);">02:00</b>
+        <div style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 12px;">
+          Holat: <b id="otpStatusLiveText" style="color:var(--primary);">Botdan tasdiqlash kutilmoqda...</b> (<span id="otpTimerText">03:00</span>)
         </div>
 
-        <button type="button" class="btn-submit-3d" style="background: #0088cc; margin-bottom: 8px;" onclick="verifyTelegramOtpCode()">✅ Kodni Tasdiqlash va Kirish</button>
-        <button type="button" class="btn-pill btn-pill-outline" style="width:100%;" onclick="resetTelegramOtpModal()">← Orqaga qaytish / Qayta yuborish</button>
+        <button type="button" class="btn-submit-3d" style="margin-bottom: 8px;" onclick="verifyTelegramOtpCode()">✅ Kodni Tasdiqlash va Kirish</button>
+        <button type="button" class="btn-pill btn-pill-outline" style="width:100%;" onclick="resetTelegramOtpModal()">← Orqaga qaytish</button>
       </div>
     </div>
   </div>
 
-  <!-- ==========================================================
-       YANGI: GOOGLE OAUTH 2.0 AKKAUNT TANLASH VA TASDIQLASH MODALI
-       ========================================================== -->
+  <!-- GOOGLE OAUTH 2.0 MODALI -->
   <div class="modal-overlay" id="googleAuthModal">
     <div class="modal-box">
-      <button class="modal-close" onclick="closeModals()"><i data-lucide="x" style="width: 16px;"></i></button>
+      <button class="modal-close" onclick="closeModals()">✕</button>
       <div style="text-align: center; margin-bottom: 14px;">
         <svg width="36" height="36" viewBox="0 0 24 24" style="margin-bottom: 6px;"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.8C6.2 7.2 8.9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.6l3.7 2.9c2.2-2 3.7-5 3.7-8.7z"/><path fill="#FBBC05" d="M5.3 14.8c-.2-.8-.4-1.6-.4-2.5s.2-1.7.4-2.5L1.6 7C.6 9 0 11.2 0 13.5s.6 4.5 1.6 6.5l3.7-2.9z"/><path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5l-3.7 2.8C3.5 21.4 7.4 24 12 24z"/></svg>
         <h3 style="font-size: 1.2rem; font-weight: 900;">Google Akkaunt orqali Kirish</h3>
         <p style="font-size: 0.78rem; color: var(--text-muted);">Humo Med tizimiga xavfsiz kirish uchun Google hisobingizni tanlang:</p>
       </div>
 
-      <!-- Rasmiy Google Sign-In konteyneri -->
       <div id="googleOfficialBtnWrap" style="display:flex; justify-content:center; margin-bottom:12px;"></div>
-
       <div id="savedGoogleAccountsList" style="margin-bottom: 12px;"></div>
 
-      <div class="divider-line"><span>YANGI GOOGLE AKKAUNTNI BOG‘LASH</span></div>
+      <div class="divider-line"><span>GOOGLE HISOBNI BOG‘LASH</span></div>
 
       <form onsubmit="event.preventDefault(); confirmGoogleAuth();">
-        <input type="text" id="ggFullName" class="admin-input" style="margin-bottom: 10px;" placeholder="Google hisobdagi Ism va Familiyangiz *" required />
+        <input type="text" id="ggFullName" class="admin-input" style="margin-bottom: 10px;" placeholder="Ism va Familiyangiz *" minlength="3" required />
         <input type="email" id="ggEmail" class="admin-input" style="margin-bottom: 10px;" placeholder="Gmail manzilingiz (example@gmail.com) *" required />
         <div class="phone-field-wrap" style="margin-bottom: 14px;">
           <span class="phone-prefix-tag">🇺🇿 +998</span>
           <input type="tel" id="ggPhone" class="phone-digits-input" placeholder="90 123 45 67" maxlength="12" inputmode="numeric" oninput="formatUzPhoneInput(this)" required />
         </div>
-        <button type="submit" class="btn-submit-3d">🛡️ Google Akkauntni Tasdiqlash va Kirish</button>
+        <button type="submit" class="btn-submit-3d">🛡️ Google Akkaunt bilan Davom Etish</button>
       </form>
     </div>
   </div>
@@ -1244,9 +1200,9 @@
   <!-- ADMIN LOGIN VA INFO MODALLARI -->
   <div class="modal-overlay" id="loginModal">
     <div class="modal-box">
-      <button class="modal-close" onclick="closeModals()"><i data-lucide="x" style="width: 16px;"></i></button>
+      <button class="modal-close" onclick="closeModals()">✕</button>
       <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 6px;">🔑 Xodimlar (Admin) Paneliga Kirish</h3>
-      <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:14px;">SHA-256 va Brute-Force himoyasi yoqilgan.</p>
+      <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:14px;">Standart login: <b>admin</b> | parol: <b>humo2026</b></p>
       <form onsubmit="event.preventDefault(); verifyAdminLogin();">
         <input type="text" id="adminUser" class="admin-input" style="margin-bottom: 10px;" placeholder="Admin Login" required />
         <input type="password" id="adminPass" class="admin-input" style="margin-bottom: 14px;" placeholder="Admin Parol" required />
@@ -1257,7 +1213,7 @@
 
   <div class="modal-overlay" id="labEditModal">
     <div class="modal-box">
-      <button class="modal-close" onclick="closeModals()"><i data-lucide="x" style="width: 16px;"></i></button>
+      <button class="modal-close" onclick="closeModals()">✕</button>
       <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 12px;">Yangi Tahlil Qo‘shish</h3>
       <input type="text" id="labCodeInputModal" class="admin-input" style="margin-bottom:8px; text-transform:uppercase;" placeholder="Kod: HM-0088" />
       <input type="text" id="labPatientModal" class="admin-input" style="margin-bottom:8px;" placeholder="Bemor F.I.SH" />
@@ -1271,7 +1227,7 @@
 
   <div class="modal-overlay" id="serviceEditModal">
     <div class="modal-box">
-      <button class="modal-close" onclick="closeModals()"><i data-lucide="x" style="width: 16px;"></i></button>
+      <button class="modal-close" onclick="closeModals()">✕</button>
       <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 12px;">Xizmat Qo‘shish / Tahrirlash</h3>
       <input type="hidden" id="editServiceId" />
       <input type="url" id="serviceImageUrl" class="admin-input" style="margin-bottom:8px;" placeholder="Rasm URL (ixtiyoriy)" />
@@ -1284,7 +1240,7 @@
 
   <div class="modal-overlay" id="doctorEditModal">
     <div class="modal-box">
-      <button class="modal-close" onclick="closeModals()"><i data-lucide="x" style="width: 16px;"></i></button>
+      <button class="modal-close" onclick="closeModals()">✕</button>
       <h3 style="font-size: 1.15rem; font-weight: 800; margin-bottom: 12px;">Shifokor Qo‘shish / Tahrirlash</h3>
       <input type="hidden" id="editDoctorId" />
       <input type="text" id="docNameInput" class="admin-input" style="margin-bottom:8px;" placeholder="Ism-familiya" />
@@ -1296,7 +1252,7 @@
 
   <div class="modal-overlay" id="infoModal">
     <div class="modal-box">
-      <button class="modal-close" onclick="closeModals()"><i data-lucide="x" style="width: 16px;"></i></button>
+      <button class="modal-close" onclick="closeModals()">✕</button>
       <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 10px;" id="infoModalTitle">Ma’lumot</h3>
       <div style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 16px;" id="infoModalBody"></div>
       <button class="btn-submit-3d" onclick="closeModals()">Tushunarli</button>
@@ -1304,13 +1260,11 @@
   </div>
 
   <!-- ONLAYN CHAT VIDJETI -->
-  <button class="chat-fab" id="chatFabBtn" onclick="toggleChatWidget()" title="Onlayn Yordamchi">
-    <i data-lucide="message-circle" style="width: 24px; height: 24px;"></i>
-  </button>
+  <button class="chat-fab" id="chatFabBtn" onclick="toggleChatWidget()" title="Onlayn Yordamchi">💬</button>
   <div class="chat-window" id="chatWindow">
     <div class="chat-header">
       <span>🩺 Humo Med Yordamchi</span>
-      <button onclick="toggleChatWidget()" style="background:none; border:none; color:#fff; cursor:pointer;"><i data-lucide="x" style="width:18px;"></i></button>
+      <button onclick="toggleChatWidget()" style="background:none; border:none; color:#fff; cursor:pointer;">✕</button>
     </div>
     <div class="chat-messages" id="chatMessages">
       <div class="chat-bubble bot">Assalomu alaykum! Savolingizni yozing yoki pastdagi tugmalardan foydalaning.</div>
@@ -1322,90 +1276,98 @@
     </div>
     <div class="chat-input-row">
       <input type="text" id="chatInput" class="booking-input" style="padding: 8px 10px;" placeholder="Xabar yozing..." onkeydown="if(event.key==='Enter') sendChatMessage();" />
-      <button class="btn-pill btn-pill-blue" style="padding: 8px 12px;" onclick="sendChatMessage()"><i data-lucide="send" style="width:14px;"></i></button>
+      <button class="btn-pill btn-pill-blue" style="padding: 8px 12px;" onclick="sendChatMessage()">➤</button>
     </div>
   </div>
 
   <script>
-    // ====================================================
-    // 1. KRIPTOGRAFIK XAVFSIZLIK MODULI (SHA-256 + SHIFRLASH + BRUTE-FORCE HIMOYA)
-    // ====================================================
+    function safeRenderIcons() {
+      try {
+        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+          window.lucide.createIcons();
+        }
+      } catch (e) {}
+    }
+
+    // 1. KRIPTOGRAFIK XAVFSIZLIK MODULI (SHA-256)
     const SECURITY_SALT = "HUMOMED_SEC_2026_SALT_KEY";
 
-    // Parollarni SHA-256 algoritmida bir tomonlama xeshlash
     async function hashPasswordSHA256(plainText) {
-      const textWithSalt = plainText + "::" + SECURITY_SALT;
-      const msgBuffer = new TextEncoder().encode(textWithSalt);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      const textWithSalt = String(plainText) + "::" + SECURITY_SALT;
+      try {
+        if (window.crypto && window.crypto.subtle) {
+          const msgBuffer = new TextEncoder().encode(textWithSalt);
+          const hashBuffer = await window.crypto.subtle.digest('SHA-256', msgBuffer);
+          const hashArray = Array.from(new Uint8Array(hashBuffer));
+          return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+      } catch (e) {}
+      let h1 = 0xdeadbeef, h2 = 0x41c6ce57;
+      for (let i = 0, ch; i < textWithSalt.length; i++) {
+        ch = textWithSalt.charCodeAt(i);
+        h1 = Math.imul(h1 ^ ch, 2654435761);
+        h2 = Math.imul(h2 ^ ch, 1597334677);
+      }
+      h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+      h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+      return (h2 >>> 0).toString(16).padStart(8, '0') + (h1 >>> 0).toString(16).padStart(8, '0');
     }
 
-    // LocalStorage sessiyasini shifrlash va deshifrlash
-    function encryptSessionData(obj) {
-      try {
-        const jsonStr = encodeURIComponent(JSON.stringify(obj));
-        let xorOut = '';
-        for (let i = 0; i < jsonStr.length; i++) {
-          xorOut += String.fromCharCode(jsonStr.charCodeAt(i) ^ SECURITY_SALT.charCodeAt(i % SECURITY_SALT.length));
-        }
-        return btoa(xorOut);
-      } catch (e) { return ''; }
+    function saveSafeSession(obj) {
+      try { localStorage.setItem('humo_active_patient_v3', JSON.stringify(obj)); } catch (e) {}
     }
 
-    function decryptSessionData(cipherText) {
-      if (!cipherText) return null;
+    function loadSafeSession() {
       try {
-        const raw = atob(cipherText);
-        let plain = '';
-        for (let i = 0; i < raw.length; i++) {
-          plain += String.fromCharCode(raw.charCodeAt(i) ^ SECURITY_SALT.charCodeAt(i % SECURITY_SALT.length));
-        }
-        return JSON.parse(decodeURIComponent(plain));
+        const raw = localStorage.getItem('humo_active_patient_v3') || localStorage.getItem('humo_active_patient_v2');
+        return raw ? JSON.parse(raw) : null;
       } catch (e) { return null; }
     }
 
-    // Brute-force (parolni ketma-ket buzishga urinish) himoyasi
     function checkRateLimitLock() {
-      const lockUntil = parseInt(localStorage.getItem('humo_lock_until') || '0', 10);
-      if (Date.now() < lockUntil) {
-        const secLeft = Math.ceil((lockUntil - Date.now()) / 1000);
-        showToast(`🛡️ Xavfsizlik blokirovkasi! ${secLeft} soniyadan so‘ng urinib ko‘ring.`);
-        return true;
-      }
+      try {
+        const lockUntil = parseInt(localStorage.getItem('humo_lock_until') || '0', 10);
+        if (Date.now() < lockUntil) {
+          const secLeft = Math.ceil((lockUntil - Date.now()) / 1000);
+          showToast(`🛡️ Xavfsizlik blokirovkasi! ${secLeft} soniyadan so‘ng urinib ko‘ring.`);
+          return true;
+        }
+      } catch (e) {}
       return false;
     }
 
     function recordFailedAuthAttempt() {
-      let count = parseInt(localStorage.getItem('humo_fail_count') || '0', 10) + 1;
-      localStorage.setItem('humo_fail_count', String(count));
-      if (count >= 5) {
-        localStorage.setItem('humo_lock_until', String(Date.now() + 60000));
-        localStorage.setItem('humo_fail_count', '0');
-        showToast("🛡️ 5 marta xato urinish! Tizim 60 soniyaga bloklandi.");
-      }
+      try {
+        let count = parseInt(localStorage.getItem('humo_fail_count') || '0', 10) + 1;
+        localStorage.setItem('humo_fail_count', String(count));
+        if (count >= 5) {
+          localStorage.setItem('humo_lock_until', String(Date.now() + 60000));
+          localStorage.setItem('humo_fail_count', '0');
+          showToast("🛡️ 5 marta xato urinish! Tizim 60 soniyaga bloklandi.");
+        }
+      } catch (e) {}
     }
 
     function resetFailedAuthAttempts() {
-      localStorage.removeItem('humo_fail_count');
-      localStorage.removeItem('humo_lock_until');
+      try {
+        localStorage.removeItem('humo_fail_count');
+        localStorage.removeItem('humo_lock_until');
+      } catch (e) {}
     }
 
     function checkPasswordStrength(val) {
       const fill = document.getElementById('passStrengthFill');
       if (!fill) return;
       let score = 0;
-      if (val.length >= 6) score += 35;
+      if (val.length >= 6) score += 40;
       if (val.length >= 8) score += 25;
-      if (/[A-Z]/.test(val) || /\d/.test(val)) score += 25;
+      if (/[A-Z]/.test(val) || /\d/.test(val)) score += 20;
       if (/[^A-Za-z0-9]/.test(val)) score += 15;
       fill.style.width = Math.min(100, score) + '%';
       fill.style.background = score < 40 ? '#ef4444' : (score < 75 ? '#f59e0b' : '#10b981');
     }
 
-    // ====================================================
     // 2. AVTOMATIK +998 TELEFON FORMATLASH
-    // ====================================================
     function formatUzPhoneInput(inputEl) {
       let digits = inputEl.value.replace(/\D/g, '');
       if (digits.startsWith('998') && digits.length > 9) digits = digits.slice(3);
@@ -1437,10 +1399,11 @@
     }
 
     // ====================================================
-    // 3. TELEGRAM 6 XONALI KOD (OTP) TIZIMI
+    // 3. REAL TELEGRAM BOT OTP TIZIMI (NIKNEYMSIZ & DEMO BANNERSIZ)
     // ====================================================
     let pendingTelegramOtp = null;
     let otpTimerInterval = null;
+    let otpFirebasePollInterval = null;
 
     function openTelegramOtpModal() {
       resetTelegramOtpModal();
@@ -1449,74 +1412,110 @@
 
     function resetTelegramOtpModal() {
       clearInterval(otpTimerInterval);
+      clearInterval(otpFirebasePollInterval);
       document.getElementById('tgOtpStep1').style.display = 'block';
       document.getElementById('tgOtpStep2').style.display = 'none';
-      document.getElementById('tgPushBanner').style.display = 'none';
       document.querySelectorAll('.otp-digit-box').forEach(b => b.value = '');
     }
 
     async function sendTelegramOtpCode() {
       const name = document.getElementById('tgFullName').value.trim();
-      let tgUser = document.getElementById('tgUsername').value.trim();
       const phone = getFullUzPhone('tgPhone');
 
-      if (!name) return showToast("⚠️ Ism va familiyangizni kiriting!");
-      if (!tgUser) return showToast("⚠️ Telegram @username yoki ID kiriting!");
+      if (name.length < 3) return showToast("⚠️ Ism va familiyangizni to‘liq kiriting!");
       if (!phone) return showToast("⚠️ Telefon raqamni 9 ta raqam bilan to‘liq kiriting!");
 
-      if (!/^\d+$/.test(tgUser) && !tgUser.startsWith('@')) tgUser = '@' + tgUser;
-
-      // 6 xonali kriptografik tasodifiy kod yaratish
-      const randomArr = new Uint32Array(1);
-      crypto.getRandomValues(randomArr);
-      const otpCode = String(100000 + (randomArr[0] % 900000));
+      const cleanDigits = phone.replace(/\D/g, ''); // 998901234567
+      const otpCode = String(Math.floor(100000 + Math.random() * 900000));
       const codeHash = await hashPasswordSHA256(otpCode);
 
       pendingTelegramOtp = {
-        name, tgUser, phone, codeHash, plainCodeForDemo: otpCode,
-        expiresAt: Date.now() + 120000
+        name, phone, cleanDigits, otpCode, codeHash,
+        expiresAt: Date.now() + 180000
       };
 
-      // 1) Firebase `otp_requests` bo'limiga yozish (Telegram bot shu yerdan o'qib yuborishi mumkin)
+      // 1) Firebase `otp_requests/{cleanDigits}` ga yozish (Serverdagi Python bot yoki Bot API o'qishi uchun)
       try {
-        const cleanDigits = phone.replace(/\D/g, '');
         await fetch(`${FIREBASE_DB_URL}/otp_requests/${cleanDigits}.json`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            name, telegram: tgUser, phone, otpCode,
-            createdAt: new Date().toISOString(), status: "pending"
+            name, phone, cleanDigits, otpCode, codeHash,
+            status: "waiting_bot_start",
+            createdAt: new Date().toISOString()
           })
         });
       } catch (e) {}
 
-      // 2) Agar Admin panelda Telegram Bot Token kiritilgan bo'lsa va foydalanuvchi Chat ID yozgan bo'lsa, Bot API orqali bevosita yuborish
-      const botToken = localStorage.getItem('humo_tg_bot_token') || '';
-      if (botToken && /^\d+$/.test(tgUser)) {
-        try {
-          await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              chat_id: tgUser,
-              text: `🏥 Humo Med Klinikasi\n\nSizning tasdiqlash kodingiz: ${otpCode}\nKod 2 daqiqa davomida amal qiladi.`
-            })
-          });
-        } catch (err) {}
-      }
+      // 2) Telegram Bot Deep-Link tayyorlash (`https://t.me/{botUsername}?start=otp_{cleanDigits}`)
+      const botUsername = (DB.config?.tgBotUsername || localStorage.getItem('humo_tg_bot_username') || 'HumoMed_bot').replace('@', '').trim();
+      const deepLinkUrl = `https://t.me/${botUsername}?start=otp_${cleanDigits}`;
+      const linkBtn = document.getElementById('tgBotDeepLinkBtn');
+      if (linkBtn) linkBtn.href = deepLinkUrl;
 
-      // 2-bosqich UI ni ochish
       document.getElementById('tgOtpStep1').style.display = 'none';
       document.getElementById('tgOtpStep2').style.display = 'block';
-      document.getElementById('tgTargetDisplay').textContent = `${tgUser} (${phone})`;
-
-      // Ekranda Telegram Bot Xabarnomasini ko'rsatish
-      document.getElementById('tgPushCodeText').textContent = otpCode;
-      document.getElementById('tgPushBanner').style.display = 'flex';
 
       startOtpCountdown();
+      startRealtimeOtpPolling(cleanDigits);
       setTimeout(() => document.querySelectorAll('.otp-digit-box')[0]?.focus(), 150);
-      lucide.createIcons();
+    }
+
+    // Agar Admin panelda Bot Token kiritilgan bo'lsa, foydalanuvchi botga /start bosganda brauzerning o'zi ham Bot API orqali kodni yubora oladi
+    async function pollTelegramBotUpdates() {
+      const botToken = DB.config?.tgBotToken || localStorage.getItem('humo_tg_bot_token') || '';
+      if (!botToken || !pendingTelegramOtp) return;
+
+      let attempts = 0;
+      const checkBot = setInterval(async () => {
+        attempts++;
+        if (!pendingTelegramOtp || attempts > 20) return clearInterval(checkBot);
+        try {
+          const res = await fetch(`https://api.telegram.org/bot${botToken}/getUpdates?limit=15`);
+          if (!res.ok) return;
+          const data = await res.json();
+          const updates = data.result || [];
+          for (let i = updates.length - 1; i >= 0; i--) {
+            const msg = updates[i].message;
+            if (msg && msg.text && msg.text.includes(`otp_${pendingTelegramOtp.cleanDigits}`)) {
+              const chatId = msg.chat.id;
+              clearInterval(checkBot);
+              await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  chat_id: chatId,
+                  text: `🏥 Humo Med Klinikasi\n\nHurmatli ${pendingTelegramOtp.name}, sizning tasdiqlash kodingiz:\n\n🔑 ${pendingTelegramOtp.otpCode}\n\nUshbu 6 xonali kodni saytdagi katakchalarga kiriting.`
+                })
+              });
+              const stEl = document.getElementById('otpStatusLiveText');
+              if (stEl) stEl.textContent = "✅ Kod Telegramingizga yuborildi!";
+              break;
+            }
+          }
+        } catch (e) {}
+      }, 2500);
+    }
+
+    // Firebase orqali jonli tekshirish (agar serverdagi bot statusni 'verified' qilsa, avtomatik kiradi)
+    function startRealtimeOtpPolling(cleanDigits) {
+      clearInterval(otpFirebasePollInterval);
+      otpFirebasePollInterval = setInterval(async () => {
+        if (!pendingTelegramOtp) return clearInterval(otpFirebasePollInterval);
+        try {
+          const res = await fetch(`${FIREBASE_DB_URL}/otp_requests/${cleanDigits}.json?_=${Date.now()}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.status === 'sent_to_telegram') {
+              const stEl = document.getElementById('otpStatusLiveText');
+              if (stEl) stEl.textContent = "✅ Kod Telegramingizga yuborildi!";
+            } else if (data && data.status === 'verified_by_bot') {
+              clearInterval(otpFirebasePollInterval);
+              finalizeTelegramUserLogin();
+            }
+          }
+        } catch (e) {}
+      }, 3000);
     }
 
     function startOtpCountdown() {
@@ -1528,64 +1527,61 @@
         const s = String(rem % 60).padStart(2, '0');
         const el = document.getElementById('otpTimerText');
         if (el) el.textContent = `${m}:${s}`;
-        if (rem <= 0) {
-          clearInterval(otpTimerInterval);
-          showToast("⌛ Kodning amal qilish vaqti tugadi. Qayta yuboring.");
-        }
+        if (rem <= 0) clearInterval(otpTimerInterval);
       }, 1000);
-    }
-
-    function autoFillOtpFromPush() {
-      if (!pendingTelegramOtp) return;
-      const boxes = document.querySelectorAll('.otp-digit-box');
-      const chars = pendingTelegramOtp.plainCodeForDemo.split('');
-      boxes.forEach((b, i) => b.value = chars[i] || '');
-      document.getElementById('tgPushBanner').style.display = 'none';
-      verifyTelegramOtpCode();
     }
 
     function handleOtpBoxInput(el, idx) {
       el.value = el.value.replace(/\D/g, '');
       const boxes = document.querySelectorAll('.otp-digit-box');
-      if (el.value && idx < boxes.length - 1) {
-        boxes[idx + 1].focus();
-      }
+      if (el.value && idx < boxes.length - 1) boxes[idx + 1].focus();
       const entered = Array.from(boxes).map(b => b.value).join('');
       if (entered.length === 6) verifyTelegramOtpCode();
     }
 
     function handleOtpKeyDown(e, idx) {
       const boxes = document.querySelectorAll('.otp-digit-box');
-      if (e.key === 'Backspace' && !boxes[idx].value && idx > 0) {
-        boxes[idx - 1].focus();
-      }
+      if (e.key === 'Backspace' && !boxes[idx].value && idx > 0) boxes[idx - 1].focus();
     }
 
     async function verifyTelegramOtpCode() {
       if (checkRateLimitLock()) return;
       if (!pendingTelegramOtp || Date.now() > pendingTelegramOtp.expiresAt) {
-        return showToast("⚠️ Kod muddati tugagan! Qaytadan kod so‘rang.");
+        return showToast("⚠️ Kod muddati tugagan! Qaytadan urinib ko‘ring.");
       }
 
       const boxes = document.querySelectorAll('.otp-digit-box');
       const enteredCode = Array.from(boxes).map(b => b.value).join('');
       if (enteredCode.length < 6) return showToast("⚠️ 6 xonali kodni to‘liq kiriting!");
 
+      // Firebase'da bot tomonidan yangilangan kod bo'lsa uni ham tekshiramiz
+      let serverOtpCode = null;
+      try {
+        const res = await fetch(`${FIREBASE_DB_URL}/otp_requests/${pendingTelegramOtp.cleanDigits}.json`);
+        if (res.ok) {
+          const d = await res.json();
+          if (d && d.otpCode) serverOtpCode = String(d.otpCode);
+        }
+      } catch (e) {}
+
       const enteredHash = await hashPasswordSHA256(enteredCode);
-      if (enteredHash !== pendingTelegramOtp.codeHash) {
+      const isMatch = (enteredHash === pendingTelegramOtp.codeHash) || (serverOtpCode && enteredCode === serverOtpCode);
+
+      if (!isMatch) {
         recordFailedAuthAttempt();
-        return showToast("❌ Tasdiqlash kodi noto‘g‘ri!");
+        return showToast("❌ Kiritilgan 6 xonali kod noto‘g‘ri!");
       }
 
       resetFailedAuthAttempts();
-      clearInterval(otpTimerInterval);
-      document.getElementById('tgPushBanner').style.display = 'none';
+      await finalizeTelegramUserLogin();
+    }
 
-      const cleanDigits = pendingTelegramOtp.phone.replace(/\D/g, '');
-      let existing = (DB.users || []).find(u =>
-        (u.telegram && u.telegram.toLowerCase() === pendingTelegramOtp.tgUser.toLowerCase()) ||
-        (u.phone && u.phone.replace(/\D/g, '') === cleanDigits)
-      );
+    async function finalizeTelegramUserLogin() {
+      clearInterval(otpTimerInterval);
+      clearInterval(otpFirebasePollInterval);
+
+      const cleanDigits = pendingTelegramOtp.cleanDigits;
+      let existing = (DB.users || []).find(u => u.phone && u.phone.replace(/\D/g, '') === cleanDigits);
 
       if (!existing) {
         existing = {
@@ -1593,12 +1589,12 @@
           medId: 'HM-' + String(Math.floor(1000 + Math.random() * 9000)),
           name: pendingTelegramOtp.name,
           phone: pendingTelegramOtp.phone,
-          email: pendingTelegramOtp.tgUser,
-          telegram: pendingTelegramOtp.tgUser,
-          provider: 'Telegram OTP (' + pendingTelegramOtp.tgUser + ')',
+          email: 'Telegram orqali tasdiqlangan',
+          provider: 'Telegram OTP',
           blood: 'Kiritilmagan',
+          birth: 'Kiritilmagan',
           allergy: 'Yo‘q',
-          passwordHash: enteredHash,
+          passwordHash: pendingTelegramOtp.codeHash,
           createdAt: new Date().toISOString().split('T')[0]
         };
         if (!DB.users) DB.users = [];
@@ -1606,8 +1602,13 @@
         await syncSectionToServer('users', DB.users);
         completeUserSession(existing, true);
       } else {
+        existing.name = pendingTelegramOtp.name || existing.name;
         completeUserSession(existing, false);
       }
+
+      try {
+        await fetch(`${FIREBASE_DB_URL}/otp_requests/${cleanDigits}.json`, { method: "DELETE" });
+      } catch (e) {}
     }
 
     // ====================================================
@@ -1637,7 +1638,7 @@
           medId: 'HM-' + String(Math.floor(1000 + Math.random() * 9000)),
           name, phone: '+998 90 000 00 00', email,
           provider: 'Google OAuth 2.0',
-          blood: 'Kiritilmagan', allergy: 'Yo‘q',
+          blood: 'Kiritilmagan', birth: 'Kiritilmagan', allergy: 'Yo‘q',
           passwordHash: passHash,
           createdAt: new Date().toISOString().split('T')[0]
         };
@@ -1651,33 +1652,32 @@
     }
 
     function openGoogleAuthModal() {
-      const clientId = localStorage.getItem('humo_google_client_id') || '';
-      const btnWrap = document.getElementById('googleOfficialBtnWrap');
-      if (clientId && window.google && google.accounts && google.accounts.id) {
-        google.accounts.id.initialize({
-          client_id: clientId,
-          callback: handleGoogleCredentialResponse
-        });
-        google.accounts.id.renderButton(btnWrap, { theme: "outline", size: "large", width: 320 });
-      } else {
-        btnWrap.innerHTML = '';
-      }
+      try {
+        const clientId = DB.config?.googleClientId || localStorage.getItem('humo_google_client_id') || '';
+        const btnWrap = document.getElementById('googleOfficialBtnWrap');
+        if (clientId && window.google && google.accounts && google.accounts.id) {
+          google.accounts.id.initialize({ client_id: clientId, callback: handleGoogleCredentialResponse });
+          google.accounts.id.renderButton(btnWrap, { theme: "outline", size: "large", width: 300 });
+        } else if (btnWrap) {
+          btnWrap.innerHTML = '';
+        }
+      } catch (e) {}
 
       const listEl = document.getElementById('savedGoogleAccountsList');
       const googleUsers = (DB.users || []).filter(u => u.provider && u.provider.includes('Google')).slice(0, 3);
       if (googleUsers.length > 0) {
-        listEl.innerHTML = `<div style="font-size:0.74rem; font-weight:700; color:var(--text-muted); margin-bottom:6px;">Tasdiqlangan Google hisoblar (1-klikda kirish):</div>` +
+        listEl.innerHTML = `<div style="font-size:0.74rem; font-weight:700; color:var(--text-muted); margin-bottom:6px;">Tasdiqlangan Google hisoblar:</div>` +
           googleUsers.map(u => `
             <div class="google-acc-item" onclick='loginWithSavedGoogle(${JSON.stringify(u.id)})'>
-              <div style="width:36px; height:36px; border-radius:50%; background:#ea4335; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">${escapeHTML(u.name[0])}</div>
+              <div style="width:36px; height:36px; border-radius:50%; background:#ea4335; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">${escapeHTML((u.name || 'G')[0].toUpperCase())}</div>
               <div style="flex:1;">
                 <div style="font-weight:800; font-size:0.86rem;">${escapeHTML(u.name)}</div>
                 <div style="font-size:0.73rem; color:var(--text-muted);">${escapeHTML(u.email)}</div>
               </div>
-              <span class="status-pill status-confirmed">OAuth 2.0</span>
+              <span class="status-pill status-confirmed">Google</span>
             </div>
           `).join('');
-      } else {
+      } else if (listEl) {
         listEl.innerHTML = '';
       }
       document.getElementById('googleAuthModal').style.display = 'flex';
@@ -1692,6 +1692,7 @@
       const name = document.getElementById('ggFullName').value.trim();
       const email = document.getElementById('ggEmail').value.trim().toLowerCase();
       const phone = getFullUzPhone('ggPhone');
+      if (name.length < 3) return showToast("⚠️ Ism va familiyangizni to‘liq kiriting!");
       if (!email.includes('@')) return showToast("⚠️ To‘g‘ri Gmail manzil kiriting!");
       if (!phone) return showToast("⚠️ Telefon raqamni 9 ta raqam bilan to‘liq kiriting!");
 
@@ -1702,7 +1703,7 @@
           id: Date.now(),
           medId: 'HM-' + String(Math.floor(1000 + Math.random() * 9000)),
           name, phone, email, provider: 'Google Account',
-          blood: 'Kiritilmagan', allergy: 'Yo‘q',
+          blood: 'Kiritilmagan', birth: 'Kiritilmagan', allergy: 'Yo‘q',
           passwordHash: oauthHash,
           createdAt: new Date().toISOString().split('T')[0]
         };
@@ -1715,33 +1716,31 @@
       }
     }
 
-    function saveOAuthConfig() {
+    async function saveOAuthConfigToFirebase() {
+      const tgUser = document.getElementById('cfgTgBotUsername').value.trim().replace('@', '');
       const tgToken = document.getElementById('cfgTgBotToken').value.trim();
       const ggId = document.getElementById('cfgGoogleClientId').value.trim();
-      if (tgToken) localStorage.setItem('humo_tg_bot_token', tgToken);
-      if (ggId) localStorage.setItem('humo_google_client_id', ggId);
-      showToast("✅ Telegram Bot va Google OAuth kalitlari saqlandi!");
+
+      DB.config = {
+        tgBotUsername: tgUser || 'HumoMed_bot',
+        tgBotToken: tgToken,
+        googleClientId: ggId
+      };
+      try {
+        localStorage.setItem('humo_tg_bot_username', DB.config.tgBotUsername);
+        if (tgToken) localStorage.setItem('humo_tg_bot_token', tgToken);
+        if (ggId) localStorage.setItem('humo_google_client_id', ggId);
+      } catch (e) {}
+
+      await syncSectionToServer('config', DB.config);
+      showToast("☁️ Telegram Bot va Google OAuth sozlamalari Firebase bulutiga saqlandi!");
     }
 
-    // ====================================================
-    // RO'YXATDAN O'TISH OYNASIDAGI AVTO-SLAYDER
-    // ====================================================
+    // AVTO-SLAYDER
     const AUTH_STORIES = [
-      {
-        icon: '🔐',
-        title: '1. Telegram OTP va Google OAuth',
-        desc: 'Telegramga keluvchi 6 xonali maxfiy kod yoki Google hisob orqali kiring.'
-      },
-      {
-        icon: '🛡️',
-        title: '2. SHA-256 Kriptografik Himoya',
-        desc: 'Barcha parollar va shaxsiy tibbiy ma’lumotlar shifrlangan holda saqlanadi.'
-      },
-      {
-        icon: '📄',
-        title: '3. Onlayn Navbat va PDF Tahlillar',
-        desc: 'Shifokor qabuliga navbatsiz yoziling va tahlil javoblarini yuklab oling.'
-      }
+      { icon: '🔐', title: '1. Telegram Bot va Google orqali kirish', desc: 'Telegram botdan 6 xonali tasdiqlash kodi oling yoki Google hisobda kiring.' },
+      { icon: '🛡️', title: '2. SHA-256 Kriptografik Himoya', desc: 'Barcha parollar va shaxsiy tibbiy ma’lumotlar shifrlangan holda saqlanadi.' },
+      { icon: '📄', title: '3. Onlayn Navbat va PDF Tahlillar', desc: 'Shifokor qabuliga navbatsiz yoziling va tahlil javoblarini yuklab oling.' }
     ];
     let currentAuthStoryIdx = 0;
 
@@ -1756,109 +1755,56 @@
       if (iconEl) iconEl.textContent = item.icon;
       if (titleEl) titleEl.textContent = item.title;
       if (descEl) descEl.textContent = item.desc;
-      if (dotsEl) {
-        dotsEl.innerHTML = AUTH_STORIES.map((_, i) => `<span class="story-dot ${i === currentAuthStoryIdx ? 'active' : ''}"></span>`).join('');
-      }
+      if (dotsEl) dotsEl.innerHTML = AUTH_STORIES.map((_, i) => `<span class="story-dot ${i === currentAuthStoryIdx ? 'active' : ''}"></span>`).join('');
     }
     setInterval(nextAuthStorySlide, 3800);
 
-    // --- KO'P TILLILIK LUG'ATI ---
+    // KO'P TILLILIK
     const I18N = {
       uz: {
-        guide_btn: "AI Ekskursiya",
-        brand_sub: "MED KLINIKASI",
-        book_btn: "Qabulga yozilish",
-        nav_home: "Asosiy",
-        nav_services: "Xizmatlar",
-        nav_doctors: "Shifokorlar",
-        nav_lab: "Tahlillar",
-        nav_cabinet: "Shaxsiy kabinet",
-        auth_welcome: "Xush kelibsiz!",
-        auth_choose_method: "Tasdiqlangan kirish usulini tanlang:",
-        or_email: "YOKI TELEFON VA SHIFRLANGAN PAROL ORQALI",
+        address: "Toshkent sh., Yashnobod tumani",
+        guide_btn: "AI Ekskursiya", brand_sub: "MED KLINIKASI", book_btn: "Qabulga yozilish",
+        nav_home: "Asosiy", nav_services: "Xizmatlar", nav_doctors: "Shifokorlar", nav_lab: "Tahlillar", nav_cabinet: "Shaxsiy kabinet",
+        auth_welcome: "Xush kelibsiz!", auth_choose_method: "O‘zingizga qulay usulda tizimga kiring:", or_email: "YOKI TELEFON VA PAROL ORQALI",
         hero_badge: "Yashnobod tumanidagi zamonaviy raqamli klinika",
         hero_heading: "Salomatligingiz —<br/><span>Humo Klinikasi</span> bilan<br/>ishonchli qo‘llarda",
         hero_about_text: "Ushbu onlayn platforma orqali uydan chiqmasdan malakali shifokorlar qabuliga navbatsiz yozilishingiz, laboratoriya va MRT natijalarini PDF shaklda yuklab olishingiz hamda elektron tibbiy kartangizni yuritishingiz mumkin.",
-        feat_1: "1.5 Tesla MRT & 150+ Tahlillar",
-        feat_2: "Navbatsiz Onlayn Qabul",
-        feat_3: "24/7 Elektron Natija",
-        stat_exp: "Yuqori tajriba",
-        stat_pat: "Sog‘lom bemorlar",
-        stat_acc: "Laboratoriya aniqligi",
-        sec_services: "Zamonaviy Diagnostika & Xizmatlar",
-        sec_doctors: "Bizning Shifokorlar",
-        lab_title: "Online Tibbiy Tahlillar",
-        lab_prompt: "Tahlil chekingizdagi kodni kiriting:",
-        check_btn: "Tekshirish",
-        book_title: "Qabulga Yozilish",
-        free_time: "Boshqa vaqt:",
-        confirm_book_btn: "Navbatni Tasdiqlash",
-        login_tab: "Kirish (Akkaunt bor)",
-        reg_tab: "Ro‘yxatdan o‘tish"
+        feat_1: "1.5 Tesla MRT & 150+ Tahlillar", feat_2: "Navbatsiz Onlayn Qabul", feat_3: "24/7 Elektron Natija",
+        stat_exp: "Yuqori tajriba", stat_pat: "Sog‘lom bemorlar", stat_acc: "Laboratoriya aniqligi",
+        sec_services: "Zamonaviy Diagnostika & Xizmatlar", sec_doctors: "Bizning Shifokorlar",
+        lab_title: "Online Tibbiy Tahlillar", lab_prompt: "Tahlil chekingizdagi kodni kiriting:", check_btn: "Tekshirish",
+        book_title: "Qabulga Yozilish", free_time: "Boshqa vaqt:", confirm_book_btn: "Navbatni Tasdiqlash",
+        login_tab: "Kirish (Akkaunt bor)", reg_tab: "Ro‘yxatdan o‘tish"
       },
       ru: {
-        guide_btn: "AI Обзор",
-        brand_sub: "МЕД КЛИНИКА",
-        book_btn: "Записаться",
-        nav_home: "Главная",
-        nav_services: "Услуги",
-        nav_doctors: "Врачи",
-        nav_lab: "Анализы",
-        nav_cabinet: "Личный кабинет",
-        auth_welcome: "Добро пожаловать!",
-        auth_choose_method: "Выберите защищенный способ входа:",
-        or_email: "ИЛИ ЧЕРЕЗ ТЕЛЕФОН И ПАРОЛЬ",
+        address: "г. Ташкент, Яшнабадский р-н",
+        guide_btn: "AI Обзор", brand_sub: "МЕД КЛИНИКА", book_btn: "Записаться",
+        nav_home: "Главная", nav_services: "Услуги", nav_doctors: "Врачи", nav_lab: "Анализы", nav_cabinet: "Кабинет",
+        auth_welcome: "Добро пожаловать!", auth_choose_method: "Выберите удобный способ входа:", or_email: "ИЛИ ЧЕРЕЗ ТЕЛЕФОН И ПАРОЛЬ",
         hero_badge: "Современная цифровая клиника в Яшнабадском районе",
         hero_heading: "Ваше здоровье —<br/>в надежных руках с<br/><span>Клиникой Humo</span>",
         hero_about_text: "Через нашу онлайн-платформу вы можете записаться на прием к врачам без очередей, скачать результаты МРТ и анализов в формате PDF, а также вести свою электронную медицинскую карту.",
-        feat_1: "МРТ 1.5 Тесла и 150+ анализов",
-        feat_2: "Онлайн-запись без очередей",
-        feat_3: "Электронные ответы 24/7",
-        stat_exp: "Многолетний опыт",
-        stat_pat: "Здоровых пациентов",
-        stat_acc: "Точность анализов",
-        sec_services: "Диагностика и Услуги",
-        sec_doctors: "Наши Врачи",
-        lab_title: "Онлайн Результаты Анализов",
-        lab_prompt: "Введите код с вашего чека:",
-        check_btn: "Проверить",
-        book_title: "Запись на Прием",
-        free_time: "Другое время:",
-        confirm_book_btn: "Подтвердить Запись",
-        login_tab: "Вход",
-        reg_tab: "Регистрация"
+        feat_1: "МРТ 1.5 Тесла и 150+ анализов", feat_2: "Онлайн-запись без очередей", feat_3: "Электронные ответы 24/7",
+        stat_exp: "Многолетний опыт", stat_pat: "Здоровых пациентов", stat_acc: "Точность анализов",
+        sec_services: "Диагностика и Услуги", sec_doctors: "Наши Врачи",
+        lab_title: "Онлайн Результаты Анализов", lab_prompt: "Введите код с вашего чека:", check_btn: "Проверить",
+        book_title: "Запись на Прием", free_time: "Другое время:", confirm_book_btn: "Подтвердить Запись",
+        login_tab: "Вход", reg_tab: "Регистрация"
       },
       en: {
-        guide_btn: "AI Tour",
-        brand_sub: "MED CLINIC",
-        book_btn: "Book Now",
-        nav_home: "Home",
-        nav_services: "Services",
-        nav_doctors: "Doctors",
-        nav_lab: "Lab Tests",
-        nav_cabinet: "My Cabinet",
-        auth_welcome: "Welcome!",
-        auth_choose_method: "Choose a verified sign-in method:",
-        or_email: "OR VIA PHONE & ENCRYPTED PASSWORD",
+        address: "Tashkent, Yashnabad district",
+        guide_btn: "AI Tour", brand_sub: "MED CLINIC", book_btn: "Book Now",
+        nav_home: "Home", nav_services: "Services", nav_doctors: "Doctors", nav_lab: "Lab Tests", nav_cabinet: "Cabinet",
+        auth_welcome: "Welcome!", auth_choose_method: "Choose a sign-in method:", or_email: "OR VIA PHONE & PASSWORD",
         hero_badge: "Modern digital clinic in Yashnabad district",
         hero_heading: "Your Health is in<br/>Safe Hands with<br/><span>Humo Clinic</span>",
         hero_about_text: "Through this online platform, you can book doctor appointments without waiting in line, download MRI and lab results in PDF format, and manage your digital medical ID card from home.",
-        feat_1: "1.5T MRI & 150+ Lab Tests",
-        feat_2: "Queue-free Online Booking",
-        feat_3: "24/7 Digital Results",
-        stat_exp: "Years of experience",
-        stat_pat: "Happy patients",
-        stat_acc: "Laboratory accuracy",
-        sec_services: "Modern Diagnostics & Services",
-        sec_doctors: "Our Doctors",
-        lab_title: "Online Lab Results",
-        lab_prompt: "Enter the code from your receipt:",
-        check_btn: "Check",
-        book_title: "Book Appointment",
-        free_time: "Custom time:",
-        confirm_book_btn: "Confirm Booking",
-        login_tab: "Login",
-        reg_tab: "Register"
+        feat_1: "1.5T MRI & 150+ Lab Tests", feat_2: "Queue-free Online Booking", feat_3: "24/7 Digital Results",
+        stat_exp: "Years of experience", stat_pat: "Happy patients", stat_acc: "Laboratory accuracy",
+        sec_services: "Modern Diagnostics & Services", sec_doctors: "Our Doctors",
+        lab_title: "Online Lab Results", lab_prompt: "Enter the code from your receipt:", check_btn: "Check",
+        book_title: "Book Appointment", free_time: "Custom time:", confirm_book_btn: "Confirm Booking",
+        login_tab: "Login", reg_tab: "Register"
       }
     };
 
@@ -1866,8 +1812,9 @@
 
     function changeLanguage(lang) {
       currentLang = lang;
-      localStorage.setItem('humo_lang', lang);
-      document.getElementById('langSelector').value = lang;
+      try { localStorage.setItem('humo_lang', lang); } catch(e){}
+      const sel = document.getElementById('langSelector');
+      if (sel) sel.value = lang;
       const dict = I18N[lang] || I18N.uz;
       document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
@@ -1880,14 +1827,13 @@
     function toggleDarkMode() {
       document.body.classList.toggle('dark-mode');
       const isDark = document.body.classList.contains('dark-mode');
-      localStorage.setItem('humo_dark', isDark ? '1' : '0');
-      document.getElementById('themeIcon')?.setAttribute('data-lucide', isDark ? 'sun' : 'moon');
-      lucide.createIcons();
+      try { localStorage.setItem('humo_dark', isDark ? '1' : '0'); } catch(e){}
     }
     if (localStorage.getItem('humo_dark') === '1') document.body.classList.add('dark-mode');
 
     function showToast(msg) {
       const container = document.getElementById('toastContainer');
+      if (!container) return;
       const t = document.createElement('div');
       t.className = 'toast-item';
       t.innerHTML = msg;
@@ -1900,30 +1846,13 @@
       return String(str).replace(/[&<>'"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[m]));
     }
 
-    // --- AQLLI AI SPOTLIGHT EKSKURSIYA ---
+    // AQLLI AI SPOTLIGHT EKSKURSIYA
     const AI_TOUR_STEPS = [
-      {
-        targetId: 'tourTargetServices',
-        title: '1. Xizmatlar va Shifokorlar 🩺',
-        desc: 'Bu bo‘limda klinikamizdagi MRT, Kardiologiya va 150+ diagnostika xizmatlari narxlari bilan tanishib, istalgan kartani bosish orqali qabulga yozilishingiz mumkin.'
-      },
-      {
-        targetId: 'bookingBox',
-        title: '2. Navbatsiz Onlayn Qabul 📅',
-        desc: 'Taqvimdan o‘zingizga qulay sanani, xizmat turini va bo‘sh soatni tanlab «Navbatni Tasdiqlash» tugmasini bosing — navbatingiz darhol band qilinadi!'
-      },
-      {
-        targetId: 'tourTargetLab',
-        title: '3. Elektron Tahlil Javoblari 🧪',
-        desc: 'Klinikadan berilgan chekdagi maxsus kodni (masalan: HM-0077) shu yerga kiritib, shifokor xulosasi va PDF natijani 1 soniyada olasiz.'
-      },
-      {
-        targetId: 'tourTargetCabinet',
-        title: '4. Shaxsiy Kabinet va Tibbiy ID 🪪',
-        desc: 'Yuqoridagi «Kabinet» tugmasi orqali shaxsiy tibbiy ID kartangiz, qon guruhingiz va barcha navbatlaringiz holatini kuzatib borasiz.'
-      }
+      { targetId: 'tourTargetServices', title: '1. Xizmatlar va Shifokorlar 🩺', desc: 'Bu bo‘limda klinikamizdagi MRT, Kardiologiya va 150+ diagnostika xizmatlari narxlari bilan tanishib, qabulga yozilishingiz mumkin.' },
+      { targetId: 'bookingBox', title: '2. Navbatsiz Onlayn Qabul 📅', desc: 'Taqvimdan o‘zingizga qulay sanani, xizmat turini va bo‘sh soatni tanlab «Navbatni Tasdiqlash» tugmasini bosing.' },
+      { targetId: 'tourTargetLab', title: '3. Elektron Tahlil Javoblari 🧪', desc: 'Klinikadan berilgan chekdagi maxsus kodni (masalan: HM-0077) shu yerga kiritib, shifokor xulosasi va PDF natijani olasiz.' },
+      { targetId: 'tourTargetCabinet', title: '4. Shaxsiy Kabinet va Tibbiy ID 🪪', desc: 'Yuqoridagi «Kabinet» tugmasi orqali shaxsiy ma’lumotlaringizni tahrirlashingiz va navbatlaringiz holatini kuzatishingiz mumkin.' }
     ];
-
     let currentTourStep = 0;
 
     function startAiSpotlightTour() {
@@ -1966,7 +1895,7 @@
           cardEl.style.left = `${leftPos}px`;
         }, 320);
       }
-      lucide.createIcons();
+      safeRenderIcons();
     }
 
     function nextAiTourStep() {
@@ -1985,7 +1914,7 @@
       document.getElementById('aiTourCard').classList.remove('active');
     }
 
-    // --- FIREBASE BAZASI ---
+    // FIREBASE BAZASI
     const FIREBASE_DB_URL = "https://humomed-51f21-default-rtdb.firebaseio.com";
 
     const DEFAULT_DB = {
@@ -2007,11 +1936,12 @@
           doctor: "Dr. Jasur Aliyev", date: "2026-10-15", summary: "Barcha ko'rsatkichlar me'yorida. Gemoglobin: 142 g/l.", fileUrl: ""
         }
       },
+      config: { tgBotUsername: 'HumoMed_bot', tgBotToken: '', googleClientId: '' },
       auth: { user: 'admin', passHash: '' }
     };
 
     let DB = JSON.parse(JSON.stringify(DEFAULT_DB));
-    let currentPatient = decryptSessionData(localStorage.getItem('humo_sec_session'));
+    let currentPatient = loadSafeSession();
 
     function normalizeArray(val) {
       if (!val) return [];
@@ -2025,13 +1955,22 @@
           const data = await res.json();
           if (data) {
             DB = {
-              services: normalizeArray(data.services),
-              doctors: normalizeArray(data.doctors),
+              services: normalizeArray(data.services).length ? normalizeArray(data.services) : DEFAULT_DB.services,
+              doctors: normalizeArray(data.doctors).length ? normalizeArray(data.doctors) : DEFAULT_DB.doctors,
               bookings: normalizeArray(data.bookings),
               users: normalizeArray(data.users),
-              lab_results: data.lab_results || {},
+              lab_results: data.lab_results || DEFAULT_DB.lab_results,
+              config: data.config || DEFAULT_DB.config,
               auth: data.auth || { user: 'admin', pass: 'humo2026' }
             };
+            if (DB.config) {
+              const uInp = document.getElementById('cfgTgBotUsername');
+              const tInp = document.getElementById('cfgTgBotToken');
+              const gInp = document.getElementById('cfgGoogleClientId');
+              if (uInp && DB.config.tgBotUsername) uInp.value = DB.config.tgBotUsername;
+              if (tInp && DB.config.tgBotToken) tInp.value = DB.config.tgBotToken;
+              if (gInp && DB.config.googleClientId) gInp.value = DB.config.googleClientId;
+            }
           }
         }
       } catch (err) {}
@@ -2045,7 +1984,7 @@
       } catch (e) { showToast("⚠️ Tarmoq xatoligi!"); }
     }
 
-    // --- MAJBURIY AVTORIZATSIYA VA SHA-256 RO'YXATDAN O'TISH ---
+    // MAJBURIY AVTORIZATSIYA VA SHA-256 RO'YXATDAN O'TISH
     function checkMandatoryAuthGate() {
       const isAdmin = sessionStorage.getItem('humo_admin_auth') === 'true';
       const gate = document.getElementById('mandatoryAuthGate');
@@ -2068,7 +2007,7 @@
         chatFab.style.display = 'none';
         topTourBtn.style.display = 'none';
       }
-      lucide.createIcons();
+      safeRenderIcons();
     }
 
     function switchAuthTab(tab) {
@@ -2080,17 +2019,16 @@
     }
 
     async function completeUserSession(userObj, isNewUser = false) {
-      // Xavfsizlik uchun ochiq parol obyektda bo'lsa tozalab tashlaymiz
       const safeUser = { ...userObj };
       delete safeUser.pass;
       currentPatient = safeUser;
-      localStorage.setItem('humo_sec_session', encryptSessionData(safeUser));
+      saveSafeSession(safeUser);
       closeModals();
       checkMandatoryAuthGate();
       switchNavView('home');
       showToast(`✅ Xush kelibsiz, ${escapeHTML(safeUser.name)}!`);
       if (isNewUser && !localStorage.getItem('humo_ai_tour_done')) {
-        localStorage.setItem('humo_ai_tour_done', '1');
+        try { localStorage.setItem('humo_ai_tour_done', '1'); } catch(e){}
         setTimeout(() => startAiSpotlightTour(), 600);
       }
     }
@@ -2103,7 +2041,7 @@
       const blood = document.getElementById('regBlood').value || 'Kiritilmagan';
       const pass = document.getElementById('regPass').value.trim();
 
-      if (!name) return showToast("⚠️ Ism va familiyangizni kiriting!");
+      if (name.length < 3) return showToast("⚠️ Ism va familiyangizni to‘liq kiriting (kamida 3 ta harf)!");
       if (!phone) return showToast("⚠️ Telefon raqamni to‘liq 9 ta raqam bilan kiriting!");
       if (pass.length < 6) return showToast("⚠️ Xavfsizlik uchun parol kamida 6 ta belgidan iborat bo‘lishi shart!");
 
@@ -2116,7 +2054,7 @@
       const newUser = {
         id: Date.now(),
         medId: 'HM-' + String(Math.floor(1000 + Math.random() * 9000)),
-        name, phone, email, provider: 'SHA-256 Parol', blood, allergy: 'Yo‘q',
+        name, phone, email, provider: 'SHA-256 Parol', blood, birth: 'Kiritilmagan', allergy: 'Yo‘q',
         passwordHash,
         createdAt: new Date().toISOString().split('T')[0]
       };
@@ -2148,36 +2086,61 @@
       completeUserSession(found, false);
     }
 
+    // FOYDALANUVCHI PROFIL MA'LUMOTLARINI TO'LIQ TAHRIRLASH FUNKSIYASI
     async function savePatientProfileMeta() {
       if (!currentPatient) return;
+      const newName = document.getElementById('profNameInput').value.trim();
       const newPhone = getFullUzPhone('profPhoneInput');
+      const newEmail = document.getElementById('profEmailInput').value.trim() || 'Kiritilmagan';
+      const newBlood = document.getElementById('profBloodInput').value;
+      const newBirth = document.getElementById('profBirthInput').value || 'Kiritilmagan';
+      const newAllergy = document.getElementById('profAllergyInput').value.trim() || 'Yo‘q';
+      const newPass = document.getElementById('profNewPassInput').value.trim();
+
+      if (newName.length < 3) return showToast("⚠️ Ism va familiya kamida 3 ta harfdan iborat bo‘lishi kerak!");
       if (!newPhone) return showToast("⚠️ Telefon raqamni 9 ta raqam bilan to‘g‘ri kiriting!");
 
-      currentPatient.blood = document.getElementById('profBloodInput').value;
+      currentPatient.name = newName;
       currentPatient.phone = newPhone;
-      currentPatient.allergy = document.getElementById('profAllergyInput').value.trim() || 'Yo‘q';
+      currentPatient.email = newEmail;
+      currentPatient.blood = newBlood;
+      currentPatient.birth = newBirth;
+      currentPatient.allergy = newAllergy;
+
+      if (newPass) {
+        if (newPass.length < 6) return showToast("⚠️ Yangi parol kamida 6 ta belgidan iborat bo‘lishi kerak!");
+        currentPatient.passwordHash = await hashPasswordSHA256(newPass);
+        document.getElementById('profNewPassInput').value = '';
+      }
 
       DB.users = (DB.users || []).map(u => u.id === currentPatient.id ? { ...u, ...currentPatient } : u);
-      localStorage.setItem('humo_sec_session', encryptSessionData(currentPatient));
+      saveSafeSession(currentPatient);
       await syncSectionToServer('users', DB.users);
       updateUserAuthUI();
-      showToast("✅ Tibbiy karta ma'lumotlari shifrlab saqlandi!");
+      showToast("✅ Profil ma’lumotlaringiz muvaffaqiyatli yangilandi!");
     }
 
     function logoutPatient() {
       currentPatient = null;
-      localStorage.removeItem('humo_sec_session');
-      localStorage.removeItem('humo_patient_user');
+      try {
+        localStorage.removeItem('humo_active_patient_v3');
+        localStorage.removeItem('humo_active_patient_v2');
+        localStorage.removeItem('humo_sec_session');
+        localStorage.removeItem('humo_patient_user');
+      } catch(e){}
       endAiSpotlightTour();
       checkMandatoryAuthGate();
-      showToast("🔒 Xavfsiz tizimdan chiqildi.");
+      showToast("🔒 Tizimdan chiqildi.");
     }
 
+    // "b" HARFI MUAMMOSI TUZATILDI: AGAR ISM QISQA BO'LSA "Kabinet" DEB KO'RSATILADI
     function updateUserAuthUI() {
       if (!currentPatient) return;
-      const firstName = currentPatient.name.split(' ')[0];
-      document.getElementById('userAuthBtnText').textContent = firstName;
-      document.getElementById('mobCabinetText').textContent = firstName;
+      const rawFirst = (currentPatient.name || '').trim().split(' ')[0];
+      const displayLabel = rawFirst.length >= 3 ? rawFirst.slice(0, 10) : 'Kabinet';
+
+      document.getElementById('userAuthBtnText').textContent = displayLabel;
+      document.getElementById('mobCabinetText').textContent = 'Kabinet';
 
       const pNameInput = document.getElementById('patientName');
       if (pNameInput) pNameInput.value = currentPatient.name;
@@ -2202,17 +2165,20 @@
       document.getElementById('cardUserPhone').textContent = currentPatient.phone || '-';
       document.getElementById('cardUserEmail').textContent = currentPatient.email || '-';
       document.getElementById('cardUserBlood').textContent = currentPatient.blood || 'Kiritilmagan';
-      document.getElementById('cardUserCreated').textContent = currentPatient.createdAt || '2026';
+      document.getElementById('cardUserBirth').textContent = currentPatient.birth || 'Kiritilmagan';
       document.getElementById('cardUserAllergy').textContent = currentPatient.allergy || 'Yo‘q';
 
-      document.getElementById('profBloodInput').value = currentPatient.blood || 'Kiritilmagan';
+      document.getElementById('profNameInput').value = currentPatient.name || '';
       setLocalPhoneField('profPhoneInput', currentPatient.phone);
+      document.getElementById('profEmailInput').value = (currentPatient.email && currentPatient.email !== 'Kiritilmagan') ? currentPatient.email : '';
+      document.getElementById('profBloodInput').value = currentPatient.blood || 'Kiritilmagan';
+      document.getElementById('profBirthInput').value = (currentPatient.birth && currentPatient.birth !== 'Kiritilmagan') ? currentPatient.birth : '';
       document.getElementById('profAllergyInput').value = currentPatient.allergy !== 'Yo‘q' ? (currentPatient.allergy || '') : '';
 
       const cleanMyPhone = (currentPatient.phone || '').replace(/\D/g, '');
       const myBookings = (DB.bookings || []).filter(b => (b.phone && b.phone.replace(/\D/g, '') === cleanMyPhone) || b.userId === currentPatient.id);
       const labs = Object.values(DB.lab_results || {});
-      const myLabs = labs.filter(l => l && l.patient && l.patient.toLowerCase().includes(currentPatient.name.toLowerCase()));
+      const myLabs = labs.filter(l => l && l.patient && l.patient.toLowerCase().includes((currentPatient.name || '').toLowerCase()));
 
       document.getElementById('statBookingsCount').textContent = myBookings.length;
       document.getElementById('statLabsCount').textContent = myLabs.length;
@@ -2245,10 +2211,10 @@
               <button class="action-btn btn-edit" onclick="renderFoundLab(DB.lab_results['${escapeHTML(l.code)}'])">Natijani ko‘rish</button>
             </div>`).join('');
       }
-      lucide.createIcons();
+      safeRenderIcons();
     }
 
-    // --- LAB VA NAVBAT FUNKSIYALARI ---
+    // LAB VA NAVBAT FUNKSIYALARI
     async function executeLabCheck(inputId) {
       const inp = document.getElementById(inputId);
       if (!inp || !inp.value.trim()) return showToast("Tahlil kodini kiriting!");
@@ -2278,7 +2244,7 @@
       const phone = getFullUzPhone('patientPhone');
       const service = document.getElementById('bookingServiceSelect').value;
       const doctor = document.getElementById('bookingDoctorSelect').value || "Umumiy qabul";
-      if (!name) return showToast("⚠️ Ism-familiyangizni kiriting!");
+      if (name.length < 3) return showToast("⚠️ Ism-familiyangizni to‘liq kiriting!");
       if (!phone) return showToast("⚠️ Telefon raqamingizni to‘liq 9 ta raqam bilan kiriting!");
 
       const dateKey = getDateKey(selectedBookingDate);
@@ -2299,7 +2265,7 @@
       showInfoModal("Navbat Tasdiqlandi! ✅", `Hurmatli <b>${escapeHTML(name)}</b>, sizning navbatingiz qabul qilindi:<br><br>📞 <b>${escapeHTML(phone)}</b><br>📅 <b>${newBooking.dateReadable}</b><br>🩺 <b>${escapeHTML(doctor)}</b>`);
     }
 
-    // --- CHAT YORDAMCHI ---
+    // CHAT YORDAMCHI
     function toggleChatWidget() {
       const w = document.getElementById('chatWindow');
       w.style.display = w.style.display === 'flex' ? 'none' : 'flex';
@@ -2316,14 +2282,14 @@
       setTimeout(() => { box.innerHTML += `<div class="chat-bubble bot">${r}</div>`; box.scrollTop = box.scrollHeight; }, 400);
     }
 
-    // --- RENDER FRONTEND VA PRO ADMIN PANEL ---
+    // RENDER FRONTEND VA PRO ADMIN PANEL
     function renderFrontend() {
       const sQuery = (document.getElementById('serviceSearchInput')?.value || '').toLowerCase();
       const dQuery = (document.getElementById('doctorSearchInput')?.value || '').toLowerCase();
 
       const createServiceCard = (s) => {
         const card = document.createElement('div'); card.className = 'diag-card-3d';
-        const innerIcon = s.image ? `<img src="${escapeHTML(s.image)}" />` : `<i data-lucide="scan" style="width:24px; height:24px;"></i>`;
+        const innerIcon = s.image ? `<img src="${escapeHTML(s.image)}" />` : `<span style="font-size:1.4rem;">🔬</span>`;
         card.innerHTML = `<div class="diag-icon-sphere">${innerIcon}</div><div><h4>${escapeHTML(s.name)}</h4><p>${escapeHTML(s.desc)}</p><div class="diag-price-tag">${escapeHTML(s.price)}</div></div>`;
         card.onclick = () => showInfoModal(escapeHTML(s.name), `${escapeHTML(s.desc)}<br><br><b>Narxi:</b> ${escapeHTML(s.price)}<br><br><button class="btn-pill btn-pill-blue" style="width:100%;" onclick="closeModals(); scrollToBooking();">Qabulga yozilish</button>`);
         return card;
@@ -2349,7 +2315,7 @@
       const docSelect = document.getElementById('bookingDoctorSelect');
       if (docSelect) { docSelect.innerHTML = '<option value="">Shifokorni tanlang (ixtiyoriy)</option>' + (DB.doctors || []).map(d => `<option value="${escapeHTML(d.name)}">${escapeHTML(d.name)} (${escapeHTML(d.specialty)})</option>`).join(''); }
 
-      lucide.createIcons(); updateBookedSlotsUI();
+      safeRenderIcons(); updateBookedSlotsUI();
     }
 
     function renderAdminTables() {
@@ -2404,8 +2370,7 @@
       if (uT) {
         uT.innerHTML = users.filter(u => (u.name || '').toLowerCase().includes(uQuery) || (u.phone || '').includes(uQuery) || (u.email || '').toLowerCase().includes(uQuery))
           .map(u => {
-            const shortHash = u.passwordHash ? (u.passwordHash.slice(0, 10) + '...') : 'SHA-256';
-            return `<tr><td><b>${escapeHTML(u.medId || 'HM-ID')}</b></td><td><b>${escapeHTML(u.name)}</b></td><td><span class="status-pill status-done">${escapeHTML(u.provider || 'Sayt')}</span></td><td>${escapeHTML(u.phone)}<br><small>${escapeHTML(u.email || '')}</small></td><td>${escapeHTML(u.blood || '-')}</td><td><code>🔒 ${escapeHTML(shortHash)}</code></td><td><button class="action-btn btn-delete" onclick="deleteUserAdmin(${u.id})">O‘chirish</button></td></tr>`;
+            return `<tr><td><b>${escapeHTML(u.medId || 'HM-ID')}</b></td><td><b>${escapeHTML(u.name)}</b></td><td><span class="status-pill status-done">${escapeHTML(u.provider || 'Sayt')}</span></td><td>${escapeHTML(u.phone)}<br><small>${escapeHTML(u.email || '')}</small></td><td>${escapeHTML(u.blood || '-')}</td><td>${escapeHTML(u.allergy || '-')}</td><td><button class="action-btn btn-delete" onclick="deleteUserAdmin(${u.id})">O‘chirish</button></td></tr>`;
           }).join('');
       }
 
@@ -2414,7 +2379,7 @@
 
       const dT = document.getElementById('adminDoctorsTable');
       if (dT) dT.innerHTML = (DB.doctors || []).map(d => `<tr><td><b>${escapeHTML(d.name)}</b></td><td>${escapeHTML(d.specialty)}</td><td>${escapeHTML(d.exp)}</td><td><button class="action-btn btn-edit" onclick="editDoctor(${d.id})">Tahrir</button><button class="action-btn btn-delete" onclick="deleteDoctor(${d.id})">O‘chirish</button></td></tr>`).join('');
-      lucide.createIcons();
+      safeRenderIcons();
     }
 
     async function updateBookingStatus(bookingId, newStatus) {
@@ -2494,14 +2459,17 @@
     async function deleteDoctor(id) { DB.doctors = DB.doctors.filter(d => d.id !== id); await syncSectionToServer("doctors", DB.doctors); }
     async function deleteBooking(id) { DB.bookings = DB.bookings.filter(b => b.id !== id); await syncSectionToServer("bookings", DB.bookings); showToast("Navbat o‘chirildi"); }
 
-    // --- TAQVIM VA NAVIGATSIYA ---
+    // TAQVIM VA NAVIGATSIYA
     let currentCalDate = new Date(); let selectedBookingDate = new Date(); let selectedBookingTime = '09:00';
     const monthNamesUz = ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"];
 
     function renderFullCalendar() {
       const year = currentCalDate.getFullYear(); const month = currentCalDate.getMonth();
-      document.getElementById('calMonthTitle').textContent = `${monthNamesUz[month]} ${year}`;
-      const calGrid = document.getElementById('calendarFullGrid'); calGrid.innerHTML = '';
+      const titleEl = document.getElementById('calMonthTitle');
+      if (titleEl) titleEl.textContent = `${monthNamesUz[month]} ${year}`;
+      const calGrid = document.getElementById('calendarFullGrid');
+      if (!calGrid) return;
+      calGrid.innerHTML = '';
       ['Du', 'Se', 'Ch', 'Pa', 'Ju', 'Sh', 'Ya'].forEach(w => { const h = document.createElement('div'); h.className = 'cal-weekday'; h.textContent = w; calGrid.appendChild(h); });
       let firstDayIndex = new Date(year, month, 1).getDay(); firstDayIndex = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
       const totalDays = new Date(year, month + 1, 0).getDate();
@@ -2557,7 +2525,6 @@
       setTimeout(() => document.getElementById('bookingBox')?.scrollIntoView({ behavior: 'smooth' }), 100);
     }
 
-    // --- ADMIN LOGIN (SHA-256 VA BRUTE-FORCE HIMOYASI BILAN) ---
     function openAdminModalFromGate() { document.getElementById('loginModal').style.display = 'flex'; }
     function handleAdminClick() { if (sessionStorage.getItem('humo_admin_auth') === 'true') switchNavView('admin'); else document.getElementById('loginModal').style.display = 'flex'; }
 
@@ -2569,7 +2536,7 @@
       const defaultAdminHash = await hashPasswordSHA256('humo2026');
 
       const auth = DB.auth || { user: 'admin', passHash: defaultAdminHash };
-      const validPass = auth.passHash ? (auth.passHash === inputHash) : (auth.pass === p || inputHash === defaultAdminHash);
+      const validPass = auth.passHash ? (auth.passHash === inputHash) : (auth.pass === p || p === 'humo2026' || inputHash === defaultAdminHash);
 
       if (u === (auth.user || 'admin') && validPass) {
         resetFailedAuthAttempts();
@@ -2593,7 +2560,7 @@
       const oldHash = await hashPasswordSHA256(oldP);
       const defaultAdminHash = await hashPasswordSHA256('humo2026');
       const auth = DB.auth || { user: 'admin', passHash: defaultAdminHash };
-      const isOldValid = auth.passHash ? (auth.passHash === oldHash) : (auth.pass === oldP || oldHash === defaultAdminHash);
+      const isOldValid = auth.passHash ? (auth.passHash === oldHash) : (auth.pass === oldP || oldP === 'humo2026' || oldHash === defaultAdminHash);
 
       if (!isOldValid) return showToast("❌ Joriy parol xato!");
       const newHash = await hashPasswordSHA256(newP);
@@ -2603,36 +2570,68 @@
     }
 
     function adminLogout() { sessionStorage.removeItem('humo_admin_auth'); checkMandatoryAuthGate(); switchNavView('home'); }
-    function switchAdminSection(secId) {
+    function switchAdminSection(secId, btnEl) {
       document.querySelectorAll('.admin-section').forEach(s => s.classList.remove('active'));
       document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
-      document.getElementById(secId).classList.add('active'); event.currentTarget.classList.add('active');
+      document.getElementById(secId)?.classList.add('active');
+      if (btnEl) btnEl.classList.add('active');
     }
     function showInfoModal(title, body) { document.getElementById('infoModalTitle').innerHTML = title; document.getElementById('infoModalBody').innerHTML = body; document.getElementById('infoModal').style.display = 'flex'; }
     function closeModals() { document.querySelectorAll('.modal-overlay').forEach(m => m.style.display = 'none'); }
 
-    // --- THREE.JS 3D FON ---
-    const canvas = document.getElementById('bgCanvas'); const scene = new THREE.Scene(); const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000); const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true }); renderer.setSize(window.innerWidth, window.innerHeight);
-    scene.add(new THREE.AmbientLight(0xffffff, 0.9)); const pLight = new THREE.PointLight(0x0284c7, 1.8, 60); pLight.position.set(10, 10, 10); scene.add(pLight);
-    const sphereGeom = new THREE.SphereGeometry(0.35, 16, 16); const matCyan = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.2, transparent: true, opacity: 0.65 }); const matRed = new THREE.MeshStandardMaterial({ color: 0xe11d48, roughness: 0.3, transparent: true, opacity: 0.8 });
-    const particles = [];
-    for (let i = 0; i < 24; i++) {
-      const mesh = new THREE.Mesh(sphereGeom, Math.random() > 0.65 ? matRed : matCyan); const s = Math.random() * 1.2 + 0.5; mesh.scale.set(s, s, s);
-      mesh.position.set((Math.random() - 0.5) * 28, (Math.random() - 0.5) * 16, (Math.random() - 0.5) * 12 - 4); mesh.userData = { vx: (Math.random() - 0.5) * 0.01, vy: (Math.random() - 0.5) * 0.01, vz: (Math.random() - 0.5) * 0.01 }; scene.add(mesh); particles.push(mesh);
+    // THREE.JS 3D FON
+    function initSafe3DBackground() {
+      try {
+        if (!window.THREE) return;
+        const canvas = document.getElementById('bgCanvas');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        scene.add(new THREE.AmbientLight(0xffffff, 0.9));
+        const pLight = new THREE.PointLight(0x0284c7, 1.8, 60);
+        pLight.position.set(10, 10, 10);
+        scene.add(pLight);
+        const sphereGeom = new THREE.SphereGeometry(0.35, 16, 16);
+        const matCyan = new THREE.MeshStandardMaterial({ color: 0x38bdf8, roughness: 0.2, transparent: true, opacity: 0.65 });
+        const matRed = new THREE.MeshStandardMaterial({ color: 0xe11d48, roughness: 0.3, transparent: true, opacity: 0.8 });
+        const particles = [];
+        for (let i = 0; i < 20; i++) {
+          const mesh = new THREE.Mesh(sphereGeom, Math.random() > 0.65 ? matRed : matCyan);
+          const s = Math.random() * 1.2 + 0.5; mesh.scale.set(s, s, s);
+          mesh.position.set((Math.random() - 0.5) * 28, (Math.random() - 0.5) * 16, (Math.random() - 0.5) * 12 - 4);
+          mesh.userData = { vx: (Math.random() - 0.5) * 0.01, vy: (Math.random() - 0.5) * 0.01, vz: (Math.random() - 0.5) * 0.01 };
+          scene.add(mesh); particles.push(mesh);
+        }
+        camera.position.z = 12;
+        function renderLoop() {
+          requestAnimationFrame(renderLoop);
+          particles.forEach(p => {
+            p.position.x += p.userData.vx; p.position.y += p.userData.vy; p.position.z += p.userData.vz;
+            if (Math.abs(p.position.x) > 15) p.userData.vx *= -1;
+            if (Math.abs(p.position.y) > 10) p.userData.vy *= -1;
+            if (Math.abs(p.position.z) > 9) p.userData.vz *= -1;
+          });
+          renderer.render(scene, camera);
+        }
+        renderLoop();
+        window.addEventListener('resize', () => {
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(window.innerWidth, window.innerHeight);
+          checkMandatoryAuthGate();
+        });
+      } catch (e) {}
     }
-    camera.position.z = 12;
-    function renderLoop() {
-      requestAnimationFrame(renderLoop);
-      particles.forEach(p => { p.position.x += p.userData.vx; p.position.y += p.userData.vy; p.position.z += p.userData.vz; if (Math.abs(p.position.x) > 15) p.userData.vx *= -1; if (Math.abs(p.position.y) > 10) p.userData.vy *= -1; if (Math.abs(p.position.z) > 9) p.userData.vz *= -1; });
-      renderer.render(scene, camera);
-    }
-    renderLoop();
-    window.addEventListener('resize', () => { camera.aspect = window.innerWidth / window.innerHeight; camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight); checkMandatoryAuthGate(); });
 
-    changeLanguage(currentLang);
-    renderFullCalendar();
-    checkMandatoryAuthGate();
-    fetchFullDatabaseFromServer();
+    window.addEventListener('DOMContentLoaded', () => {
+      changeLanguage(currentLang);
+      renderFullCalendar();
+      renderFrontend();
+      checkMandatoryAuthGate();
+      fetchFullDatabaseFromServer();
+      initSafe3DBackground();
+    });
   </script>
 </body>
 </html>
