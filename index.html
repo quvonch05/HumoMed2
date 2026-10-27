@@ -387,6 +387,8 @@
 
     .google-acc-item { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 14px; border: 1.5px solid var(--input-border); margin-bottom: 10px; cursor: pointer; transition: var(--transition); }
     .google-acc-item:hover { border-color: var(--primary); background: var(--input-bg); }
+    .google-acc-remove { background: transparent; border: none; color: var(--text-muted); font-size: 0.9rem; font-weight: 800; padding: 4px 8px; border-radius: 8px; cursor: pointer; }
+    .google-acc-remove:hover { background: #fee2e2; color: #b91c1c; }
 
     /* MOBIL APP BAR */
     .mobile-bottom-nav {
@@ -422,10 +424,6 @@
     .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 0.82rem; }
     .footer-col a { color: #94a3b8; text-decoration: none; }
 
-    /* ====================================================
-       MOBIL MOSLASHUVCHANLIK VA GORIZONTAL SLAYDER KARUSEL
-       Xizmatlar/Shifokorlar ko'payganda sahifa cho'zilib ketmaydi!
-       ==================================================== */
     @media (max-width: 1024px) {
       .hero-layout, .profile-grid, .footer-grid { grid-template-columns: 1fr !important; gap: 18px; }
       .admin-kpi-grid { grid-template-columns: repeat(2, 1fr); }
@@ -463,7 +461,6 @@
       .main-heading { font-size: 1.48rem !important; }
       .hero-building-img { width: 100%; height: 170px; }
 
-      /* BOSH SAHIFADA XIZMATLAR VA SHIFOKORLAR YONGA SURILADIGAN KARUSEL BO'LADI */
       #servicesFrontendList, #doctorsFrontendList {
         display: flex !important;
         flex-wrap: nowrap !important;
@@ -474,12 +471,8 @@
         scroll-snap-type: x mandatory;
         -webkit-overflow-scrolling: touch;
       }
-      #servicesFrontendList::-webkit-scrollbar, #doctorsFrontendList::-webkit-scrollbar {
-        height: 4px;
-      }
-      #servicesFrontendList::-webkit-scrollbar-thumb, #doctorsFrontendList::-webkit-scrollbar-thumb {
-        background: rgba(2, 132, 199, 0.25); border-radius: 10px;
-      }
+      #servicesFrontendList::-webkit-scrollbar, #doctorsFrontendList::-webkit-scrollbar { height: 4px; }
+      #servicesFrontendList::-webkit-scrollbar-thumb, #doctorsFrontendList::-webkit-scrollbar-thumb { background: rgba(2, 132, 199, 0.25); border-radius: 10px; }
       #servicesFrontendList .diag-card-3d, #doctorsFrontendList .doc-item {
         min-width: 265px !important;
         max-width: 265px !important;
@@ -492,13 +485,8 @@
       }
       #servicesFrontendList .diag-icon-sphere { margin-bottom: 0 !important; width: 48px !important; height: 48px !important; }
 
-      /* BARCHA XIZMATLAR VA SHIFOKORLAR SAHIFASIDA TARTIBLI KARTA RO'YXAT */
-      #allServicesFullList, #allDoctorsFullList, .admin-kpi-grid {
-        grid-template-columns: 1fr !important; gap: 10px !important;
-      }
-      #allServicesFullList .diag-card-3d {
-        flex-direction: row; text-align: left; padding: 13px; gap: 12px;
-      }
+      #allServicesFullList, #allDoctorsFullList, .admin-kpi-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
+      #allServicesFullList .diag-card-3d { flex-direction: row; text-align: left; padding: 13px; gap: 12px; }
       #allServicesFullList .diag-icon-sphere { margin-bottom: 0; }
 
       .chat-fab { bottom: 74px; right: 12px; width: 46px; height: 46px; }
@@ -751,7 +739,6 @@
               <img src="humo_building.jpg" onerror="this.src='https://images.unsplash.com/photo-1587351021759-3e566b6af7cc?auto=format&fit=crop&w=500&q=80'" alt="Humo Klinikasi" class="hero-building-img" />
             </div>
 
-            <!-- XIZMATLAR (MOBILDA YONGA SURILADIGAN KARUSEL, DESKTOPDA TOP-3) -->
             <div id="tourTargetServices">
               <div class="section-title">
                 <div class="section-title-left">
@@ -763,7 +750,6 @@
               <div class="services-grid-dynamic" id="servicesFrontendList"></div>
             </div>
 
-            <!-- SHIFOKORLAR (MOBILDA YONGA SURILADIGAN KARUSEL, DESKTOPDA TOP-3) -->
             <div style="margin-top: 6px;">
               <div class="section-title">
                 <div class="section-title-left">
@@ -1171,14 +1157,11 @@
     </button>
   </nav>
 
-  <!-- ==========================================================
-       REAL TELEGRAM KOD (OTP) MODALI (100% ISHLAYDIGAN)
-       ========================================================== -->
+  <!-- REAL TELEGRAM KOD (OTP) MODALI -->
   <div class="modal-overlay" id="telegramAuthModal">
     <div class="modal-box">
       <button class="modal-close" onclick="closeModals()">✕</button>
 
-      <!-- 1-BOSQICH -->
       <div id="tgOtpStep1">
         <div style="text-align: center; margin-bottom: 16px;">
           <div style="width: 54px; height: 54px; border-radius: 50%; background: #0088cc; color: #fff; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px; font-size: 1.4rem;">✈️</div>
@@ -1201,7 +1184,6 @@
         </form>
       </div>
 
-      <!-- 2-BOSQICH -->
       <div id="tgOtpStep2" style="display: none; text-align: center;">
         <div style="width: 48px; height: 48px; border-radius: 50%; background: rgba(0,136,204,0.12); color: #0088cc; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 6px; font-size: 1.3rem;">🔐</div>
         <h3 style="font-size: 1.15rem; font-weight: 900;">Telegram Botda «START» bosing</h3>
@@ -1237,24 +1219,29 @@
     </div>
   </div>
 
-  <!-- GOOGLE OAUTH 2.0 MODALI -->
+  <!-- ==========================================================
+       GOOGLE OAUTH 2.0 MODALI (FAQAT SHU QURILMANING O'Z HISOBLARI CHIQADI)
+       ========================================================== -->
   <div class="modal-overlay" id="googleAuthModal">
     <div class="modal-box">
       <button class="modal-close" onclick="closeModals()">✕</button>
       <div style="text-align: center; margin-bottom: 14px;">
         <svg width="36" height="36" viewBox="0 0 24 24" style="margin-bottom: 6px;"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.8C6.2 7.2 8.9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.6l3.7 2.9c2.2-2 3.7-5 3.7-8.7z"/><path fill="#FBBC05" d="M5.3 14.8c-.2-.8-.4-1.6-.4-2.5s.2-1.7.4-2.5L1.6 7C.6 9 0 11.2 0 13.5s.6 4.5 1.6 6.5l3.7-2.9z"/><path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5l-3.7 2.8C3.5 21.4 7.4 24 12 24z"/></svg>
         <h3 style="font-size: 1.2rem; font-weight: 900;">Google Akkaunt orqali Kirish</h3>
-        <p style="font-size: 0.78rem; color: var(--text-muted);">Humo Med tizimiga xavfsiz kirish uchun Google hisobingizni tanlang:</p>
+        <p style="font-size: 0.78rem; color: var(--text-muted);">Humo Med tizimiga xavfsiz kirish uchun shaxsiy Google hisobingizni tanlang yoki kiriting:</p>
       </div>
 
+      <!-- Rasmiy Google OAuth 2.0 One-Tap Tugmasi (agar Client ID kiritilgan bo'lsa) -->
       <div id="googleOfficialBtnWrap" style="display:flex; justify-content:center; margin-bottom:12px;"></div>
+
+      <!-- Faqatgina foydalanuvchining O'Z QURILMASIDA eslab qolingan shaxsiy Google hisoblari -->
       <div id="savedGoogleAccountsList" style="margin-bottom: 12px;"></div>
 
-      <div class="divider-line"><span>GOOGLE HISOBNI BOG‘LASH</span></div>
+      <div class="divider-line"><span id="googleFormDividerText">SHAXSIY GOOGLE HISOBINGIZNI KIRITING</span></div>
 
       <form onsubmit="event.preventDefault(); confirmGoogleAuth();">
         <input type="text" id="ggFullName" class="admin-input" style="margin-bottom: 10px;" placeholder="Ism va Familiyangiz *" minlength="3" required />
-        <input type="email" id="ggEmail" class="admin-input" style="margin-bottom: 10px;" placeholder="Gmail manzilingiz (example@gmail.com) *" required />
+        <input type="email" id="ggEmail" class="admin-input" style="margin-bottom: 10px;" placeholder="Shaxsiy Gmail manzilingiz (example@gmail.com) *" required />
         <div class="phone-field-wrap" style="margin-bottom: 14px;">
           <span class="phone-prefix-tag">🇺🇿 +998</span>
           <input type="tel" id="ggPhone" class="phone-digits-input" placeholder="90 123 45 67" maxlength="12" inputmode="numeric" oninput="formatUzPhoneInput(this)" required />
@@ -1466,7 +1453,7 @@
     }
 
     // ====================================================
-    // 3. REAL TELEGRAM BOT OTP TIZIMI (WEBHOOK TOZALASH + AVTO KOD YUBORISH)
+    // 3. REAL TELEGRAM BOT OTP TIZIMI
     // ====================================================
     let pendingTelegramOtp = null;
     let otpTimerInterval = null;
@@ -1493,7 +1480,7 @@
       if (name.length < 3) return showToast("⚠️ Ism va familiyangizni to‘liq kiriting!");
       if (!phone) return showToast("⚠️ Telefon raqamni 9 ta raqam bilan to‘liq kiriting!");
 
-      const cleanDigits = phone.replace(/\D/g, ''); // 998901234567
+      const cleanDigits = phone.replace(/\D/g, '');
       const otpCode = String(Math.floor(100000 + Math.random() * 900000));
       const codeHash = await hashPasswordSHA256(otpCode);
 
@@ -1504,7 +1491,6 @@
         expiresAt: Date.now() + 180000
       };
 
-      // 1) Firebase `otp_requests/{cleanDigits}` ga yozish
       try {
         await fetch(`${FIREBASE_DB_URL}/otp_requests/${cleanDigits}.json`, {
           method: "PUT",
@@ -1517,13 +1503,11 @@
         });
       } catch (e) {}
 
-      // 2) Bot Token orqali Webhookni o'chirish va haqiqiy bot username'ini aniqlash
       const botToken = (DB.config?.tgBotToken || localStorage.getItem('humo_tg_bot_token') || '').trim();
       let botUsername = (DB.config?.tgBotUsername || localStorage.getItem('humo_tg_bot_username') || '').replace('@', '').trim();
 
       if (botToken) {
         try {
-          // Webhook bo'lsa getUpdates ishlamay qolmasligi uchun o'chiramiz
           await fetch(`https://api.telegram.org/bot${botToken}/deleteWebhook`);
           if (!botUsername) {
             const meRes = await fetch(`https://api.telegram.org/bot${botToken}/getMe`);
@@ -1558,7 +1542,6 @@
       }, 2500);
     }
 
-    // Foydalanuvchi Telegramdan saytga qaytganda (focus / visibilitychange) darhol tekshiradi!
     window.addEventListener('focus', () => {
       if (pendingTelegramOtp) checkNowTelegramBotUpdates(false);
     });
@@ -1574,7 +1557,6 @@
         document.getElementById('otpStatusLiveText').textContent = "🔄 Bot tekshirilmoqda...";
       }
 
-      // A) Agar Bot Token ulangan bo'lsa, bevosita Telegram API dan oxirgi xabarlarni o'qiymiz
       if (botToken && !pendingTelegramOtp.sentToChatId) {
         try {
           const res = await fetch(`https://api.telegram.org/bot${botToken}/getUpdates?offset=-15&timeout=1&_=${Date.now()}`);
@@ -1583,7 +1565,6 @@
             const updates = data.result || [];
             let matchedChatId = null;
 
-            // 1) Aniq otp_{telefon} parametri bilan bosilgan /start ni qidiramiz
             for (let i = updates.length - 1; i >= 0; i--) {
               const msg = updates[i].message;
               if (msg && msg.text && msg.text.includes(`otp_${pendingTelegramOtp.cleanDigits}`)) {
@@ -1592,7 +1573,6 @@
               }
             }
 
-            // 2) Agar foydalanuvchi botga kirib oddiy "/start" bosgan bo'lsa (oxirgi 3 daqiqa ichida)
             if (!matchedChatId) {
               for (let i = updates.length - 1; i >= 0; i--) {
                 const msg = updates[i].message;
@@ -1618,7 +1598,6 @@
               const stEl = document.getElementById('otpStatusLiveText');
               if (stEl) stEl.innerHTML = `<span style="color:#10b981;">✅ Kod Telegramingizga yuborildi!</span>`;
 
-              // Foydalanuvchiga maksimal qulaylik: o'zi START bosib tasdiqlagani uchun katakchalarni avto-to'ldiramiz
               const boxes = document.querySelectorAll('.otp-digit-box');
               const chars = pendingTelegramOtp.otpCode.split('');
               boxes.forEach((b, idx) => b.value = chars[idx] || '');
@@ -1634,7 +1613,6 @@
         showToast("⚠️ Admin panelda Telegram Bot Token kiritilmagan!");
       }
 
-      // B) Firebase orqali ham tekshiramiz (agar tashqi Python bot ishlagan bo'lsa)
       try {
         const fRes = await fetch(`${FIREBASE_DB_URL}/otp_requests/${pendingTelegramOtp.cleanDigits}.json?_=${Date.now()}`);
         if (fRes.ok) {
@@ -1741,8 +1719,38 @@
     }
 
     // ====================================================
-    // 4. GOOGLE OAUTH 2.0 INTEGRATSIYASI
+    // 4. GOOGLE OAUTH 2.0 INTEGRATSIYASI (HAR BIR FOYDALANUVCHIGA FAQAT O'Z HISOBI CHIQADI!)
     // ====================================================
+    function getDeviceGoogleAccounts() {
+      try {
+        return JSON.parse(localStorage.getItem('humo_device_google_accounts') || '[]');
+      } catch (e) { return []; }
+    }
+
+    function saveAccountToDeviceGoogleList(userObj) {
+      if (!userObj || !userObj.email) return;
+      try {
+        let list = getDeviceGoogleAccounts();
+        list = list.filter(item => item.email && item.email.toLowerCase() !== userObj.email.toLowerCase());
+        list.unshift({
+          id: userObj.id,
+          name: userObj.name,
+          email: userObj.email,
+          phone: userObj.phone
+        });
+        localStorage.setItem('humo_device_google_accounts', JSON.stringify(list.slice(0, 5)));
+      } catch (e) {}
+    }
+
+    function removeDeviceGoogleAccount(emailStr, event) {
+      if (event) event.stopPropagation();
+      try {
+        let list = getDeviceGoogleAccounts().filter(a => a.email && a.email.toLowerCase() !== emailStr.toLowerCase());
+        localStorage.setItem('humo_device_google_accounts', JSON.stringify(list));
+        openGoogleAuthModal();
+      } catch (e) {}
+    }
+
     function parseGoogleJwt(token) {
       try {
         const base64Url = token.split('.')[1];
@@ -1774,8 +1782,10 @@
         if (!DB.users) DB.users = [];
         DB.users.push(existing);
         await syncSectionToServer('users', DB.users);
+        saveAccountToDeviceGoogleList(existing);
         completeUserSession(existing, true);
       } else {
+        saveAccountToDeviceGoogleList(existing);
         completeUserSession(existing, false);
       }
     }
@@ -1792,29 +1802,44 @@
         }
       } catch (e) {}
 
+      // DIQQAT: Umumiy DB.users emas, faqatgina SHU QURILMANING o'zidagi hisoblarni ko'rsatamiz!
       const listEl = document.getElementById('savedGoogleAccountsList');
-      const googleUsers = (DB.users || []).filter(u => u.provider && u.provider.includes('Google')).slice(0, 3);
-      if (googleUsers.length > 0) {
-        listEl.innerHTML = `<div style="font-size:0.74rem; font-weight:700; color:var(--text-muted); margin-bottom:6px;">Tasdiqlangan Google hisoblar:</div>` +
-          googleUsers.map(u => `
-            <div class="google-acc-item" onclick='loginWithSavedGoogle(${JSON.stringify(u.id)})'>
-              <div style="width:36px; height:36px; border-radius:50%; background:#ea4335; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800;">${escapeHTML((u.name || 'G')[0].toUpperCase())}</div>
-              <div style="flex:1;">
-                <div style="font-weight:800; font-size:0.86rem;">${escapeHTML(u.name)}</div>
-                <div style="font-size:0.73rem; color:var(--text-muted);">${escapeHTML(u.email)}</div>
+      const divText = document.getElementById('googleFormDividerText');
+      const myDeviceGoogleAccounts = getDeviceGoogleAccounts();
+
+      if (myDeviceGoogleAccounts.length > 0) {
+        if (divText) divText.textContent = "YOKI BOSHQA GOOGLE HISOB QO‘SHISH";
+        listEl.innerHTML = `<div style="font-size:0.74rem; font-weight:700; color:var(--text-muted); margin-bottom:6px;">Ushbu qurilmadagi Google hisoblaringiz:</div>` +
+          myDeviceGoogleAccounts.map(u => `
+            <div class="google-acc-item" onclick="loginWithSavedDeviceGoogle('${escapeHTML(u.email)}')">
+              <div style="width:36px; height:36px; border-radius:50%; background:#ea4335; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; flex-shrink:0;">${escapeHTML((u.name || 'G')[0].toUpperCase())}</div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-weight:800; font-size:0.86rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHTML(u.name)}</div>
+                <div style="font-size:0.73rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHTML(u.email)}</div>
               </div>
-              <span class="status-pill status-confirmed">Google</span>
+              <button type="button" class="google-acc-remove" title="Qurilmadan o'chirish" onclick="removeDeviceGoogleAccount('${escapeHTML(u.email)}', event)">✕</button>
             </div>
           `).join('');
-      } else if (listEl) {
-        listEl.innerHTML = '';
+      } else {
+        if (divText) divText.textContent = "SHAXSIY GOOGLE HISOBINGIZNI KIRITING";
+        if (listEl) listEl.innerHTML = '';
       }
       document.getElementById('googleAuthModal').style.display = 'flex';
     }
 
-    function loginWithSavedGoogle(userId) {
-      const found = (DB.users || []).find(u => u.id === userId);
-      if (found) completeUserSession(found, false);
+    function loginWithSavedDeviceGoogle(emailStr) {
+      const cleanEmail = (emailStr || '').toLowerCase();
+      const foundInDb = (DB.users || []).find(u => u.email && u.email.toLowerCase() === cleanEmail);
+      if (foundInDb) {
+        completeUserSession(foundInDb, false);
+      } else {
+        const localAcc = getDeviceGoogleAccounts().find(a => a.email && a.email.toLowerCase() === cleanEmail);
+        if (localAcc) {
+          document.getElementById('ggFullName').value = localAcc.name || '';
+          document.getElementById('ggEmail').value = localAcc.email || '';
+          setLocalPhoneField('ggPhone', localAcc.phone || '');
+        }
+      }
     }
 
     async function confirmGoogleAuth() {
@@ -1839,13 +1864,14 @@
         if (!DB.users) DB.users = [];
         DB.users.push(existing);
         await syncSectionToServer('users', DB.users);
+        saveAccountToDeviceGoogleList(existing);
         completeUserSession(existing, true);
       } else {
+        saveAccountToDeviceGoogleList(existing);
         completeUserSession(existing, false);
       }
     }
 
-    // ADMIN PANELDA BOT TOKEN SAQLANGANDA WEBHOOK O'CHIRILADI VA BOT USERNAME AVTOMATIK ANIQLANADI
     async function saveOAuthConfigToFirebase() {
       let tgUser = document.getElementById('cfgTgBotUsername').value.trim().replace('@', '');
       const tgToken = document.getElementById('cfgTgBotToken').value.trim();
@@ -2424,9 +2450,7 @@
       setTimeout(() => { box.innerHTML += `<div class="chat-bubble bot">${r}</div>`; box.scrollTop = box.scrollHeight; }, 400);
     }
 
-    // ====================================================
-    // RENDER FRONTEND: BOSH SAHIFADA CHEKLANGAN/KARUSEL, "BARCHASI"DA TO'LIQ
-    // ====================================================
+    // RENDER FRONTEND
     function renderFrontend() {
       const sQuery = (document.getElementById('serviceSearchInput')?.value || '').toLowerCase();
       const dQuery = (document.getElementById('doctorSearchInput')?.value || '').toLowerCase();
@@ -2448,7 +2472,6 @@
 
       const sHome = document.getElementById('servicesFrontendList');
       const sAll = document.getElementById('allServicesFullList');
-      // Kompyuterda bosh sahifada 3 ta chiqadi, mobilda esa gorizontal suriladigan karusel bo'ladi
       const homeServicesList = window.innerWidth <= 768 ? allServices : allServices.slice(0, 3);
       if (sHome) { sHome.innerHTML = ''; homeServicesList.forEach(s => sHome.appendChild(createServiceCard(s))); }
       if (sAll) { sAll.innerHTML = ''; allServices.filter(s => s.name.toLowerCase().includes(sQuery) || s.desc.toLowerCase().includes(sQuery)).forEach(s => sAll.appendChild(createServiceCard(s))); }
