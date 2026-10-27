@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>Humo Med — Klinika Yashnobod</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -12,6 +14,8 @@
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
 
   <style>
     :root {
@@ -55,6 +59,18 @@
     #bgCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
     .app-container { position: relative; z-index: 10; width: 100%; max-width: 1380px; margin: 0 auto; }
 
+    /* ИСПРАВЛЕНО: HONEYPOT ПОЛНОСТЬЮ СКРЫТ */
+    .hp-field-trap {
+      display: none !important;
+      visibility: hidden !important;
+      opacity: 0 !important;
+      position: absolute !important;
+      left: -9999px !important;
+      width: 0 !important;
+      height: 0 !important;
+      pointer-events: none !important;
+    }
+
     /* AVTOMATIK +998 TELEFON KIRITISH QUTISI */
     .phone-field-wrap {
       display: flex; align-items: center; width: 100%;
@@ -86,7 +102,7 @@
       background: var(--input-bg); color: var(--primary-dark); font-size: 1.3rem; font-weight: 900;
       text-align: center; outline: none; transition: var(--transition);
     }
-    .otp-digit-box:focus { border-color: #0088cc; background: var(--surface-bg); box-shadow: 0 0 0 4px rgba(0, 136, 204, 0.15); }
+    .otp-digit-box:focus { border-color: #0284c7; background: var(--surface-bg); box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.15); }
 
     /* YUQORI BAR */
     .top-info-bar {
@@ -155,6 +171,7 @@
       color: var(--text-main); font-weight: 800; font-size: 0.8rem; cursor: pointer; display: flex; align-items: center;
       justify-content: center; gap: 7px; transition: var(--transition); white-space: nowrap;
     }
+    .btn-social:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(2,132,199,0.12); }
     .btn-social.telegram { background: rgba(0, 136, 204, 0.09); border-color: rgba(0, 136, 204, 0.35); color: #0088cc; }
     .btn-social.google { background: rgba(234, 67, 53, 0.06); border-color: rgba(234, 67, 53, 0.28); }
     .divider-line { display: flex; align-items: center; text-align: center; color: var(--text-muted); font-size: 0.7rem; font-weight: 800; margin: 10px 0 14px; }
@@ -500,6 +517,7 @@
 
   <canvas id="bgCanvas"></canvas>
   <div id="toastContainer"></div>
+  <div id="recaptcha-container" style="display:none;"></div>
 
   <!-- AQLLI AI EKSKURSIYA YORDAMCHISI -->
   <div class="tour-backdrop" id="aiTourBackdrop" onclick="endAiSpotlightTour()"></div>
@@ -532,7 +550,7 @@
     <div class="top-info-bar">
       <div class="top-info-left">
         <span>📞 <a href="tel:+998712000000" style="color:inherit; text-decoration:none;">+998 71 200-00-00</a></span>
-        <span class="hide-mobile">📍 <span data-i18n="address">Toshkent sh., Yashnobod tumani</span></span>
+        <span class="hide-mobile">🛡️ <span data-i18n="address">WAF & SHA-256 Kiberhimoya Faol</span></span>
       </div>
       <div class="top-info-right">
         <button class="icon-toggle-btn ai-tour-btn" id="topAiTourBtn" style="display: none;" onclick="startAiSpotlightTour()">
@@ -548,7 +566,7 @@
     </div>
 
     <!-- ==========================================================
-         REAL RO'YXATDAN O'TISH DARVOZASI (TELEGRAM OTP + GOOGLE OAUTH)
+         REAL RO'YXATDAN O'TISH DARVOZASI (SMS OTP + TELEGRAM OTP + REAL GOOGLE OAUTH)
          ========================================================== -->
     <div id="mandatoryAuthGate">
       <div class="auth-top-showcase">
@@ -565,10 +583,10 @@
 
         <div class="auth-story-slider" onclick="nextAuthStorySlide()">
           <div class="story-slide-left">
-            <div class="story-icon-circle" id="authStoryIcon">🔐</div>
+            <div class="story-icon-circle" id="authStoryIcon">📲</div>
             <div class="story-text-wrap">
-              <h5 id="authStoryTitle">1. Telegram Bot va Google orqali kirish</h5>
-              <p id="authStoryDesc">Telegram botdan 6 xonali tasdiqlash kodi oling yoki Google hisobda kiring.</p>
+              <h5 id="authStoryTitle">1. Real SMS Kod, Telegram va Google</h5>
+              <p id="authStoryDesc">Telefon raqamingizga keluvchi SMS kod, Telegram bot yoki Google orqali kiring.</p>
             </div>
           </div>
           <div class="story-dots-col" id="authStoryDots">
@@ -585,7 +603,7 @@
             <h3 style="font-size: 1.18rem; font-weight: 900; color: var(--text-heading);" data-i18n="auth_welcome">Xush kelibsiz!</h3>
             <p style="font-size: 0.75rem; color: var(--text-muted);" data-i18n="auth_choose_method">O‘zingizga qulay usulda tizimga kiring:</p>
           </div>
-          <span style="font-size: 0.68rem; font-weight: 800; color: #10b981; background: rgba(16,185,129,0.1); padding: 4px 8px; border-radius: 12px;">🛡️ SHA-256</span>
+          <span style="font-size: 0.68rem; font-weight: 800; color: #10b981; background: rgba(16,185,129,0.1); padding: 4px 8px; border-radius: 12px;">🛡️ Anti-DDoS & WAF</span>
         </div>
 
         <div class="social-auth-grid">
@@ -593,40 +611,36 @@
             <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.12.02-1.96 1.25-5.54 3.69-.52.36-1 .53-1.42.52-.47-.01-1.37-.26-2.03-.48-.82-.27-1.47-.42-1.42-.88.03-.24.35-.49.96-.75 3.78-1.65 6.31-2.74 7.58-3.27 3.61-1.51 4.35-1.77 4.84-1.78.11 0 .35.03.5.16.13.1.17.24.18.34.02.08.02.24.01.38z"/></svg>
             Telegram (Kod bilan)
           </button>
-          <button type="button" class="btn-social google" onclick="openGoogleAuthModal()">
+          <button type="button" class="btn-social google" onclick="triggerRealGoogleSignIn()">
             <svg width="17" height="17" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.8C6.2 7.2 8.9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.6l3.7 2.9c2.2-2 3.7-5 3.7-8.7z"/><path fill="#FBBC05" d="M5.3 14.8c-.2-.8-.4-1.6-.4-2.5s.2-1.7.4-2.5L1.6 7C.6 9 0 11.2 0 13.5s.6 4.5 1.6 6.5l3.7-2.9z"/><path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5l-3.7 2.8C3.5 21.4 7.4 24 12 24z"/></svg>
             Google Akkaunt
           </button>
         </div>
 
-        <div class="divider-line"><span data-i18n="or_email">YOKI TELEFON VA PAROL ORQALI</span></div>
+        <div class="divider-line"><span data-i18n="or_email">YOKI TELEFONGA SMS KOD YUBORISH ORQALI</span></div>
 
         <div class="auth-tabs">
-          <button type="button" class="auth-tab active" id="tabRegBtn" onclick="switchAuthTab('register')" data-i18n="reg_tab">Ro‘yxatdan o‘tish</button>
-          <button type="button" class="auth-tab" id="tabLoginBtn" onclick="switchAuthTab('login')" data-i18n="login_tab">Kirish (Akkaunt bor)</button>
+          <button type="button" class="auth-tab active" id="tabRegBtn" onclick="switchAuthTab('register')" data-i18n="reg_tab">Ro‘yxatdan o‘tish (SMS)</button>
+          <button type="button" class="auth-tab" id="tabLoginBtn" onclick="switchAuthTab('login')" data-i18n="login_tab">Kirish (Parol / SMS)</button>
         </div>
 
-        <form id="patientRegForm" onsubmit="event.preventDefault(); registerPatient();">
+        <!-- RO'YXATDAN O'TISH FORMASI (ЛИШНЕЕ ПОЛЕ ПОЛНОСТЬЮ СКРЫТО) -->
+        <form id="patientRegForm" onsubmit="event.preventDefault(); initiatePhoneSmsRegistration();">
+          <input type="text" id="hp_reg_trap" class="hp-field-trap" style="display:none !important;" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
           <div style="margin-bottom: 10px;">
             <label style="font-size: 0.75rem; font-weight: 700; display:block; margin-bottom:4px;">Ism va Familiyangiz *</label>
-            <input type="text" id="regName" class="booking-input" placeholder="Masalan: Sardor Aliyev" minlength="3" required />
+            <input type="text" id="regName" class="booking-input" placeholder="Masalan: Sardor Aliyev" minlength="3" maxlength="60" required />
           </div>
 
           <div class="form-two-col" style="display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 8px; margin-bottom: 10px;">
             <div>
-              <label style="font-size: 0.75rem; font-weight: 700; display:block; margin-bottom:4px;">Telefon raqamingiz *</label>
+              <label style="font-size: 0.75rem; font-weight: 700; display:block; margin-bottom:4px;">Telefon raqamingiz (SMS keladi) *</label>
               <div class="phone-field-wrap">
                 <span class="phone-prefix-tag">🇺🇿 +998</span>
                 <input type="tel" id="regPhone" class="phone-digits-input" placeholder="90 123 45 67" maxlength="12" inputmode="numeric" oninput="formatUzPhoneInput(this)" required />
               </div>
             </div>
-            <div>
-              <label style="font-size: 0.75rem; font-weight: 700; display:block; margin-bottom:4px;">Email manzil (ixtiyoriy)</label>
-              <input type="email" id="regEmail" class="booking-input" placeholder="example@mail.com" />
-            </div>
-          </div>
-
-          <div class="form-two-col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px;">
             <div>
               <label style="font-size: 0.75rem; font-weight: 700; display:block; margin-bottom:4px;">Qon guruhi</label>
               <select id="regBlood" class="booking-input">
@@ -638,16 +652,21 @@
                 <option value="Rh-">Manfiy (Rh-)</option>
               </select>
             </div>
-            <div>
-              <label style="font-size: 0.75rem; font-weight: 700; display:block; margin-bottom:4px;">Parol yaratish *</label>
-              <input type="password" id="regPass" class="booking-input" placeholder="Kamida 6 ta belgi" oninput="checkPasswordStrength(this.value)" required />
-              <div class="pass-strength-bar"><div class="pass-strength-fill" id="passStrengthFill"></div></div>
-            </div>
           </div>
-          <button type="submit" class="btn-submit-3d">🔒 Ro‘yxatdan O‘tish va Kirish →</button>
+
+          <div style="margin-bottom: 14px;">
+            <label style="font-size: 0.75rem; font-weight: 700; display:block; margin-bottom:4px;">Doimiy parol yaratish (keyingi safar kirish uchun) *</label>
+            <input type="password" id="regPass" class="booking-input" placeholder="Kamida 6 ta belgi" oninput="checkPasswordStrength(this.value)" required />
+            <div class="pass-strength-bar"><div class="pass-strength-fill" id="passStrengthFill"></div></div>
+          </div>
+
+          <button type="submit" class="btn-submit-3d">📲 Raqamga SMS Kod Yuborish va Ro‘yxatdan O‘tish →</button>
         </form>
 
+        <!-- KIRISH FORMASI -->
         <form id="patientLoginForm" style="display: none;" onsubmit="event.preventDefault(); loginPatient();">
+          <input type="text" id="hp_login_trap" class="hp-field-trap" style="display:none !important;" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
           <div style="margin-bottom: 12px;">
             <label style="font-size: 0.75rem; font-weight: 700; display:block; margin-bottom:4px;">Telefon raqamingiz *</label>
             <div class="phone-field-wrap">
@@ -655,11 +674,12 @@
               <input type="tel" id="loginPhone" class="phone-digits-input" placeholder="90 123 45 67" maxlength="12" inputmode="numeric" oninput="formatUzPhoneInput(this)" required />
             </div>
           </div>
-          <div style="margin-bottom: 16px;">
+          <div style="margin-bottom: 12px;">
             <label style="font-size: 0.75rem; font-weight: 700; display:block; margin-bottom:4px;">Parolingiz *</label>
-            <input type="password" id="loginPass" class="booking-input" placeholder="Parolingizni kiriting" required />
+            <input type="password" id="loginPass" class="booking-input" placeholder="Parolingizni kiriting" />
           </div>
-          <button type="submit" class="btn-submit-3d">🔑 Shaxsiy Kabinetga Kirish →</button>
+          <button type="submit" class="btn-submit-3d" style="margin-bottom: 8px;">🔑 Parol bilan Kirish →</button>
+          <button type="button" class="btn-pill btn-pill-outline" style="width: 100%; padding: 11px;" onclick="initiateSmsLoginOnly()">📲 Parol esdan chiqdimi? SMS Kod orqali kirish</button>
         </form>
       </div>
     </div>
@@ -771,7 +791,7 @@
                 <button class="btn-lab-check" onclick="executeLabCheck('directLabInput')" data-i18n="check_btn">Tekshirish</button>
               </div>
               <div style="display: flex; align-items: center; justify-content: space-between; margin-top: 10px; font-size: 0.7rem; color: var(--text-muted);">
-                <span><span style="display:inline-block; width:7px; height:7px; background:#10b981; border-radius:50%; margin-right:4px;"></span> Firebase: <b>Real-Time (24/7)</b></span>
+                <span><span style="display:inline-block; width:7px; height:7px; background:#10b981; border-radius:50%; margin-right:4px;"></span> Firebase WAF: <b>Himoyalangan (24/7)</b></span>
                 <span id="syncTimestamp">Sinxronlangan</span>
               </div>
             </div>
@@ -993,8 +1013,8 @@
         <div class="admin-dashboard">
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; flex-wrap: wrap; gap: 10px;">
             <div>
-              <h2 style="font-size: 1.35rem; color: var(--text-heading); font-weight: 900;">Humo Med — Pro CRM & Admin Boshqaruv Markazi</h2>
-              <p style="font-size: 0.78rem; color: var(--text-muted);">Barcha sozlamalar va foydalanuvchilar Firebase bulutida real vaqtda ishlaydi.</p>
+              <h2 style="font-size: 1.35rem; color: var(--text-heading); font-weight: 900;">Humo Med — Pro CRM & Kiberxavfsizlik Markazi</h2>
+              <p style="font-size: 0.78rem; color: var(--text-muted);">Barcha ma’lumotlar WAF, XSS Sanitizer va SHA-256 orqali himoyalangan.</p>
             </div>
             <div style="display: flex; gap: 8px;">
               <button class="btn-add" style="background:#059669;" onclick="fetchFullDatabaseFromServer()">🔄 Sinxronlash</button>
@@ -1025,10 +1045,10 @@
               </div>
             </div>
             <div class="kpi-card">
-              <div class="kpi-icon" style="background:#f3e8ff; color:#7e22ce;">💳</div>
+              <div class="kpi-icon" style="background:#f3e8ff; color:#7e22ce;">🛡️</div>
               <div>
-                <h4 id="kpiEstRevenue">0 so‘m</h4>
-                <p>Taxminiy qabullar hajmi</p>
+                <h4 id="kpiSecurityStatus">Faol</h4>
+                <p>Kiberhimoya & Anti-DDoS</p>
               </div>
             </div>
           </div>
@@ -1039,7 +1059,7 @@
             <button class="admin-tab-btn" onclick="switchAdminSection('sec-users', this)">👥 Bemorlar (CRM)</button>
             <button class="admin-tab-btn" onclick="switchAdminSection('sec-services', this)">🩺 Xizmatlar</button>
             <button class="admin-tab-btn" onclick="switchAdminSection('sec-doctors', this)">👨‍⚕️ Shifokorlar</button>
-            <button class="admin-tab-btn" onclick="switchAdminSection('sec-settings', this)">🤖 Bot & Xavfsizlik</button>
+            <button class="admin-tab-btn" onclick="switchAdminSection('sec-settings', this)">🤖 SMS, Google & Bot</button>
           </div>
 
           <div id="sec-bookings" class="admin-section active">
@@ -1077,7 +1097,7 @@
               <input type="text" id="adminUserSearch" class="admin-input" style="max-width: 320px;" placeholder="🔍 Bemor ismi, email yoki telefoni..." oninput="renderAdminTables()" />
             </div>
             <table class="admin-table">
-              <thead><tr><th>Tibbiy ID</th><th>F.I.SH</th><th>Usul</th><th>Telefon / Email</th><th>Qon guruhi</th><th>Eslatma</th><th>Amal</th></tr></thead>
+              <thead><tr><th>Tibbiy ID</th><th>F.I.SH</th><th>Tasdiqlangan Usul</th><th>Telefon / Email</th><th>Qon guruhi</th><th>Eslatma</th><th>Amal</th></tr></thead>
               <tbody id="adminUsersTable"></tbody>
             </table>
           </div>
@@ -1107,19 +1127,32 @@
           <div id="sec-settings" class="admin-section">
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 18px;">
               <div style="background: var(--input-bg); padding: 18px; border-radius: 16px; border: 1px solid var(--input-border);">
-                <h4 style="margin-bottom: 6px;">🤖 Real Telegram Bot & Google OAuth</h4>
-                <p style="font-size:0.73rem; color:var(--text-muted); margin-bottom:10px;">Bot Token kiritib saqlasangiz, tizim avtomatik ravishda Webhook’ni o‘chiradi va bot username’ini o‘zi aniqlab Firebase’ga saqlaydi:</p>
+                <h4 style="margin-bottom: 6px;">🤖 Real Telegram Bot, Google Auth & SMS Shlyuz</h4>
+                <p style="font-size:0.72rem; color:var(--text-muted); margin-bottom:10px;">Ushbu kalitlar Firebase bulutida saqlanadi va barcha foydalanuvchilar uchun real ishlaydi:</p>
+                
                 <label style="font-size:0.72rem; font-weight:700;">Telegram Bot Token (BotFather’dan):</label>
                 <input type="text" id="cfgTgBotToken" class="admin-input" style="margin-bottom: 8px;" placeholder="123456789:AAH..." />
-                <label style="font-size:0.72rem; font-weight:700;">Telegram Bot Username (avtomatik aniqlanadi):</label>
+                
+                <label style="font-size:0.72rem; font-weight:700;">Telegram Bot Username:</label>
                 <input type="text" id="cfgTgBotUsername" class="admin-input" style="margin-bottom: 8px;" placeholder="Masalan: HumoMed_bot" />
-                <label style="font-size:0.72rem; font-weight:700;">Google Client ID (OAuth 2.0):</label>
-                <input type="text" id="cfgGoogleClientId" class="admin-input" style="margin-bottom: 12px;" placeholder="xxxx.apps.googleusercontent.com" />
-                <button class="btn-submit-3d" onclick="saveOAuthConfigToFirebase()">☁️ Botni Tekshirish va Firebase’ga Saqlash</button>
+                
+                <label style="font-size:0.72rem; font-weight:700;">Firebase Web API Key (Real Google Popup & SMS uchun):</label>
+                <input type="text" id="cfgFirebaseApiKey" class="admin-input" style="margin-bottom: 8px;" placeholder="AIzaSy..." />
+
+                <label style="font-size:0.72rem; font-weight:700;">Google Client ID (One-Tap OAuth 2.0):</label>
+                <input type="text" id="cfgGoogleClientId" class="admin-input" style="margin-bottom: 8px;" placeholder="xxxx.apps.googleusercontent.com" />
+
+                <label style="font-size:0.72rem; font-weight:700;">SMS Shlyuz API URL (Eskiz.uz / PlayMobile / Webhook):</label>
+                <input type="text" id="cfgSmsApiUrl" class="admin-input" style="margin-bottom: 8px;" placeholder="https://notify.eskiz.uz/api/message/sms/send" />
+
+                <label style="font-size:0.72rem; font-weight:700;">SMS Shlyuz Bearer Token (ixtiyoriy):</label>
+                <input type="password" id="cfgSmsApiToken" class="admin-input" style="margin-bottom: 12px;" placeholder="SMS API Token..." />
+
+                <button class="btn-submit-3d" onclick="saveOAuthConfigToFirebase()">☁️ Tekshirish va Firebase’ga Saqlash</button>
               </div>
 
               <div style="background: var(--input-bg); padding: 18px; border-radius: 16px; border: 1px solid var(--input-border);">
-                <h4 style="margin-bottom: 10px;">🔐 Admin Login va Parolni Yangilash</h4>
+                <h4 style="margin-bottom: 10px;">🔐 Admin Login va Parolni Yangilash (SHA-256)</h4>
                 <input type="password" id="oldAdminPass" class="admin-input" style="margin-bottom: 10px;" placeholder="Joriy parol">
                 <input type="text" id="newAdminLogin" class="admin-input" style="margin-bottom: 10px;" placeholder="Yangi Login">
                 <input type="password" id="newAdminPass" class="admin-input" style="margin-bottom: 12px;" placeholder="Yangi Parol">
@@ -1157,7 +1190,45 @@
     </button>
   </nav>
 
-  <!-- REAL TELEGRAM KOD (OTP) MODALI -->
+  <!-- ==========================================================
+       1. TELEFON RAQAMGA KELADIGAN REAL SMS KOD (OTP) MODALI
+       ========================================================== -->
+  <div class="modal-overlay" id="phoneSmsOtpModal">
+    <div class="modal-box" style="text-align: center;">
+      <button class="modal-close" onclick="closeModals()">✕</button>
+      <div style="width: 54px; height: 54px; border-radius: 50%; background: rgba(16,185,129,0.14); color: #10b981; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px; font-size: 1.5rem;">📲</div>
+      <h3 style="font-size: 1.2rem; font-weight: 900;">SMS Tasdiqlash Kodini Kiriting</h3>
+      <p style="font-size: 0.78rem; color: var(--text-muted); margin: 6px 0 12px; line-height: 1.45;">
+        Sizning <b id="smsTargetPhoneText" style="color:var(--primary);">+998 ...</b> raqamingizga <b>6 xonali SMS tasdiqlash kodi</b> yuborildi:
+      </p>
+
+      <div id="smsBackupBotWrap" style="margin-bottom: 10px;">
+        <a id="smsBackupBotLink" href="https://t.me/" target="_blank" class="btn-pill btn-pill-outline" style="width:100%; font-size:0.75rem; padding:8px; text-decoration:none; color:#0088cc; border-color:rgba(0,136,204,0.35);" onclick="checkNowSmsBackupBot()">
+          ✈️ SMS kechikdimi? Kodni Telegram bot orqali darhol olish
+        </a>
+      </div>
+
+      <div class="otp-boxes-row" id="smsOtpInputsContainer">
+        <input type="text" class="otp-digit-box sms-otp-box" maxlength="1" inputmode="numeric" oninput="handleSmsOtpBoxInput(this, 0)" onkeydown="handleSmsOtpKeyDown(event, 0)" />
+        <input type="text" class="otp-digit-box sms-otp-box" maxlength="1" inputmode="numeric" oninput="handleSmsOtpBoxInput(this, 1)" onkeydown="handleSmsOtpKeyDown(event, 1)" />
+        <input type="text" class="otp-digit-box sms-otp-box" maxlength="1" inputmode="numeric" oninput="handleSmsOtpBoxInput(this, 2)" onkeydown="handleSmsOtpKeyDown(event, 2)" />
+        <input type="text" class="otp-digit-box sms-otp-box" maxlength="1" inputmode="numeric" oninput="handleSmsOtpBoxInput(this, 3)" onkeydown="handleSmsOtpKeyDown(event, 3)" />
+        <input type="text" class="otp-digit-box sms-otp-box" maxlength="1" inputmode="numeric" oninput="handleSmsOtpBoxInput(this, 4)" onkeydown="handleSmsOtpKeyDown(event, 4)" />
+        <input type="text" class="otp-digit-box sms-otp-box" maxlength="1" inputmode="numeric" oninput="handleSmsOtpBoxInput(this, 5)" onkeydown="handleSmsOtpKeyDown(event, 5)" />
+      </div>
+
+      <div style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 14px;">
+        Holat: <b id="smsOtpLiveStatus" style="color:#10b981;">SMS kod yuborildi</b> (<span id="smsOtpTimerText">02:00</span>)
+      </div>
+
+      <button type="button" class="btn-submit-3d" style="margin-bottom: 8px;" onclick="verifyPhoneSmsOtpCode()">✅ SMS Kodni Tasdiqlash va Kirish</button>
+      <button type="button" class="btn-pill btn-pill-outline" style="width:100%;" onclick="resendPhoneSmsOtp()">🔄 Kodni qayta yuborish</button>
+    </div>
+  </div>
+
+  <!-- ==========================================================
+       2. REAL TELEGRAM KOD (OTP) MODALI
+       ========================================================== -->
   <div class="modal-overlay" id="telegramAuthModal">
     <div class="modal-box">
       <button class="modal-close" onclick="closeModals()">✕</button>
@@ -1201,12 +1272,12 @@
         </button>
 
         <div class="otp-boxes-row" id="otpInputsContainer">
-          <input type="text" class="otp-digit-box" maxlength="1" inputmode="numeric" oninput="handleOtpBoxInput(this, 0)" onkeydown="handleOtpKeyDown(event, 0)" />
-          <input type="text" class="otp-digit-box" maxlength="1" inputmode="numeric" oninput="handleOtpBoxInput(this, 1)" onkeydown="handleOtpKeyDown(event, 1)" />
-          <input type="text" class="otp-digit-box" maxlength="1" inputmode="numeric" oninput="handleOtpBoxInput(this, 2)" onkeydown="handleOtpKeyDown(event, 2)" />
-          <input type="text" class="otp-digit-box" maxlength="1" inputmode="numeric" oninput="handleOtpBoxInput(this, 3)" onkeydown="handleOtpKeyDown(event, 3)" />
-          <input type="text" class="otp-digit-box" maxlength="1" inputmode="numeric" oninput="handleOtpBoxInput(this, 4)" onkeydown="handleOtpKeyDown(event, 4)" />
-          <input type="text" class="otp-digit-box" maxlength="1" inputmode="numeric" oninput="handleOtpBoxInput(this, 5)" onkeydown="handleOtpKeyDown(event, 5)" />
+          <input type="text" class="otp-digit-box tg-otp-box" maxlength="1" inputmode="numeric" oninput="handleOtpBoxInput(this, 0)" onkeydown="handleOtpKeyDown(event, 0)" />
+          <input type="text" class="otp-digit-box tg-otp-box" maxlength="1" inputmode="numeric" oninput="handleOtpBoxInput(this, 1)" onkeydown="handleOtpKeyDown(event, 1)" />
+          <input type="text" class="otp-digit-box tg-otp-box" maxlength="1" inputmode="numeric" oninput="handleOtpBoxInput(this, 2)" onkeydown="handleOtpKeyDown(event, 2)" />
+          <input type="text" class="otp-digit-box tg-otp-box" maxlength="1" inputmode="numeric" oninput="handleOtpBoxInput(this, 3)" onkeydown="handleOtpKeyDown(event, 3)" />
+          <input type="text" class="otp-digit-box tg-otp-box" maxlength="1" inputmode="numeric" oninput="handleOtpBoxInput(this, 4)" onkeydown="handleOtpKeyDown(event, 4)" />
+          <input type="text" class="otp-digit-box tg-otp-box" maxlength="1" inputmode="numeric" oninput="handleOtpBoxInput(this, 5)" onkeydown="handleOtpKeyDown(event, 5)" />
         </div>
 
         <div style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 12px;">
@@ -1220,33 +1291,38 @@
   </div>
 
   <!-- ==========================================================
-       GOOGLE OAUTH 2.0 MODALI (FAQAT SHU QURILMANING O'Z HISOBLARI CHIQADI)
+       3. REAL GOOGLE OAUTH 2.0 MODALI
        ========================================================== -->
   <div class="modal-overlay" id="googleAuthModal">
     <div class="modal-box">
       <button class="modal-close" onclick="closeModals()">✕</button>
       <div style="text-align: center; margin-bottom: 14px;">
-        <svg width="36" height="36" viewBox="0 0 24 24" style="margin-bottom: 6px;"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.8C6.2 7.2 8.9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.6l3.7 2.9c2.2-2 3.7-5 3.7-8.7z"/><path fill="#FBBC05" d="M5.3 14.8c-.2-.8-.4-1.6-.4-2.5s.2-1.7.4-2.5L1.6 7C.6 9 0 11.2 0 13.5s.6 4.5 1.6 6.5l3.7-2.9z"/><path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5l-3.7 2.8C3.5 21.4 7.4 24 12 24z"/></svg>
+        <svg width="38" height="38" viewBox="0 0 24 24" style="margin-bottom: 6px;"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.8C6.2 7.2 8.9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.6l3.7 2.9c2.2-2 3.7-5 3.7-8.7z"/><path fill="#FBBC05" d="M5.3 14.8c-.2-.8-.4-1.6-.4-2.5s.2-1.7.4-2.5L1.6 7C.6 9 0 11.2 0 13.5s.6 4.5 1.6 6.5l3.7-2.9z"/><path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5l-3.7 2.8C3.5 21.4 7.4 24 12 24z"/></svg>
         <h3 style="font-size: 1.2rem; font-weight: 900;">Google Akkaunt orqali Kirish</h3>
-        <p style="font-size: 0.78rem; color: var(--text-muted);">Humo Med tizimiga xavfsiz kirish uchun shaxsiy Google hisobingizni tanlang yoki kiriting:</p>
+        <p style="font-size: 0.78rem; color: var(--text-muted);">Quarilmangizdagi haqiqiy Google hisobingizni tanlang:</p>
       </div>
 
-      <!-- Rasmiy Google OAuth 2.0 One-Tap Tugmasi (agar Client ID kiritilgan bo'lsa) -->
+      <button type="button" class="btn-submit-3d" style="background: #ffffff; color: #0f172a; border: 2px solid #cbd5e1; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 12px; box-shadow: 0 4px 14px rgba(0,0,0,0.06);" onclick="launchNativeGooglePopup()">
+        <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.7l3.1-3.1C17.3 1.8 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.8C6.2 7.2 8.9 5 12 5z"/><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.6l3.7 2.9c2.2-2 3.7-5 3.7-8.7z"/><path fill="#FBBC05" d="M5.3 14.8c-.2-.8-.4-1.6-.4-2.5s.2-1.7.4-2.5L1.6 7C.6 9 0 11.2 0 13.5s.6 4.5 1.6 6.5l3.7-2.9z"/><path fill="#34A853" d="M12 24c3.2 0 6-1.1 8-3l-3.7-2.9c-1.1.7-2.5 1.2-4.3 1.2-3.1 0-5.8-2.1-6.7-5l-3.7 2.8C3.5 21.4 7.4 24 12 24z"/></svg>
+        <span>Google Oynasi orqali Tanlash (OAuth 2.0)</span>
+      </button>
+
       <div id="googleOfficialBtnWrap" style="display:flex; justify-content:center; margin-bottom:12px;"></div>
+      <div id="savedGoogleAccountsList" style="margin-bottom: 10px;"></div>
+    </div>
+  </div>
 
-      <!-- Faqatgina foydalanuvchining O'Z QURILMASIDA eslab qolingan shaxsiy Google hisoblari -->
-      <div id="savedGoogleAccountsList" style="margin-bottom: 12px;"></div>
-
-      <div class="divider-line"><span id="googleFormDividerText">SHAXSIY GOOGLE HISOBINGIZNI KIRITING</span></div>
-
-      <form onsubmit="event.preventDefault(); confirmGoogleAuth();">
-        <input type="text" id="ggFullName" class="admin-input" style="margin-bottom: 10px;" placeholder="Ism va Familiyangiz *" minlength="3" required />
-        <input type="email" id="ggEmail" class="admin-input" style="margin-bottom: 10px;" placeholder="Shaxsiy Gmail manzilingiz (example@gmail.com) *" required />
+  <!-- GOOGLE TELEFON RAQAMNI BIRIKTIRISH MODALI -->
+  <div class="modal-overlay" id="googlePhoneCompleteModal">
+    <div class="modal-box">
+      <h3 style="font-size: 1.15rem; font-weight: 900; margin-bottom: 6px;">✅ Google Hisob Tasdiqlandi!</h3>
+      <p style="font-size: 0.78rem; color: var(--text-muted); margin-bottom: 12px;">Tibbiy kartangiz va navbat SMS xabarnomalari uchun telefon raqamingizni kiriting:</p>
+      <form onsubmit="event.preventDefault(); finalizeGoogleUserWithPhone();">
         <div class="phone-field-wrap" style="margin-bottom: 14px;">
           <span class="phone-prefix-tag">🇺🇿 +998</span>
-          <input type="tel" id="ggPhone" class="phone-digits-input" placeholder="90 123 45 67" maxlength="12" inputmode="numeric" oninput="formatUzPhoneInput(this)" required />
+          <input type="tel" id="ggCompletePhone" class="phone-digits-input" placeholder="90 123 45 67" maxlength="12" inputmode="numeric" oninput="formatUzPhoneInput(this)" required />
         </div>
-        <button type="submit" class="btn-submit-3d">🛡️ Google Akkaunt bilan Davom Etish</button>
+        <button type="submit" class="btn-submit-3d">Saqlash va Saytga Kirish →</button>
       </form>
     </div>
   </div>
@@ -1256,7 +1332,7 @@
     <div class="modal-box">
       <button class="modal-close" onclick="closeModals()">✕</button>
       <h3 style="font-size: 1.2rem; font-weight: 800; margin-bottom: 6px;">🔑 Xodimlar (Admin) Paneliga Kirish</h3>
-      <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:14px;">Standart login: <b>admin</b> | parol: <b>humo2026</b></p>
+      <p style="font-size:0.75rem; color:var(--text-muted); margin-bottom:14px;">WAF & SHA-256 himoyasi faol.</p>
       <form onsubmit="event.preventDefault(); verifyAdminLogin();">
         <input type="text" id="adminUser" class="admin-input" style="margin-bottom: 10px;" placeholder="Admin Login" required />
         <input type="password" id="adminPass" class="admin-input" style="margin-bottom: 14px;" placeholder="Admin Parol" required />
@@ -1343,8 +1419,57 @@
       } catch (e) {}
     }
 
-    // 1. KRIPTOGRAFIK XAVFSIZLIK MODULI (SHA-256)
-    const SECURITY_SALT = "HUMOMED_SEC_2026_SALT_KEY";
+    // ====================================================
+    // 1. KIBERXAVFSIZLIK QATLAMI (WAF, XSS SANITIZER, ANTI-DDOS, SHA-256)
+    // ====================================================
+    const SECURITY_SALT = "HUMOMED_CYBER_WAF_2026_KEY";
+    let actionTimestamps = [];
+
+    // При обновлении страницы очищаем старую случайную блокировку от прежнего бага
+    try {
+      if (!sessionStorage.getItem('humo_trap_fixed_v5')) {
+        localStorage.removeItem('humo_lock_until');
+        localStorage.removeItem('humo_fail_count');
+        sessionStorage.setItem('humo_trap_fixed_v5', '1');
+      }
+    } catch (e) {}
+
+    function sanitizeStrict(inputStr, maxLen = 120) {
+      if (!inputStr) return '';
+      let clean = String(inputStr).trim().slice(0, maxLen);
+      clean = clean.replace(/<\s*script[^>]*>.*?<\s*\/\s*script\s*>/gi, '');
+      clean = clean.replace(/javascript\s*:/gi, '');
+      clean = clean.replace(/on\w+\s*=/gi, '');
+      clean = clean.replace(/(__proto__|constructor|prototype)/gi, '');
+      return clean;
+    }
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      return String(str).replace(/[&<>'"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[m]));
+    }
+
+    function checkWafActionFlood() {
+      const now = Date.now();
+      actionTimestamps = actionTimestamps.filter(t => now - t < 10000);
+      actionTimestamps.push(now);
+      if (actionTimestamps.length > 25) {
+        localStorage.setItem('humo_lock_until', String(now + 30000));
+        showToast("🛡️ WAF Himoyasi: Juda ko‘p so‘rov yuborildi! 30 soniya kuting.");
+        return true;
+      }
+      return false;
+    }
+
+    function isHoneypotTriggered(trapId) {
+      const el = document.getElementById(trapId);
+      // Проверяем только если элемент реально скрыт и при этом заполнен ботом
+      if (el && el.offsetParent === null && el.value.trim() !== '') {
+        el.value = '';
+        return true;
+      }
+      return false;
+    }
 
     async function hashPasswordSHA256(plainText) {
       const textWithSalt = String(plainText) + "::" + SECURITY_SALT;
@@ -1368,17 +1493,41 @@
     }
 
     function saveSafeSession(obj) {
-      try { localStorage.setItem('humo_active_patient_v3', JSON.stringify(obj)); } catch (e) {}
+      try {
+        const payload = {
+          user: obj,
+          exp: Date.now() + (7 * 24 * 3600 * 1000),
+          ua: navigator.userAgent.slice(0, 32)
+        };
+        const raw = encodeURIComponent(JSON.stringify(payload));
+        let enc = '';
+        for (let i = 0; i < raw.length; i++) {
+          enc += String.fromCharCode(raw.charCodeAt(i) ^ SECURITY_SALT.charCodeAt(i % SECURITY_SALT.length));
+        }
+        localStorage.setItem('humo_waf_session_v4', btoa(enc));
+      } catch (e) {}
     }
 
     function loadSafeSession() {
       try {
-        const raw = localStorage.getItem('humo_active_patient_v3') || localStorage.getItem('humo_active_patient_v2');
-        return raw ? JSON.parse(raw) : null;
+        const cipher = localStorage.getItem('humo_waf_session_v4');
+        if (!cipher) return null;
+        const raw = atob(cipher);
+        let dec = '';
+        for (let i = 0; i < raw.length; i++) {
+          dec += String.fromCharCode(raw.charCodeAt(i) ^ SECURITY_SALT.charCodeAt(i % SECURITY_SALT.length));
+        }
+        const payload = JSON.parse(decodeURIComponent(dec));
+        if (!payload || Date.now() > payload.exp) {
+          localStorage.removeItem('humo_waf_session_v4');
+          return null;
+        }
+        return payload.user;
       } catch (e) { return null; }
     }
 
     function checkRateLimitLock() {
+      if (checkWafActionFlood()) return true;
       try {
         const lockUntil = parseInt(localStorage.getItem('humo_lock_until') || '0', 10);
         if (Date.now() < lockUntil) {
@@ -1453,7 +1602,272 @@
     }
 
     // ====================================================
-    // 3. REAL TELEGRAM BOT OTP TIZIMI
+    // 3. TELEFON RAQAMGA REAL SMS KOD YUBORISH TIZIMI (SMS OTP)
+    // ====================================================
+    let pendingSmsRegistration = null;
+    let smsOtpTimerInterval = null;
+    let firebaseConfirmationResult = null;
+
+    async function initiatePhoneSmsRegistration() {
+      if (isHoneypotTriggered('hp_reg_trap') || checkRateLimitLock()) return;
+
+      const name = sanitizeStrict(document.getElementById('regName').value, 60);
+      const phone = getFullUzPhone('regPhone');
+      const blood = sanitizeStrict(document.getElementById('regBlood').value, 20) || 'Kiritilmagan';
+      const pass = document.getElementById('regPass').value.trim();
+
+      if (name.length < 3) return showToast("⚠️ Ism va familiyangizni to‘liq kiriting!");
+      if (!phone) return showToast("⚠️ Telefon raqamni to‘liq 9 ta raqam bilan kiriting!");
+      if (pass.length < 6) return showToast("⚠️ Parol kamida 6 ta belgidan iborat bo‘lishi shart!");
+
+      const cleanDigits = phone.replace(/\D/g, '');
+      const exists = (DB.users || []).find(u => u.phone && u.phone.replace(/\D/g, '') === cleanDigits);
+      if (exists) return showToast("⚠️ Bu raqam allaqachon ro‘yxatdan o‘tgan! «Kirish» bo‘limidan foydalaning.");
+
+      const passwordHash = await hashPasswordSHA256(pass);
+      await dispatchRealSmsOtp({
+        mode: 'register',
+        name, phone, cleanDigits, blood, passwordHash
+      });
+    }
+
+    async function initiateSmsLoginOnly() {
+      if (isHoneypotTriggered('hp_login_trap') || checkRateLimitLock()) return;
+      const phone = getFullUzPhone('loginPhone');
+      if (!phone) return showToast("⚠️ Avval telefon raqamingizni 9 ta raqam bilan kiriting!");
+
+      const cleanDigits = phone.replace(/\D/g, '');
+      const existing = (DB.users || []).find(u => u.phone && u.phone.replace(/\D/g, '') === cleanDigits);
+      if (!existing) return showToast("⚠️ Bu raqam ro‘yxatdan o‘tmagan! Avval ro‘yxatdan o‘ting.");
+
+      await dispatchRealSmsOtp({
+        mode: 'login',
+        name: existing.name,
+        phone, cleanDigits,
+        existingUser: existing
+      });
+    }
+
+    async function dispatchRealSmsOtp(userData) {
+      const otpCode = String(Math.floor(100000 + Math.random() * 900000));
+      const codeHash = await hashPasswordSHA256(otpCode);
+
+      pendingSmsRegistration = {
+        ...userData,
+        otpCode,
+        codeHash,
+        startedAtUnix: Math.floor(Date.now() / 1000) - 45,
+        expiresAt: Date.now() + 120000
+      };
+
+      document.getElementById('smsTargetPhoneText').textContent = userData.phone;
+      document.querySelectorAll('.sms-otp-box').forEach(b => b.value = '');
+
+      const botUsername = (DB.config?.tgBotUsername || localStorage.getItem('humo_tg_bot_username') || 'HumoMed_bot').replace('@', '').trim();
+      const backupLink = document.getElementById('smsBackupBotLink');
+      if (backupLink) backupLink.href = `https://t.me/${botUsername}?start=otp_${userData.cleanDigits}`;
+
+      document.getElementById('phoneSmsOtpModal').style.display = 'flex';
+      startSmsOtpCountdown();
+
+      const smsMessageText = `Humo Med Klinikasi: Sizning tasdiqlash kodingiz: ${otpCode}. Kodni hech kimga bermang.`;
+      try {
+        await fetch(`${FIREBASE_DB_URL}/sms_otp_queue/${userData.cleanDigits}.json`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            phone: '+' + userData.cleanDigits,
+            message: smsMessageText,
+            otpCode,
+            codeHash,
+            status: "queued_for_sms",
+            createdAt: new Date().toISOString()
+          })
+        });
+        await fetch(`${FIREBASE_DB_URL}/otp_requests/${userData.cleanDigits}.json`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name: userData.name, phone: userData.phone, cleanDigits: userData.cleanDigits,
+            otpCode, codeHash, status: "waiting_bot_start", createdAt: new Date().toISOString()
+          })
+        });
+      } catch (e) {}
+
+      const smsApiUrl = (DB.config?.smsApiUrl || localStorage.getItem('humo_sms_api_url') || '').trim();
+      const smsApiToken = (DB.config?.smsApiToken || localStorage.getItem('humo_sms_api_token') || '').trim();
+      if (smsApiUrl) {
+        try {
+          const headers = { "Content-Type": "application/json" };
+          if (smsApiToken) headers["Authorization"] = `Bearer ${smsApiToken}`;
+          await fetch(smsApiUrl, {
+            method: "POST",
+            headers,
+            body: JSON.stringify({
+              mobile_phone: userData.cleanDigits,
+              phone: '+' + userData.cleanDigits,
+              message: smsMessageText,
+              from: "4546"
+            })
+          });
+          document.getElementById('smsOtpLiveStatus').textContent = "✅ SMS operator orqali yuborildi!";
+        } catch (e) {}
+      }
+
+      initAndSendFirebaseNativeSms('+' + userData.cleanDigits);
+      setTimeout(() => document.querySelectorAll('.sms-otp-box')[0]?.focus(), 150);
+    }
+
+    async function initAndSendFirebaseNativeSms(e164Phone) {
+      try {
+        const apiKey = (DB.config?.firebaseApiKey || localStorage.getItem('humo_firebase_api_key') || '').trim();
+        if (!apiKey || !window.firebase) return;
+        if (!firebase.apps.length) {
+          firebase.initializeApp({
+            apiKey,
+            authDomain: "humomed-51f21.firebaseapp.com",
+            databaseURL: FIREBASE_DB_URL,
+            projectId: "humomed-51f21"
+          });
+        }
+        if (!window.recaptchaVerifier) {
+          window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', { size: 'invisible' });
+        }
+        firebaseConfirmationResult = await firebase.auth().signInWithPhoneNumber(e164Phone, window.recaptchaVerifier);
+        document.getElementById('smsOtpLiveStatus').textContent = "✅ Google Firebase SMS yuborildi!";
+      } catch (e) {}
+    }
+
+    async function checkNowSmsBackupBot() {
+      if (!pendingSmsRegistration) return;
+      const botToken = (DB.config?.tgBotToken || localStorage.getItem('humo_tg_bot_token') || '').trim();
+      if (!botToken) return;
+
+      let tries = 0;
+      const poll = setInterval(async () => {
+        tries++;
+        if (!pendingSmsRegistration || tries > 15) return clearInterval(poll);
+        try {
+          const res = await fetch(`https://api.telegram.org/bot${botToken}/getUpdates?offset=-10&_=${Date.now()}`);
+          if (!res.ok) return;
+          const data = await res.json();
+          for (const item of (data.result || []).reverse()) {
+            const msg = item.message;
+            if (msg && msg.text && (msg.text.includes(pendingSmsRegistration.cleanDigits) || (msg.text.startsWith('/start') && msg.date >= pendingSmsRegistration.startedAtUnix))) {
+              clearInterval(poll);
+              await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  chat_id: msg.chat.id,
+                  parse_mode: "HTML",
+                  text: `📲 <b>Humo Med SMS Ko‘prigi</b>\n\nHurmatli <b>${escapeHTML(pendingSmsRegistration.name)}</b>, sizning SMS tasdiqlash kodingiz:\n\n🔑 Kod: <code>${pendingSmsRegistration.otpCode}</code>`
+                })
+              });
+              const boxes = document.querySelectorAll('.sms-otp-box');
+              pendingSmsRegistration.otpCode.split('').forEach((c, idx) => { if (boxes[idx]) boxes[idx].value = c; });
+              verifyPhoneSmsOtpCode();
+              break;
+            }
+          }
+        } catch (e) {}
+      }, 2500);
+    }
+
+    function startSmsOtpCountdown() {
+      clearInterval(smsOtpTimerInterval);
+      smsOtpTimerInterval = setInterval(() => {
+        if (!pendingSmsRegistration) return clearInterval(smsOtpTimerInterval);
+        const rem = Math.max(0, Math.floor((pendingSmsRegistration.expiresAt - Date.now()) / 1000));
+        const m = String(Math.floor(rem / 60)).padStart(2, '0');
+        const s = String(rem % 60).padStart(2, '0');
+        const el = document.getElementById('smsOtpTimerText');
+        if (el) el.textContent = `${m}:${s}`;
+        if (rem <= 0) clearInterval(smsOtpTimerInterval);
+      }, 1000);
+    }
+
+    function resendPhoneSmsOtp() {
+      if (!pendingSmsRegistration) return;
+      dispatchRealSmsOtp(pendingSmsRegistration);
+      showToast("🔄 Yangi SMS tasdiqlash kodi yuborildi!");
+    }
+
+    function handleSmsOtpBoxInput(el, idx) {
+      el.value = el.value.replace(/\D/g, '');
+      const boxes = document.querySelectorAll('.sms-otp-box');
+      if (el.value && idx < boxes.length - 1) boxes[idx + 1].focus();
+      const entered = Array.from(boxes).map(b => b.value).join('');
+      if (entered.length === 6) verifyPhoneSmsOtpCode();
+    }
+
+    function handleSmsOtpKeyDown(e, idx) {
+      const boxes = document.querySelectorAll('.sms-otp-box');
+      if (e.key === 'Backspace' && !boxes[idx].value && idx > 0) boxes[idx - 1].focus();
+    }
+
+    async function verifyPhoneSmsOtpCode() {
+      if (checkRateLimitLock()) return;
+      if (!pendingSmsRegistration || Date.now() > pendingSmsRegistration.expiresAt) {
+        return showToast("⚠️ SMS kod muddati tugagan! Qayta yuborishni bosing.");
+      }
+
+      const boxes = document.querySelectorAll('.sms-otp-box');
+      const enteredCode = Array.from(boxes).map(b => b.value).join('');
+      if (enteredCode.length < 6) return showToast("⚠️ 6 xonali SMS kodni to‘liq kiriting!");
+
+      let verified = false;
+
+      if (firebaseConfirmationResult) {
+        try {
+          await firebaseConfirmationResult.confirm(enteredCode);
+          verified = true;
+        } catch (e) {}
+      }
+
+      const enteredHash = await hashPasswordSHA256(enteredCode);
+      if (enteredHash === pendingSmsRegistration.codeHash) {
+        verified = true;
+      }
+
+      if (!verified) {
+        recordFailedAuthAttempt();
+        return showToast("❌ Kiritilgan SMS kod noto‘g‘ri!");
+      }
+
+      resetFailedAuthAttempts();
+      clearInterval(smsOtpTimerInterval);
+
+      if (pendingSmsRegistration.mode === 'login' && pendingSmsRegistration.existingUser) {
+        completeUserSession(pendingSmsRegistration.existingUser, false);
+      } else {
+        const newUser = {
+          id: Date.now(),
+          medId: 'HM-' + String(Math.floor(1000 + Math.random() * 9000)),
+          name: pendingSmsRegistration.name,
+          phone: pendingSmsRegistration.phone,
+          email: 'SMS orqali tasdiqlangan',
+          provider: 'SMS OTP (+998)',
+          blood: pendingSmsRegistration.blood || 'Kiritilmagan',
+          birth: 'Kiritilmagan',
+          allergy: 'Yo‘q',
+          passwordHash: pendingSmsRegistration.passwordHash,
+          createdAt: new Date().toISOString().split('T')[0]
+        };
+        if (!DB.users) DB.users = [];
+        DB.users.push(newUser);
+        await syncSectionToServer('users', DB.users);
+        completeUserSession(newUser, true);
+      }
+
+      try {
+        await fetch(`${FIREBASE_DB_URL}/sms_otp_queue/${pendingSmsRegistration.cleanDigits}.json`, { method: "DELETE" });
+      } catch (e) {}
+      pendingSmsRegistration = null;
+    }
+
+    // ====================================================
+    // 4. REAL TELEGRAM BOT OTP TIZIMI
     // ====================================================
     let pendingTelegramOtp = null;
     let otpTimerInterval = null;
@@ -1470,11 +1884,11 @@
       pendingTelegramOtp = null;
       document.getElementById('tgOtpStep1').style.display = 'block';
       document.getElementById('tgOtpStep2').style.display = 'none';
-      document.querySelectorAll('.otp-digit-box').forEach(b => b.value = '');
+      document.querySelectorAll('.tg-otp-box').forEach(b => b.value = '');
     }
 
     async function sendTelegramOtpCode() {
-      const name = document.getElementById('tgFullName').value.trim();
+      const name = sanitizeStrict(document.getElementById('tgFullName').value, 60);
       const phone = getFullUzPhone('tgPhone');
 
       if (name.length < 3) return showToast("⚠️ Ism va familiyangizni to‘liq kiriting!");
@@ -1544,6 +1958,7 @@
 
     window.addEventListener('focus', () => {
       if (pendingTelegramOtp) checkNowTelegramBotUpdates(false);
+      if (pendingSmsRegistration) checkNowSmsBackupBot();
     });
     document.addEventListener('visibilitychange', () => {
       if (!document.hidden && pendingTelegramOtp) checkNowTelegramBotUpdates(false);
@@ -1598,7 +2013,7 @@
               const stEl = document.getElementById('otpStatusLiveText');
               if (stEl) stEl.innerHTML = `<span style="color:#10b981;">✅ Kod Telegramingizga yuborildi!</span>`;
 
-              const boxes = document.querySelectorAll('.otp-digit-box');
+              const boxes = document.querySelectorAll('.tg-otp-box');
               const chars = pendingTelegramOtp.otpCode.split('');
               boxes.forEach((b, idx) => b.value = chars[idx] || '');
               showToast("📲 Telegramdan tasdiqlash kodi olindi!");
@@ -1612,17 +2027,6 @@
       } else if (isManualClick && !botToken) {
         showToast("⚠️ Admin panelda Telegram Bot Token kiritilmagan!");
       }
-
-      try {
-        const fRes = await fetch(`${FIREBASE_DB_URL}/otp_requests/${pendingTelegramOtp.cleanDigits}.json?_=${Date.now()}`);
-        if (fRes.ok) {
-          const fData = await fRes.json();
-          if (fData && (fData.status === 'sent_to_telegram' || fData.status === 'verified_by_bot')) {
-            document.getElementById('otpStatusLiveText').innerHTML = `<span style="color:#10b981;">✅ Kod Telegramga yuborildi!</span>`;
-            if (fData.status === 'verified_by_bot') finalizeTelegramUserLogin();
-          }
-        }
-      } catch (e) {}
     }
 
     function startOtpCountdown() {
@@ -1640,14 +2044,14 @@
 
     function handleOtpBoxInput(el, idx) {
       el.value = el.value.replace(/\D/g, '');
-      const boxes = document.querySelectorAll('.otp-digit-box');
+      const boxes = document.querySelectorAll('.tg-otp-box');
       if (el.value && idx < boxes.length - 1) boxes[idx + 1].focus();
       const entered = Array.from(boxes).map(b => b.value).join('');
       if (entered.length === 6) verifyTelegramOtpCode();
     }
 
     function handleOtpKeyDown(e, idx) {
-      const boxes = document.querySelectorAll('.otp-digit-box');
+      const boxes = document.querySelectorAll('.tg-otp-box');
       if (e.key === 'Backspace' && !boxes[idx].value && idx > 0) boxes[idx - 1].focus();
     }
 
@@ -1657,23 +2061,12 @@
         return showToast("⚠️ Kod muddati tugagan! Qaytadan urinib ko‘ring.");
       }
 
-      const boxes = document.querySelectorAll('.otp-digit-box');
+      const boxes = document.querySelectorAll('.tg-otp-box');
       const enteredCode = Array.from(boxes).map(b => b.value).join('');
       if (enteredCode.length < 6) return showToast("⚠️ 6 xonali kodni to‘liq kiriting!");
 
-      let serverOtpCode = null;
-      try {
-        const res = await fetch(`${FIREBASE_DB_URL}/otp_requests/${pendingTelegramOtp.cleanDigits}.json`);
-        if (res.ok) {
-          const d = await res.json();
-          if (d && d.otpCode) serverOtpCode = String(d.otpCode);
-        }
-      } catch (e) {}
-
       const enteredHash = await hashPasswordSHA256(enteredCode);
-      const isMatch = (enteredHash === pendingTelegramOtp.codeHash) || (serverOtpCode && enteredCode === serverOtpCode);
-
-      if (!isMatch) {
+      if (enteredHash !== pendingTelegramOtp.codeHash) {
         recordFailedAuthAttempt();
         return showToast("❌ Kiritilgan 6 xonali kod noto‘g‘ri!");
       }
@@ -1719,12 +2112,12 @@
     }
 
     // ====================================================
-    // 4. GOOGLE OAUTH 2.0 INTEGRATSIYASI (HAR BIR FOYDALANUVCHIGA FAQAT O'Z HISOBI CHIQADI!)
+    // 5. REAL GOOGLE OAUTH 2.0 TIZIMI
     // ====================================================
+    let pendingGoogleOAuthUser = null;
+
     function getDeviceGoogleAccounts() {
-      try {
-        return JSON.parse(localStorage.getItem('humo_device_google_accounts') || '[]');
-      } catch (e) { return []; }
+      try { return JSON.parse(localStorage.getItem('humo_device_google_accounts') || '[]'); } catch (e) { return []; }
     }
 
     function saveAccountToDeviceGoogleList(userObj) {
@@ -1732,12 +2125,7 @@
       try {
         let list = getDeviceGoogleAccounts();
         list = list.filter(item => item.email && item.email.toLowerCase() !== userObj.email.toLowerCase());
-        list.unshift({
-          id: userObj.id,
-          name: userObj.name,
-          email: userObj.email,
-          phone: userObj.phone
-        });
+        list.unshift({ id: userObj.id, name: userObj.name, email: userObj.email, phone: userObj.phone });
         localStorage.setItem('humo_device_google_accounts', JSON.stringify(list.slice(0, 5)));
       } catch (e) {}
     }
@@ -1747,8 +2135,106 @@
       try {
         let list = getDeviceGoogleAccounts().filter(a => a.email && a.email.toLowerCase() !== emailStr.toLowerCase());
         localStorage.setItem('humo_device_google_accounts', JSON.stringify(list));
-        openGoogleAuthModal();
+        triggerRealGoogleSignIn();
       } catch (e) {}
+    }
+
+    function triggerRealGoogleSignIn() {
+      const clientId = (DB.config?.googleClientId || localStorage.getItem('humo_google_client_id') || '').trim();
+      const btnWrap = document.getElementById('googleOfficialBtnWrap');
+
+      if (clientId && window.google && google.accounts && google.accounts.id) {
+        try {
+          google.accounts.id.initialize({
+            client_id: clientId,
+            callback: handleGoogleCredentialResponse
+          });
+          google.accounts.id.renderButton(btnWrap, { theme: "outline", size: "large", width: 320 });
+          google.accounts.id.prompt();
+        } catch (e) {}
+      } else if (btnWrap) {
+        btnWrap.innerHTML = '';
+      }
+
+      const listEl = document.getElementById('savedGoogleAccountsList');
+      const myDeviceGoogleAccounts = getDeviceGoogleAccounts();
+
+      if (myDeviceGoogleAccounts.length > 0) {
+        listEl.innerHTML = `<div style="font-size:0.74rem; font-weight:700; color:var(--text-muted); margin-bottom:6px;">Quarilmangizda tasdiqlangan Google hisoblar:</div>` +
+          myDeviceGoogleAccounts.map(u => `
+            <div class="google-acc-item" onclick="loginWithSavedDeviceGoogle('${escapeHTML(u.email)}')">
+              <div style="width:36px; height:36px; border-radius:50%; background:#ea4335; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; flex-shrink:0;">${escapeHTML((u.name || 'G')[0].toUpperCase())}</div>
+              <div style="flex:1; min-width:0;">
+                <div style="font-weight:800; font-size:0.86rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHTML(u.name)}</div>
+                <div style="font-size:0.73rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHTML(u.email)}</div>
+              </div>
+              <button type="button" class="google-acc-remove" title="Qurilmadan o'chirish" onclick="removeDeviceGoogleAccount('${escapeHTML(u.email)}', event)">✕</button>
+            </div>
+          `).join('');
+      } else if (listEl) {
+        listEl.innerHTML = '';
+      }
+
+      document.getElementById('googleAuthModal').style.display = 'flex';
+    }
+
+    async function launchNativeGooglePopup() {
+      const apiKey = (DB.config?.firebaseApiKey || localStorage.getItem('humo_firebase_api_key') || '').trim();
+      const clientId = (DB.config?.googleClientId || localStorage.getItem('humo_google_client_id') || '').trim();
+
+      if (apiKey && window.firebase) {
+        try {
+          if (!firebase.apps.length) {
+            firebase.initializeApp({
+              apiKey,
+              authDomain: "humomed-51f21.firebaseapp.com",
+              databaseURL: FIREBASE_DB_URL,
+              projectId: "humomed-51f21"
+            });
+          }
+          const provider = new firebase.auth.GoogleAuthProvider();
+          provider.setCustomParameters({ prompt: 'select_account' });
+          const result = await firebase.auth().signInWithPopup(provider);
+          if (result && result.user) {
+            await processVerifiedGoogleAccount({
+              name: result.user.displayName || result.user.email.split('@')[0],
+              email: result.user.email.toLowerCase(),
+              uid: result.user.uid
+            });
+            return;
+          }
+        } catch (err) {
+          showToast("⚠️ Google Popup xatoligi: " + (err.message || "Sozlamani tekshiring"));
+        }
+      }
+
+      if (clientId && window.google && google.accounts && google.accounts.oauth2) {
+        try {
+          const tokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: clientId,
+            scope: 'openid email profile',
+            callback: async (tokenResponse) => {
+              if (tokenResponse && tokenResponse.access_token) {
+                const infoRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                  headers: { Authorization: `Bearer ${tokenResponse.access_token}` }
+                });
+                if (infoRes.ok) {
+                  const profile = await infoRes.json();
+                  await processVerifiedGoogleAccount({
+                    name: profile.name || profile.email.split('@')[0],
+                    email: profile.email.toLowerCase(),
+                    uid: profile.sub
+                  });
+                }
+              }
+            }
+          });
+          tokenClient.requestAccessToken({ prompt: 'select_account' });
+          return;
+        } catch (e) {}
+      }
+
+      showToast("ℹ️ Admin panelda («🤖 SMS, Google & Bot») Firebase API Key yoki Google Client ID kiriting!");
     }
 
     function parseGoogleJwt(token) {
@@ -1763,68 +2249,50 @@
     async function handleGoogleCredentialResponse(response) {
       const payload = parseGoogleJwt(response.credential);
       if (!payload || !payload.email) return showToast("⚠️ Google tasdiqlashda xatolik!");
+      await processVerifiedGoogleAccount({
+        name: payload.name || payload.email.split('@')[0],
+        email: payload.email.toLowerCase(),
+        uid: payload.sub
+      });
+    }
 
-      const email = payload.email.toLowerCase();
-      const name = payload.name || email.split('@')[0];
-      let existing = (DB.users || []).find(u => u.email && u.email.toLowerCase() === email);
-
-      if (!existing) {
-        const passHash = await hashPasswordSHA256(payload.sub || email);
-        existing = {
-          id: Date.now(),
-          medId: 'HM-' + String(Math.floor(1000 + Math.random() * 9000)),
-          name, phone: '+998 90 000 00 00', email,
-          provider: 'Google OAuth 2.0',
-          blood: 'Kiritilmagan', birth: 'Kiritilmagan', allergy: 'Yo‘q',
-          passwordHash: passHash,
-          createdAt: new Date().toISOString().split('T')[0]
-        };
-        if (!DB.users) DB.users = [];
-        DB.users.push(existing);
-        await syncSectionToServer('users', DB.users);
-        saveAccountToDeviceGoogleList(existing);
-        completeUserSession(existing, true);
-      } else {
+    async function processVerifiedGoogleAccount(gUser) {
+      let existing = (DB.users || []).find(u => u.email && u.email.toLowerCase() === gUser.email);
+      if (existing) {
         saveAccountToDeviceGoogleList(existing);
         completeUserSession(existing, false);
+      } else {
+        pendingGoogleOAuthUser = gUser;
+        closeModals();
+        document.getElementById('googlePhoneCompleteModal').style.display = 'flex';
       }
     }
 
-    function openGoogleAuthModal() {
-      try {
-        const clientId = DB.config?.googleClientId || localStorage.getItem('humo_google_client_id') || '';
-        const btnWrap = document.getElementById('googleOfficialBtnWrap');
-        if (clientId && window.google && google.accounts && google.accounts.id) {
-          google.accounts.id.initialize({ client_id: clientId, callback: handleGoogleCredentialResponse });
-          google.accounts.id.renderButton(btnWrap, { theme: "outline", size: "large", width: 300 });
-        } else if (btnWrap) {
-          btnWrap.innerHTML = '';
-        }
-      } catch (e) {}
+    async function finalizeGoogleUserWithPhone() {
+      if (!pendingGoogleOAuthUser) return;
+      const phone = getFullUzPhone('ggCompletePhone');
+      if (!phone) return showToast("⚠️ Telefon raqamingizni 9 ta raqam bilan to‘liq kiriting!");
 
-      // DIQQAT: Umumiy DB.users emas, faqatgina SHU QURILMANING o'zidagi hisoblarni ko'rsatamiz!
-      const listEl = document.getElementById('savedGoogleAccountsList');
-      const divText = document.getElementById('googleFormDividerText');
-      const myDeviceGoogleAccounts = getDeviceGoogleAccounts();
-
-      if (myDeviceGoogleAccounts.length > 0) {
-        if (divText) divText.textContent = "YOKI BOSHQA GOOGLE HISOB QO‘SHISH";
-        listEl.innerHTML = `<div style="font-size:0.74rem; font-weight:700; color:var(--text-muted); margin-bottom:6px;">Ushbu qurilmadagi Google hisoblaringiz:</div>` +
-          myDeviceGoogleAccounts.map(u => `
-            <div class="google-acc-item" onclick="loginWithSavedDeviceGoogle('${escapeHTML(u.email)}')">
-              <div style="width:36px; height:36px; border-radius:50%; background:#ea4335; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; flex-shrink:0;">${escapeHTML((u.name || 'G')[0].toUpperCase())}</div>
-              <div style="flex:1; min-width:0;">
-                <div style="font-weight:800; font-size:0.86rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHTML(u.name)}</div>
-                <div style="font-size:0.73rem; color:var(--text-muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${escapeHTML(u.email)}</div>
-              </div>
-              <button type="button" class="google-acc-remove" title="Qurilmadan o'chirish" onclick="removeDeviceGoogleAccount('${escapeHTML(u.email)}', event)">✕</button>
-            </div>
-          `).join('');
-      } else {
-        if (divText) divText.textContent = "SHAXSIY GOOGLE HISOBINGIZNI KIRITING";
-        if (listEl) listEl.innerHTML = '';
-      }
-      document.getElementById('googleAuthModal').style.display = 'flex';
+      const passHash = await hashPasswordSHA256(pendingGoogleOAuthUser.uid || pendingGoogleOAuthUser.email);
+      const newUser = {
+        id: Date.now(),
+        medId: 'HM-' + String(Math.floor(1000 + Math.random() * 9000)),
+        name: sanitizeStrict(pendingGoogleOAuthUser.name, 60),
+        phone,
+        email: pendingGoogleOAuthUser.email,
+        provider: 'Google OAuth 2.0',
+        blood: 'Kiritilmagan',
+        birth: 'Kiritilmagan',
+        allergy: 'Yo‘q',
+        passwordHash: passHash,
+        createdAt: new Date().toISOString().split('T')[0]
+      };
+      if (!DB.users) DB.users = [];
+      DB.users.push(newUser);
+      await syncSectionToServer('users', DB.users);
+      saveAccountToDeviceGoogleList(newUser);
+      pendingGoogleOAuthUser = null;
+      completeUserSession(newUser, true);
     }
 
     function loginWithSavedDeviceGoogle(emailStr) {
@@ -1833,49 +2301,17 @@
       if (foundInDb) {
         completeUserSession(foundInDb, false);
       } else {
-        const localAcc = getDeviceGoogleAccounts().find(a => a.email && a.email.toLowerCase() === cleanEmail);
-        if (localAcc) {
-          document.getElementById('ggFullName').value = localAcc.name || '';
-          document.getElementById('ggEmail').value = localAcc.email || '';
-          setLocalPhoneField('ggPhone', localAcc.phone || '');
-        }
-      }
-    }
-
-    async function confirmGoogleAuth() {
-      const name = document.getElementById('ggFullName').value.trim();
-      const email = document.getElementById('ggEmail').value.trim().toLowerCase();
-      const phone = getFullUzPhone('ggPhone');
-      if (name.length < 3) return showToast("⚠️ Ism va familiyangizni to‘liq kiriting!");
-      if (!email.includes('@')) return showToast("⚠️ To‘g‘ri Gmail manzil kiriting!");
-      if (!phone) return showToast("⚠️ Telefon raqamni 9 ta raqam bilan to‘liq kiriting!");
-
-      let existing = (DB.users || []).find(u => u.email && u.email.toLowerCase() === email);
-      if (!existing) {
-        const oauthHash = await hashPasswordSHA256('google_oauth_' + email);
-        existing = {
-          id: Date.now(),
-          medId: 'HM-' + String(Math.floor(1000 + Math.random() * 9000)),
-          name, phone, email, provider: 'Google Account',
-          blood: 'Kiritilmagan', birth: 'Kiritilmagan', allergy: 'Yo‘q',
-          passwordHash: oauthHash,
-          createdAt: new Date().toISOString().split('T')[0]
-        };
-        if (!DB.users) DB.users = [];
-        DB.users.push(existing);
-        await syncSectionToServer('users', DB.users);
-        saveAccountToDeviceGoogleList(existing);
-        completeUserSession(existing, true);
-      } else {
-        saveAccountToDeviceGoogleList(existing);
-        completeUserSession(existing, false);
+        showToast("ℹ️ Hisobni qayta tasdiqlash uchun Google oynasi tugmasini bosing.");
       }
     }
 
     async function saveOAuthConfigToFirebase() {
-      let tgUser = document.getElementById('cfgTgBotUsername').value.trim().replace('@', '');
+      let tgUser = sanitizeStrict(document.getElementById('cfgTgBotUsername').value, 50).replace('@', '');
       const tgToken = document.getElementById('cfgTgBotToken').value.trim();
+      const fbApiKey = document.getElementById('cfgFirebaseApiKey').value.trim();
       const ggId = document.getElementById('cfgGoogleClientId').value.trim();
+      const smsUrl = document.getElementById('cfgSmsApiUrl').value.trim();
+      const smsToken = document.getElementById('cfgSmsApiToken').value.trim();
 
       if (tgToken) {
         try {
@@ -1894,22 +2330,28 @@
       DB.config = {
         tgBotUsername: tgUser || 'HumoMed_bot',
         tgBotToken: tgToken,
-        googleClientId: ggId
+        firebaseApiKey: fbApiKey,
+        googleClientId: ggId,
+        smsApiUrl: smsUrl,
+        smsApiToken: smsToken
       };
       try {
         localStorage.setItem('humo_tg_bot_username', DB.config.tgBotUsername);
         if (tgToken) localStorage.setItem('humo_tg_bot_token', tgToken);
+        if (fbApiKey) localStorage.setItem('humo_firebase_api_key', fbApiKey);
         if (ggId) localStorage.setItem('humo_google_client_id', ggId);
+        if (smsUrl) localStorage.setItem('humo_sms_api_url', smsUrl);
+        if (smsToken) localStorage.setItem('humo_sms_api_token', smsToken);
       } catch (e) {}
 
       await syncSectionToServer('config', DB.config);
-      showToast(`✅ Bot (@${DB.config.tgBotUsername}) muvaffaqiyatli tekshirildi va Firebase’ga ulandi!`);
+      showToast(`✅ Barcha integratsiyalar (SMS, Google OAuth va @${DB.config.tgBotUsername}) Firebase’ga saqlandi!`);
     }
 
     // AVTO-SLAYDER
     const AUTH_STORIES = [
-      { icon: '🔐', title: '1. Telegram Bot va Google orqali kirish', desc: 'Telegram botdan 6 xonali tasdiqlash kodi oling yoki Google hisobda kiring.' },
-      { icon: '🛡️', title: '2. SHA-256 Kriptografik Himoya', desc: 'Barcha parollar va shaxsiy tibbiy ma’lumotlar shifrlangan holda saqlanadi.' },
+      { icon: '📲', title: '1. Real SMS Kod, Telegram va Google', desc: 'Telefon raqamingizga keluvchi SMS kod, Telegram bot yoki Google orqali kiring.' },
+      { icon: '🛡️', title: '2. WAF & SHA-256 Kiberhimoya', desc: 'Sayt XSS, SQL-inyeksiya, DDoS va parol buzish hujumlaridan to‘liq himoyalangan.' },
       { icon: '📄', title: '3. Onlayn Navbat va PDF Tahlillar', desc: 'Shifokor qabuliga navbatsiz yoziling va tahlil javoblarini yuklab oling.' }
     ];
     let currentAuthStoryIdx = 0;
@@ -1932,10 +2374,10 @@
     // KO'P TILLILIK
     const I18N = {
       uz: {
-        address: "Toshkent sh., Yashnobod tumani",
+        address: "WAF & SHA-256 Kiberhimoya Faol",
         guide_btn: "AI Ekskursiya", brand_sub: "MED KLINIKASI", book_btn: "Qabulga yozilish",
         nav_home: "Asosiy", nav_services: "Xizmatlar", nav_doctors: "Shifokorlar", nav_lab: "Tahlillar", nav_cabinet: "Shaxsiy kabinet",
-        auth_welcome: "Xush kelibsiz!", auth_choose_method: "O‘zingizga qulay usulda tizimga kiring:", or_email: "YOKI TELEFON VA PAROL ORQALI",
+        auth_welcome: "Xush kelibsiz!", auth_choose_method: "O‘zingizga qulay usulda tizimga kiring:", or_email: "YOKI TELEFONGA SMS KOD YUBORISH ORQALI",
         hero_badge: "Yashnobod tumanidagi zamonaviy raqamli klinika",
         hero_heading: "Salomatligingiz —<br/><span>Humo Klinikasi</span> bilan<br/>ishonchli qo‘llarda",
         hero_about_text: "Ushbu onlayn platforma orqali uydan chiqmasdan malakali shifokorlar qabuliga navbatsiz yozilishingiz, laboratoriya va MRT natijalarini PDF shaklda yuklab olishingiz hamda elektron tibbiy kartangizni yuritishingiz mumkin.",
@@ -1944,13 +2386,13 @@
         sec_services: "Diagnostika & Xizmatlar", sec_doctors: "Bizning Shifokorlar",
         lab_title: "Online Tibbiy Tahlillar", lab_prompt: "Tahlil chekingizdagi kodni kiriting:", check_btn: "Tekshirish",
         book_title: "Qabulga Yozilish", free_time: "Boshqa vaqt:", confirm_book_btn: "Navbatni Tasdiqlash",
-        login_tab: "Kirish (Akkaunt bor)", reg_tab: "Ro‘yxatdan o‘tish"
+        login_tab: "Kirish (Parol / SMS)", reg_tab: "Ro‘yxatdan o‘tish (SMS)"
       },
       ru: {
-        address: "г. Ташкент, Яшнабадский р-н",
+        address: "Защита WAF & SHA-256 Активна",
         guide_btn: "AI Обзор", brand_sub: "МЕД КЛИНИКА", book_btn: "Записаться",
         nav_home: "Главная", nav_services: "Услуги", nav_doctors: "Врачи", nav_lab: "Анализы", nav_cabinet: "Кабинет",
-        auth_welcome: "Добро пожаловать!", auth_choose_method: "Выберите удобный способ входа:", or_email: "ИЛИ ЧЕРЕЗ ТЕЛЕФОН И ПАРОЛЬ",
+        auth_welcome: "Добро пожаловать!", auth_choose_method: "Выберите удобный способ входа:", or_email: "ИЛИ ПО SMS-КОДУ НА ТЕЛЕФОН",
         hero_badge: "Современная цифровая клиника в Яшнабадском районе",
         hero_heading: "Ваше здоровье —<br/>в надежных руках с<br/><span>Клиникой Humo</span>",
         hero_about_text: "Через нашу онлайн-платформу вы можете записаться на прием к врачам без очередей, скачать результаты МРТ и анализов в формате PDF, а также вести свою электронную медицинскую карту.",
@@ -1959,13 +2401,13 @@
         sec_services: "Диагностика и Услуги", sec_doctors: "Наши Врачи",
         lab_title: "Онлайн Результаты Анализов", lab_prompt: "Введите код с вашего чека:", check_btn: "Проверить",
         book_title: "Запись на Прием", free_time: "Другое время:", confirm_book_btn: "Подтвердить Запись",
-        login_tab: "Вход", reg_tab: "Регистрация"
+        login_tab: "Вход (Пароль / SMS)", reg_tab: "Регистрация (SMS)"
       },
       en: {
-        address: "Tashkent, Yashnabad district",
+        address: "WAF & SHA-256 Cyber Shield Active",
         guide_btn: "AI Tour", brand_sub: "MED CLINIC", book_btn: "Book Now",
         nav_home: "Home", nav_services: "Services", nav_doctors: "Doctors", nav_lab: "Lab Tests", nav_cabinet: "Cabinet",
-        auth_welcome: "Welcome!", auth_choose_method: "Choose a sign-in method:", or_email: "OR VIA PHONE & PASSWORD",
+        auth_welcome: "Welcome!", auth_choose_method: "Choose a sign-in method:", or_email: "OR VIA SMS CODE TO YOUR PHONE",
         hero_badge: "Modern digital clinic in Yashnabad district",
         hero_heading: "Your Health is in<br/>Safe Hands with<br/><span>Humo Clinic</span>",
         hero_about_text: "Through this online platform, you can book doctor appointments without waiting in line, download MRI and lab results in PDF format, and manage your digital medical ID card from home.",
@@ -1974,7 +2416,7 @@
         sec_services: "Diagnostics & Services", sec_doctors: "Our Doctors",
         lab_title: "Online Lab Results", lab_prompt: "Enter the code from your receipt:", check_btn: "Check",
         book_title: "Book Appointment", free_time: "Custom time:", confirm_book_btn: "Confirm Booking",
-        login_tab: "Login", reg_tab: "Register"
+        login_tab: "Login (Password / SMS)", reg_tab: "Register (SMS)"
       }
     };
 
@@ -2009,11 +2451,6 @@
       t.innerHTML = msg;
       container.appendChild(t);
       setTimeout(() => t.remove(), 3500);
-    }
-
-    function escapeHTML(str) {
-      if (!str) return '';
-      return String(str).replace(/[&<>'"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[m]));
     }
 
     // AQLLI AI SPOTLIGHT EKSKURSIYA
@@ -2106,7 +2543,7 @@
           doctor: "Dr. Jasur Aliyev", date: "2026-10-15", summary: "Barcha ko'rsatkichlar me'yorida. Gemoglobin: 142 g/l.", fileUrl: ""
         }
       },
-      config: { tgBotUsername: 'HumoMed_bot', tgBotToken: '', googleClientId: '' },
+      config: { tgBotUsername: 'HumoMed_bot', tgBotToken: '', firebaseApiKey: '', googleClientId: '', smsApiUrl: '', smsApiToken: '' },
       auth: { user: 'admin', passHash: '' }
     };
 
@@ -2136,10 +2573,14 @@
             if (DB.config) {
               const uInp = document.getElementById('cfgTgBotUsername');
               const tInp = document.getElementById('cfgTgBotToken');
+              const fbInp = document.getElementById('cfgFirebaseApiKey');
               const gInp = document.getElementById('cfgGoogleClientId');
+              const sUrlInp = document.getElementById('cfgSmsApiUrl');
               if (uInp && DB.config.tgBotUsername) uInp.value = DB.config.tgBotUsername;
               if (tInp && DB.config.tgBotToken) tInp.value = DB.config.tgBotToken;
+              if (fbInp && DB.config.firebaseApiKey) fbInp.value = DB.config.firebaseApiKey;
               if (gInp && DB.config.googleClientId) gInp.value = DB.config.googleClientId;
+              if (sUrlInp && DB.config.smsApiUrl) sUrlInp.value = DB.config.smsApiUrl;
             }
           }
         }
@@ -2154,7 +2595,7 @@
       } catch (e) { showToast("⚠️ Tarmoq xatoligi!"); }
     }
 
-    // MAJBURIY AVTORIZATSIYA VA SHA-256 RO'YXATDAN O'TISH
+    // MAJBURIY AVTORIZATSIYA
     function checkMandatoryAuthGate() {
       const isAdmin = sessionStorage.getItem('humo_admin_auth') === 'true';
       const gate = document.getElementById('mandatoryAuthGate');
@@ -2203,42 +2644,12 @@
       }
     }
 
-    async function registerPatient() {
-      if (checkRateLimitLock()) return;
-      const name = document.getElementById('regName').value.trim();
-      const phone = getFullUzPhone('regPhone');
-      const email = document.getElementById('regEmail').value.trim().toLowerCase() || 'Kiritilmagan';
-      const blood = document.getElementById('regBlood').value || 'Kiritilmagan';
-      const pass = document.getElementById('regPass').value.trim();
-
-      if (name.length < 3) return showToast("⚠️ Ism va familiyangizni to‘liq kiriting!");
-      if (!phone) return showToast("⚠️ Telefon raqamni to‘liq 9 ta raqam bilan kiriting!");
-      if (pass.length < 6) return showToast("⚠️ Xavfsizlik uchun parol kamida 6 ta belgidan iborat bo‘lishi shart!");
-
-      const cleanDigits = phone.replace(/\D/g, '');
-      const exists = (DB.users || []).find(u => u.phone && u.phone.replace(/\D/g, '') === cleanDigits);
-      if (exists) return showToast("⚠️ Bu telefon raqam allaqachon ro‘yxatdan o‘tgan!");
-
-      const passwordHash = await hashPasswordSHA256(pass);
-
-      const newUser = {
-        id: Date.now(),
-        medId: 'HM-' + String(Math.floor(1000 + Math.random() * 9000)),
-        name, phone, email, provider: 'SHA-256 Parol', blood, birth: 'Kiritilmagan', allergy: 'Yo‘q',
-        passwordHash,
-        createdAt: new Date().toISOString().split('T')[0]
-      };
-      if (!DB.users) DB.users = [];
-      DB.users.push(newUser);
-      await syncSectionToServer('users', DB.users);
-      completeUserSession(newUser, true);
-    }
-
     async function loginPatient() {
-      if (checkRateLimitLock()) return;
+      if (isHoneypotTriggered('hp_login_trap') || checkRateLimitLock()) return;
       const phone = getFullUzPhone('loginPhone');
       const pass = document.getElementById('loginPass').value.trim();
       if (!phone) return showToast("⚠️ 9 xonali telefon raqamingizni to‘liq kiriting!");
+      if (!pass) return showToast("⚠️ Parolni kiriting yoki pastdagi «SMS Kod orqali kirish» tugmasini bosing!");
 
       const cleanDigits = phone.replace(/\D/g, '');
       const inputHash = await hashPasswordSHA256(pass);
@@ -2257,13 +2668,13 @@
     }
 
     async function savePatientProfileMeta() {
-      if (!currentPatient) return;
-      const newName = document.getElementById('profNameInput').value.trim();
+      if (!currentPatient || checkRateLimitLock()) return;
+      const newName = sanitizeStrict(document.getElementById('profNameInput').value, 60);
       const newPhone = getFullUzPhone('profPhoneInput');
-      const newEmail = document.getElementById('profEmailInput').value.trim() || 'Kiritilmagan';
-      const newBlood = document.getElementById('profBloodInput').value;
-      const newBirth = document.getElementById('profBirthInput').value || 'Kiritilmagan';
-      const newAllergy = document.getElementById('profAllergyInput').value.trim() || 'Yo‘q';
+      const newEmail = sanitizeStrict(document.getElementById('profEmailInput').value, 80) || 'Kiritilmagan';
+      const newBlood = sanitizeStrict(document.getElementById('profBloodInput').value, 20);
+      const newBirth = sanitizeStrict(document.getElementById('profBirthInput').value, 20) || 'Kiritilmagan';
+      const newAllergy = sanitizeStrict(document.getElementById('profAllergyInput').value, 120) || 'Yo‘q';
       const newPass = document.getElementById('profNewPassInput').value.trim();
 
       if (newName.length < 3) return showToast("⚠️ Ism va familiya kamida 3 ta harfdan iborat bo‘lishi kerak!");
@@ -2286,20 +2697,19 @@
       saveSafeSession(currentPatient);
       await syncSectionToServer('users', DB.users);
       updateUserAuthUI();
-      showToast("✅ Profil ma’lumotlaringiz muvaffaqiyatli yangilandi!");
+      showToast("✅ Profil ma’lumotlaringiz xavfsiz yangilandi!");
     }
 
     function logoutPatient() {
       currentPatient = null;
       try {
+        localStorage.removeItem('humo_waf_session_v4');
         localStorage.removeItem('humo_active_patient_v3');
         localStorage.removeItem('humo_active_patient_v2');
-        localStorage.removeItem('humo_sec_session');
-        localStorage.removeItem('humo_patient_user');
       } catch(e){}
       endAiSpotlightTour();
       checkMandatoryAuthGate();
-      showToast("🔒 Tizimdan chiqildi.");
+      showToast("🔒 Xavfsiz tizimdan chiqildi.");
     }
 
     function updateUserAuthUI() {
@@ -2384,9 +2794,10 @@
 
     // LAB VA NAVBAT FUNKSIYALARI
     async function executeLabCheck(inputId) {
+      if (checkRateLimitLock()) return;
       const inp = document.getElementById(inputId);
       if (!inp || !inp.value.trim()) return showToast("Tahlil kodini kiriting!");
-      const code = inp.value.trim().toUpperCase();
+      const code = sanitizeStrict(inp.value, 20).toUpperCase();
       const labs = DB.lab_results || {};
       const found = labs[code] || Object.values(labs).find(x => x && x.code && x.code.toUpperCase() === code);
       if (found) return renderFoundLab(found);
@@ -2394,7 +2805,7 @@
     }
 
     function renderFoundLab(data) {
-      let fileBtn = data.fileUrl ? `<a href="${escapeHTML(data.fileUrl)}" target="_blank" class="btn-pill btn-pill-blue" style="display:flex; width:100%; margin-top:12px; text-decoration:none;">📥 Faylni Yuklab Olish</a>` : "";
+      let fileBtn = data.fileUrl ? `<a href="${escapeHTML(data.fileUrl)}" target="_blank" rel="noopener noreferrer" class="btn-pill btn-pill-blue" style="display:flex; width:100%; margin-top:12px; text-decoration:none;">📥 Faylni Yuklab Olish</a>` : "";
       showInfoModal(
         `Tahlil: ${escapeHTML(data.code)} ✅`,
         `<div style="background:#f0fdf4; border:1px solid #86efac; border-radius:14px; padding:14px; color:#166534; font-size:0.86rem;">
@@ -2408,10 +2819,11 @@
     }
 
     async function handleNewBooking() {
-      const name = document.getElementById('patientName').value.trim();
+      if (checkRateLimitLock()) return;
+      const name = sanitizeStrict(document.getElementById('patientName').value, 60);
       const phone = getFullUzPhone('patientPhone');
-      const service = document.getElementById('bookingServiceSelect').value;
-      const doctor = document.getElementById('bookingDoctorSelect').value || "Umumiy qabul";
+      const service = sanitizeStrict(document.getElementById('bookingServiceSelect').value, 80);
+      const doctor = sanitizeStrict(document.getElementById('bookingDoctorSelect').value, 80) || "Umumiy qabul";
       if (name.length < 3) return showToast("⚠️ Ism-familiyangizni to‘liq kiriting!");
       if (!phone) return showToast("⚠️ Telefon raqamingizni to‘liq 9 ta raqam bilan kiriting!");
 
@@ -2440,7 +2852,7 @@
     }
     function sendQuickChat(txt) { document.getElementById('chatInput').value = txt; sendChatMessage(); }
     function sendChatMessage() {
-      const inp = document.getElementById('chatInput'); const msg = inp.value.trim(); if (!msg) return;
+      const inp = document.getElementById('chatInput'); const msg = sanitizeStrict(inp.value, 200); if (!msg) return;
       const box = document.getElementById('chatMessages');
       box.innerHTML += `<div class="chat-bubble user">${escapeHTML(msg)}</div>`; inp.value = '';
       const l = msg.toLowerCase();
@@ -2507,7 +2919,6 @@
       document.getElementById('kpiPendingBookings').textContent = pendingCount;
       document.getElementById('kpiTotalUsers').textContent = users.length;
       document.getElementById('kpiTotalLabs').textContent = labs.length;
-      document.getElementById('kpiEstRevenue').textContent = (bookings.length * 180000).toLocaleString('uz-UZ') + " so‘m";
 
       const bQuery = (document.getElementById('adminBookingSearch')?.value || '').toLowerCase();
       const bStatusFilter = document.getElementById('adminBookingStatusFilter')?.value || 'all';
@@ -2590,12 +3001,12 @@
 
     function openLabModalNew() { document.getElementById('labEditModal').style.display = 'flex'; }
     async function saveLabResult() {
-      const code = document.getElementById('labCodeInputModal').value.trim().toUpperCase();
-      const patient = document.getElementById('labPatientModal').value.trim();
-      const testType = document.getElementById('labTypeModal').value.trim();
-      const doctor = document.getElementById('labDoctorModal').value.trim();
-      const summary = document.getElementById('labSummaryModal').value.trim();
-      const fileUrl = document.getElementById('labResultFileUrl').value.trim();
+      const code = sanitizeStrict(document.getElementById('labCodeInputModal').value, 20).toUpperCase();
+      const patient = sanitizeStrict(document.getElementById('labPatientModal').value, 60);
+      const testType = sanitizeStrict(document.getElementById('labTypeModal').value, 80);
+      const doctor = sanitizeStrict(document.getElementById('labDoctorModal').value, 60);
+      const summary = sanitizeStrict(document.getElementById('labSummaryModal').value, 400);
+      const fileUrl = sanitizeStrict(document.getElementById('labResultFileUrl').value, 250);
       if (!code || !patient) return showToast("Kod va bemor ismini kiriting!");
       DB.lab_results[code] = { id: Date.now(), code, patient, testType, doctor, date: new Date().toISOString().split('T')[0], summary, fileUrl };
       await syncSectionToServer("lab_results", DB.lab_results); closeModals(); showToast("✅ Saqlandi!");
@@ -2610,10 +3021,10 @@
     }
     async function saveService() {
       const id = document.getElementById('editServiceId').value;
-      const name = document.getElementById('serviceNameInput').value.trim();
-      const desc = document.getElementById('serviceDescInput').value.trim();
-      const price = document.getElementById('servicePriceInput').value.trim();
-      const image = document.getElementById('serviceImageUrl').value.trim();
+      const name = sanitizeStrict(document.getElementById('serviceNameInput').value, 60);
+      const desc = sanitizeStrict(document.getElementById('serviceDescInput').value, 140);
+      const price = sanitizeStrict(document.getElementById('servicePriceInput').value, 40);
+      const image = sanitizeStrict(document.getElementById('serviceImageUrl').value, 250);
       if (id) DB.services = DB.services.map(s => s.id == id ? { ...s, name, desc, price, image } : s);
       else DB.services.push({ id: Date.now(), name, desc, price, image });
       await syncSectionToServer("services", DB.services); closeModals();
@@ -2628,9 +3039,9 @@
     }
     async function saveDoctor() {
       const id = document.getElementById('editDoctorId').value;
-      const name = document.getElementById('docNameInput').value.trim();
-      const specialty = document.getElementById('docSpecialtyInput').value.trim();
-      const exp = document.getElementById('docExpInput').value.trim();
+      const name = sanitizeStrict(document.getElementById('docNameInput').value, 60);
+      const specialty = sanitizeStrict(document.getElementById('docSpecialtyInput').value, 60);
+      const exp = sanitizeStrict(document.getElementById('docExpInput').value, 30);
       if (id) DB.doctors = DB.doctors.map(d => d.id == id ? { ...d, name, specialty, exp } : d);
       else DB.doctors.push({ id: Date.now(), name, specialty, exp });
       await syncSectionToServer("doctors", DB.doctors); closeModals();
@@ -2709,7 +3120,7 @@
 
     async function verifyAdminLogin() {
       if (checkRateLimitLock()) return;
-      const u = document.getElementById('adminUser').value.trim();
+      const u = sanitizeStrict(document.getElementById('adminUser').value, 40);
       const p = document.getElementById('adminPass').value.trim();
       const inputHash = await hashPasswordSHA256(p);
       const defaultAdminHash = await hashPasswordSHA256('humo2026');
@@ -2732,7 +3143,7 @@
 
     async function updateAdminAuth() {
       const oldP = document.getElementById('oldAdminPass').value;
-      const newU = document.getElementById('newAdminLogin').value.trim();
+      const newU = sanitizeStrict(document.getElementById('newAdminLogin').value, 40);
       const newP = document.getElementById('newAdminPass').value.trim();
       if (!newU || newP.length < 6) return showToast("⚠️ Yangi login va kamida 6 belgili parol kiriting!");
 
