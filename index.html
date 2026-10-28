@@ -52,23 +52,18 @@
       --primary-dark: #7dd3fc;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; user-select: none; }
+    input, textarea, select { user-select: text; }
     html, body { overflow-x: hidden !important; width: 100%; max-width: 100vw; scroll-behavior: smooth; }
     body { min-height: 100vh; background: var(--bg-gradient); color: var(--text-main); padding: 12px; transition: background 0.3s ease, color 0.3s ease; }
 
     #bgCanvas { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-    .app-container { position: relative; z-index: 10; width: 100%; max-width: 1380px; margin: 0 auto; }
+    .app-container { position: relative; z-index: 10; width: 100%; max-width: 1380px; margin: 0 auto; overflow-x: hidden; }
 
-    /* ИСПРАВЛЕНО: HONEYPOT ПОЛНОСТЬЮ СКРЫТ */
+    /* HONEYPOT (ANTI-BOT TUZOG'I) */
     .hp-field-trap {
-      display: none !important;
-      visibility: hidden !important;
-      opacity: 0 !important;
-      position: absolute !important;
-      left: -9999px !important;
-      width: 0 !important;
-      height: 0 !important;
-      pointer-events: none !important;
+      display: none !important; visibility: hidden !important; opacity: 0 !important;
+      position: absolute !important; left: -9999px !important; width: 0 !important; height: 0 !important; pointer-events: none !important;
     }
 
     /* AVTOMATIK +998 TELEFON KIRITISH QUTISI */
@@ -109,7 +104,7 @@
       background: rgba(2, 132, 199, 0.1); border: 1px solid rgba(2, 132, 199, 0.2);
       border-radius: 14px; padding: 8px 14px; display: flex; justify-content: space-between;
       align-items: center; font-size: 0.76rem; font-weight: 700; color: var(--primary-dark); margin-bottom: 10px;
-      backdrop-filter: blur(10px); gap: 8px; flex-wrap: nowrap;
+      backdrop-filter: blur(10px); gap: 8px; flex-wrap: nowrap; width: 100%;
     }
     .top-info-left { display: flex; align-items: center; gap: 10px; white-space: nowrap; flex-shrink: 0; }
     .top-info-right { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
@@ -183,7 +178,7 @@
       background: var(--glass-panel); backdrop-filter: blur(28px) saturate(190%);
       -webkit-backdrop-filter: blur(28px) saturate(190%); border: 2px solid var(--glass-border);
       border-radius: 30px; padding: 26px 32px; box-shadow: var(--glass-shadow);
-      display: flex; flex-direction: column; gap: 22px; overflow: hidden; width: 100%;
+      display: flex; flex-direction: column; gap: 22px; overflow: hidden; width: 100%; max-width: 100%;
     }
 
     .top-bar { display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--input-border); padding-bottom: 14px; gap: 12px; flex-wrap: wrap; width: 100%; }
@@ -194,7 +189,7 @@
     .brand-title { font-size: 1.35rem; font-weight: 900; color: var(--primary-dark); line-height: 1; }
     .brand-sub { font-size: 0.64rem; font-weight: 800; color: var(--primary); letter-spacing: 1px; margin-top: 2px; white-space: nowrap; }
 
-    .header-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+    .header-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; min-width: 0; }
 
     .nav-wrapper { display: flex; align-items: center; justify-content: space-between; width: 100%; }
     .nav-pills { display: flex; align-items: center; gap: 6px; list-style: none; flex-wrap: wrap; }
@@ -206,12 +201,13 @@
     .btn-pill-blue { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #ffffff; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.28); }
     .btn-pill-outline { background: var(--surface-bg); color: var(--text-main); border: 1.5px solid var(--input-border); }
 
-    .view-content { display: none; animation: fadeIn 0.25s ease-out forwards; }
+    .view-content { display: none; width: 100%; max-width: 100%; overflow-x: hidden; animation: fadeIn 0.25s ease-out forwards; }
     .view-content.active { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
     /* 2. BOYITILGAN HERO BANNER */
-    .hero-layout { display: grid; grid-template-columns: 1.18fr 0.82fr; gap: 26px; align-items: start; }
+    .hero-layout { display: grid; grid-template-columns: 1.18fr 0.82fr; gap: 26px; align-items: start; width: 100%; }
+    .hero-layout > div { min-width: 0; max-width: 100%; }
     .hero-header-wrap {
       display: flex; align-items: center; justify-content: space-between; gap: 22px;
       margin-bottom: 22px; background: var(--card-bg); padding: 24px; border-radius: 24px;
@@ -242,7 +238,7 @@
       flex-shrink: 0;
     }
     
-    .section-title { font-size: 1.02rem; font-weight: 800; color: var(--text-heading); display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 8px; }
+    .section-title { font-size: 1.02rem; font-weight: 800; color: var(--text-heading); display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; gap: 8px; width: 100%; }
     .section-title-left { display: flex; align-items: center; gap: 7px; min-width: 0; }
     .swipe-hint-badge { display: none; font-size: 0.68rem; color: var(--primary); font-weight: 700; }
 
@@ -281,7 +277,7 @@
     .tour-dot.active { width: 18px; border-radius: 10px; background: var(--primary); }
 
     /* XIZMATLAR VA SHIFOKORLAR RO'YXATI */
-    .services-grid-dynamic { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; }
+    .services-grid-dynamic { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 20px; width: 100%; }
     .diag-card-3d {
       background: var(--card-bg); padding: 15px 12px; border-radius: 20px;
       box-shadow: 0 8px 20px rgba(2, 132, 199, 0.06); border: 1.5px solid var(--glass-border);
@@ -303,7 +299,7 @@
     }
     .diag-price-tag { font-size: 0.74rem; font-weight: 800; color: var(--primary-dark); margin-top: 7px; background: rgba(2, 132, 199, 0.1); padding: 4px 10px; border-radius: 10px; display: inline-block; }
 
-    .doctors-row-dynamic { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .doctors-row-dynamic { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; width: 100%; }
     .doc-item {
       background: var(--surface-bg); padding: 12px; border-radius: 18px;
       border: 1.5px solid var(--glass-border); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
@@ -313,15 +309,15 @@
     .doc-item p { font-size: 0.72rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .doc-avatar-3d { width: 42px; height: 42px; min-width: 42px; border-radius: 50%; background: radial-gradient(circle at 30% 30%, #e0f2fe 10%, #38bdf8 100%); display: flex; align-items: center; justify-content: center; font-size: 1.2rem; flex-shrink: 0; }
 
-    .right-section { display: flex; flex-direction: column; gap: 18px; }
-    .lab-check-box { background: var(--card-bg); border: 1.5px solid var(--glass-border); border-radius: 24px; padding: 20px; box-shadow: 0 12px 28px rgba(2, 132, 199, 0.1); }
+    .right-section { display: flex; flex-direction: column; gap: 18px; min-width: 0; width: 100%; }
+    .lab-check-box { background: var(--card-bg); border: 1.5px solid var(--glass-border); border-radius: 24px; padding: 20px; box-shadow: 0 12px 28px rgba(2, 132, 199, 0.1); width: 100%; }
     .lab-check-title { font-size: 1.1rem; font-weight: 800; color: var(--text-heading); margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
     .lab-input-container { background: var(--surface-bg); border: 1.5px solid var(--input-border); border-radius: 16px; padding: 5px; display: flex; align-items: center; gap: 6px; }
     .lab-input-field { border: none; outline: none; width: 100%; padding-left: 10px; font-size: 0.92rem; font-weight: 800; color: var(--primary-dark); text-transform: uppercase; background: transparent; min-width: 0; }
     .btn-lab-check { background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%); color: #fff; border: none; padding: 10px 16px; border-radius: 12px; font-weight: 700; font-size: 0.82rem; cursor: pointer; white-space: nowrap; flex-shrink: 0; }
 
-    .booking-pod { background: var(--surface-bg); border: 1.5px solid var(--glass-border); border-radius: 24px; padding: 20px; box-shadow: 0 14px 30px rgba(15, 23, 42, 0.05); }
-    .booking-input, .admin-input { width: 100%; padding: 11px 14px; border-radius: 12px; border: 1.5px solid var(--input-border); font-size: 0.85rem; font-weight: 600; outline: none; transition: var(--transition); background: var(--input-bg); color: var(--text-main); }
+    .booking-pod { background: var(--surface-bg); border: 1.5px solid var(--glass-border); border-radius: 24px; padding: 20px; box-shadow: 0 14px 30px rgba(15, 23, 42, 0.05); width: 100%; max-width: 100%; }
+    .booking-input, .admin-input { width: 100%; padding: 11px 14px; border-radius: 12px; border: 1.5px solid var(--input-border); font-size: 0.85rem; font-weight: 600; outline: none; transition: var(--transition); background: var(--input-bg); color: var(--text-main); min-width: 0; }
     
     .cal-header-bar { display: flex; justify-content: space-between; align-items: center; margin: 10px 0 8px; }
     .cal-month-title { font-size: 0.88rem; font-weight: 800; color: var(--text-heading); }
@@ -346,28 +342,38 @@
     .auth-tab { flex: 1; padding: 9px; border: none; background: transparent; color: var(--text-muted); font-weight: 800; font-size: 0.82rem; border-radius: 10px; cursor: pointer; }
     .auth-tab.active { background: var(--primary); color: #fff; }
 
-    /* SHAXSIY PROFIL DIZAYNI */
-    .profile-grid { display: grid; grid-template-columns: 1.05fr 1.45fr; gap: 22px; align-items: start; }
+    /* ====================================================
+       SHAXSIY PROFIL DIZAYNI (SKRINSHOTDAGI OVERFLOW XATOLARI 100% TUZATILDI)
+       ==================================================== */
+    .profile-grid { display: grid; grid-template-columns: 1.05fr 1.45fr; gap: 22px; align-items: start; width: 100%; max-width: 100%; }
+    .profile-grid > div { min-width: 0; max-width: 100%; width: 100%; }
     .med-id-card {
       background: linear-gradient(135deg, #0284c7 0%, #0f172a 100%); color: #ffffff;
-      border-radius: 24px; padding: 22px; position: relative; overflow: hidden;
-      box-shadow: 0 18px 40px rgba(2, 132, 199, 0.28);
+      border-radius: 24px; padding: 20px; position: relative; overflow: hidden;
+      box-shadow: 0 18px 40px rgba(2, 132, 199, 0.28); width: 100%; max-width: 100%;
     }
-    .med-id-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; gap: 8px; }
-    .med-id-badge { background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; white-space: nowrap; }
-    .med-id-meta { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.15); font-size: 0.78rem; }
+    .med-id-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; gap: 10px; width: 100%; }
+    .med-id-header > div { min-width: 0; flex: 1; }
+    #cardUserName {
+      font-size: 1.22rem; font-weight: 900; margin-top: 3px; line-height: 1.25;
+      overflow-wrap: anywhere; word-break: break-word;
+    }
+    .med-id-badge { background: rgba(255,255,255,0.2); padding: 4px 10px; border-radius: 20px; font-size: 0.72rem; font-weight: 800; white-space: nowrap; flex-shrink: 0; }
+    .med-id-meta { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 14px; padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.15); font-size: 0.78rem; width: 100%; }
+    .med-id-meta div { min-width: 0; }
     .med-id-meta div span { display: block; color: #bae6fd; font-size: 0.68rem; }
-    .med-id-meta div strong { font-size: 0.84rem; }
+    .med-id-meta div strong { font-size: 0.84rem; overflow-wrap: anywhere; word-break: break-word; display: block; }
 
-    .profile-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 18px; }
-    .stat-box { background: var(--surface-bg); border: 1.5px solid var(--glass-border); border-radius: 18px; padding: 12px 8px; text-align: center; }
-    .stat-box h3 { font-size: 1.3rem; font-weight: 900; color: var(--primary); }
-    .stat-box p { font-size: 0.72rem; color: var(--text-muted); font-weight: 700; }
+    .profile-stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 18px; width: 100%; max-width: 100%; }
+    .stat-box { background: var(--surface-bg); border: 1.5px solid var(--glass-border); border-radius: 16px; padding: 12px 6px; text-align: center; min-width: 0; }
+    .stat-box h3 { font-size: 1.25rem; font-weight: 900; color: var(--primary); }
+    .stat-box p { font-size: 0.7rem; color: var(--text-muted); font-weight: 700; line-height: 1.2; }
 
-    .cabinet-card-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; }
+    .cabinet-card-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 22px; width: 100%; max-width: 100%; }
     .cabinet-item-card {
       background: var(--surface-bg); border: 1.5px solid var(--input-border); border-radius: 16px;
       padding: 14px 16px; display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+      width: 100%; max-width: 100%; overflow-wrap: anywhere;
     }
 
     .status-pill { padding: 4px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; display: inline-block; }
@@ -377,7 +383,7 @@
     .status-cancelled { background: #fee2e2; color: #b91c1c; }
 
     /* PRO ADMIN PANEL */
-    .admin-dashboard { background: var(--surface-bg); border-radius: 24px; padding: 22px; border: 1px solid var(--glass-border); }
+    .admin-dashboard { background: var(--surface-bg); border-radius: 24px; padding: 22px; border: 1px solid var(--glass-border); width: 100%; }
     .admin-kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
     .kpi-card { background: var(--card-bg); border: 1.5px solid var(--input-border); border-radius: 18px; padding: 14px; display: flex; align-items: center; gap: 12px; }
     .kpi-icon { width: 44px; height: 44px; border-radius: 14px; background: #e0f2fe; color: #0284c7; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
@@ -447,7 +453,7 @@
     }
 
     @media (max-width: 768px) {
-      body { padding: 6px 6px 82px 6px; }
+      body { padding: 6px 6px 84px 6px; }
       .hide-mobile { display: none !important; }
       .swipe-hint-badge { display: inline-block; }
 
@@ -473,6 +479,7 @@
 
       .header-actions { gap: 5px; }
       .header-actions .btn-pill { padding: 7px 10px; font-size: 0.72rem; border-radius: 16px; }
+      #userAuthBtnText { max-width: 85px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: inline-block; vertical-align: bottom; }
 
       .hero-header-wrap { flex-direction: column; text-align: left; padding: 16px 14px; gap: 14px; }
       .main-heading { font-size: 1.48rem !important; }
@@ -505,6 +512,13 @@
       #allServicesFullList, #allDoctorsFullList, .admin-kpi-grid { grid-template-columns: 1fr !important; gap: 10px !important; }
       #allServicesFullList .diag-card-3d { flex-direction: row; text-align: left; padding: 13px; gap: 12px; }
       #allServicesFullList .diag-icon-sphere { margin-bottom: 0; }
+
+      .med-id-card { padding: 16px; border-radius: 20px; }
+      #cardUserName { font-size: 1.1rem; }
+      .profile-stats-row { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+      .stat-box { padding: 10px 4px; border-radius: 14px; }
+      .stat-box h3 { font-size: 1.15rem; }
+      .stat-box p { font-size: 0.66rem; }
 
       .chat-fab { bottom: 74px; right: 12px; width: 46px; height: 46px; }
       .chat-window { bottom: 128px; right: 10px; }
@@ -566,7 +580,7 @@
     </div>
 
     <!-- ==========================================================
-         REAL RO'YXATDAN O'TISH DARVOZASI (SMS OTP + TELEGRAM OTP + REAL GOOGLE OAUTH)
+         REAL RO'YXATDAN O'TISH DARVOZASI
          ========================================================== -->
     <div id="mandatoryAuthGate">
       <div class="auth-top-showcase">
@@ -617,28 +631,28 @@
           </button>
         </div>
 
-        <div class="divider-line"><span data-i18n="or_email">YOKI TELEFONGA SMS KOD YUBORISH ORQALI</span></div>
+        <div class="divider-line"><span data-i18n="or_email">YOKI TELEFONGA KOD YUBORISH ORQALI</span></div>
 
         <div class="auth-tabs">
           <button type="button" class="auth-tab active" id="tabRegBtn" onclick="switchAuthTab('register')" data-i18n="reg_tab">Ro‘yxatdan o‘tish (SMS)</button>
           <button type="button" class="auth-tab" id="tabLoginBtn" onclick="switchAuthTab('login')" data-i18n="login_tab">Kirish (Parol / SMS)</button>
         </div>
 
-        <!-- RO'YXATDAN O'TISH FORMASI (ЛИШНЕЕ ПОЛЕ ПОЛНОСТЬЮ СКРЫТО) -->
+        <!-- RO'YXATDAN O'TISH FORMASI -->
         <form id="patientRegForm" onsubmit="event.preventDefault(); initiatePhoneSmsRegistration();">
           <input type="text" id="hp_reg_trap" class="hp-field-trap" style="display:none !important;" tabindex="-1" autocomplete="off" aria-hidden="true" />
 
           <div style="margin-bottom: 10px;">
-            <label style="font-size: 0.75rem; font-weight: 700; display:block; margin-bottom:4px;">Ism va Familiyangiz *</label>
-            <input type="text" id="regName" class="booking-input" placeholder="Masalan: Sardor Aliyev" minlength="3" maxlength="60" required />
+            <label style="font-size: 0.75rem; font-weight: 700; display:block; margin-bottom:4px;">Ism va Familiyangiz (Email emas!) *</label>
+            <input type="text" id="regName" name="full_name" autocomplete="name" class="booking-input" placeholder="Masalan: Quvonchbek Baratov" minlength="3" maxlength="50" required />
           </div>
 
           <div class="form-two-col" style="display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 8px; margin-bottom: 10px;">
             <div>
-              <label style="font-size: 0.75rem; font-weight: 700; display:block; margin-bottom:4px;">Telefon raqamingiz (SMS keladi) *</label>
+              <label style="font-size: 0.75rem; font-weight: 700; display:block; margin-bottom:4px;">Telefon raqamingiz *</label>
               <div class="phone-field-wrap">
                 <span class="phone-prefix-tag">🇺🇿 +998</span>
-                <input type="tel" id="regPhone" class="phone-digits-input" placeholder="90 123 45 67" maxlength="12" inputmode="numeric" oninput="formatUzPhoneInput(this)" required />
+                <input type="tel" id="regPhone" autocomplete="tel-national" class="phone-digits-input" placeholder="90 123 45 67" maxlength="12" inputmode="numeric" oninput="formatUzPhoneInput(this)" required />
               </div>
             </div>
             <div>
@@ -656,11 +670,11 @@
 
           <div style="margin-bottom: 14px;">
             <label style="font-size: 0.75rem; font-weight: 700; display:block; margin-bottom:4px;">Doimiy parol yaratish (keyingi safar kirish uchun) *</label>
-            <input type="password" id="regPass" class="booking-input" placeholder="Kamida 6 ta belgi" oninput="checkPasswordStrength(this.value)" required />
+            <input type="password" id="regPass" autocomplete="new-password" class="booking-input" placeholder="Kamida 6 ta belgi" oninput="checkPasswordStrength(this.value)" required />
             <div class="pass-strength-bar"><div class="pass-strength-fill" id="passStrengthFill"></div></div>
           </div>
 
-          <button type="submit" class="btn-submit-3d">📲 Raqamga SMS Kod Yuborish va Ro‘yxatdan O‘tish →</button>
+          <button type="submit" class="btn-submit-3d">📲 Tasdiqlash Kodini Olish va Ro‘yxatdan O‘tish →</button>
         </form>
 
         <!-- KIRISH FORMASI -->
@@ -671,15 +685,15 @@
             <label style="font-size: 0.75rem; font-weight: 700; display:block; margin-bottom:4px;">Telefon raqamingiz *</label>
             <div class="phone-field-wrap">
               <span class="phone-prefix-tag">🇺🇿 +998</span>
-              <input type="tel" id="loginPhone" class="phone-digits-input" placeholder="90 123 45 67" maxlength="12" inputmode="numeric" oninput="formatUzPhoneInput(this)" required />
+              <input type="tel" id="loginPhone" autocomplete="tel-national" class="phone-digits-input" placeholder="90 123 45 67" maxlength="12" inputmode="numeric" oninput="formatUzPhoneInput(this)" required />
             </div>
           </div>
           <div style="margin-bottom: 12px;">
             <label style="font-size: 0.75rem; font-weight: 700; display:block; margin-bottom:4px;">Parolingiz *</label>
-            <input type="password" id="loginPass" class="booking-input" placeholder="Parolingizni kiriting" />
+            <input type="password" id="loginPass" autocomplete="current-password" class="booking-input" placeholder="Parolingizni kiriting" />
           </div>
           <button type="submit" class="btn-submit-3d" style="margin-bottom: 8px;">🔑 Parol bilan Kirish →</button>
-          <button type="button" class="btn-pill btn-pill-outline" style="width: 100%; padding: 11px;" onclick="initiateSmsLoginOnly()">📲 Parol esdan chiqdimi? SMS Kod orqali kirish</button>
+          <button type="button" class="btn-pill btn-pill-outline" style="width: 100%; padding: 11px;" onclick="initiateSmsLoginOnly()">📲 Parol esdan chiqdimi? Kod orqali kirish</button>
         </form>
       </div>
     </div>
@@ -899,7 +913,7 @@
         </div>
       </div>
 
-      <!-- 5. SHAXSIY KABINET -->
+      <!-- 5. SHAXSIY KABINET (MOBILDA EKRANDAN CHIQIB KETMAYDI VA BE'MALOL SAQLANADI) -->
       <div id="view-cabinet" class="view-content">
         <div class="profile-grid">
           <div>
@@ -907,11 +921,11 @@
               <div class="med-id-header">
                 <div>
                   <div style="font-size: 0.7rem; color: #bae6fd; font-weight: 800;" id="cardAuthProviderBadge">HUMO MED BEMOR KARTASI</div>
-                  <h3 style="font-size: 1.3rem; font-weight: 900; margin-top: 2px;" id="cardUserName">Bemor</h3>
+                  <h3 id="cardUserName">Bemor</h3>
                 </div>
                 <span class="med-id-badge" id="cardUserId">HM-ID</span>
               </div>
-              <div style="font-size: 0.82rem; color: #e0f2fe; display: flex; flex-direction: column; gap: 4px;">
+              <div style="font-size: 0.82rem; color: #e0f2fe; display: flex; flex-direction: column; gap: 4px; overflow-wrap: anywhere;">
                 <span>📞 <span id="cardUserPhone"></span></span>
                 <span>✉️ <span id="cardUserEmail"></span></span>
               </div>
@@ -927,7 +941,7 @@
               
               <div style="margin-bottom: 10px;">
                 <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); display:block; margin-bottom:3px;">Ism va Familiyangiz *</label>
-                <input type="text" id="profNameInput" class="booking-input" style="padding: 9px 12px;" placeholder="Ism va Familiya" />
+                <input type="text" id="profNameInput" autocomplete="name" class="booking-input" style="padding: 9px 12px;" placeholder="Masalan: Quvonchbek Baratov" />
               </div>
 
               <div class="form-two-col" style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
@@ -939,8 +953,8 @@
                   </div>
                 </div>
                 <div>
-                  <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); display:block; margin-bottom:3px;">Email manzil</label>
-                  <input type="email" id="profEmailInput" class="booking-input" style="padding: 9px 12px;" placeholder="example@mail.com" />
+                  <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); display:block; margin-bottom:3px;">Email manzil (ixtiyoriy)</label>
+                  <input type="email" id="profEmailInput" autocomplete="email" class="booking-input" style="padding: 9px 12px;" placeholder="example@gmail.com" />
                 </div>
               </div>
 
@@ -969,12 +983,12 @@
 
               <div style="margin-bottom: 14px;">
                 <label style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); display:block; margin-bottom:3px;">Yangi parol (o‘zgartirmoqchi bo‘lsangiz kiriting)</label>
-                <input type="password" id="profNewPassInput" class="booking-input" style="padding: 9px 12px;" placeholder="Bo‘sh qoldirsangiz eski parol qoladi" />
+                <input type="password" id="profNewPassInput" autocomplete="new-password" class="booking-input" style="padding: 9px 12px;" placeholder="Bo‘sh qoldirsangiz eski parol qoladi" />
               </div>
 
-              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                <button class="btn-pill btn-pill-blue" style="flex: 1; padding: 11px;" onclick="savePatientProfileMeta()">💾 O‘zgarishlarni Saqlash</button>
-                <button class="btn-pill btn-pill-outline" style="color: #b91c1c; border-color: #fecaca; padding: 11px;" onclick="logoutPatient()">🚪 Chiqish</button>
+              <div style="display: grid; grid-template-columns: 1fr auto; gap: 8px; width: 100%;">
+                <button type="button" class="btn-pill btn-pill-blue" style="padding: 11px; width: 100%;" onclick="savePatientProfileMeta()">💾 O‘zgarishlarni Saqlash</button>
+                <button type="button" class="btn-pill btn-pill-outline" style="color: #b91c1c; border-color: #fecaca; padding: 11px 14px;" onclick="logoutPatient()">🚪 Chiqish</button>
               </div>
             </div>
           </div>
@@ -983,15 +997,15 @@
             <div class="profile-stats-row">
               <div class="stat-box">
                 <h3 id="statBookingsCount">0</h3>
-                <p>Mening navbatlarim</p>
+                <p>Navbatlarim</p>
               </div>
               <div class="stat-box">
                 <h3 id="statLabsCount">0</h3>
-                <p>Tahlil natijalarim</p>
+                <p>Tahlillarim</p>
               </div>
               <div class="stat-box" style="cursor: pointer;" onclick="scrollToBooking()">
                 <h3>+</h3>
-                <p style="color: var(--primary);">Qabulga yozilish</p>
+                <p style="color: var(--primary);">Yangi qabul</p>
               </div>
             </div>
 
@@ -1128,16 +1142,16 @@
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 18px;">
               <div style="background: var(--input-bg); padding: 18px; border-radius: 16px; border: 1px solid var(--input-border);">
                 <h4 style="margin-bottom: 6px;">🤖 Real Telegram Bot, Google Auth & SMS Shlyuz</h4>
-                <p style="font-size:0.72rem; color:var(--text-muted); margin-bottom:10px;">Ushbu kalitlar Firebase bulutida saqlanadi va barcha foydalanuvchilar uchun real ishlaydi:</p>
+                <p style="font-size:0.72rem; color:var(--text-muted); margin-bottom:10px;">Maxfiy kalitlar yulduzcha ostida himoyalangan:</p>
                 
                 <label style="font-size:0.72rem; font-weight:700;">Telegram Bot Token (BotFather’dan):</label>
-                <input type="text" id="cfgTgBotToken" class="admin-input" style="margin-bottom: 8px;" placeholder="123456789:AAH..." />
+                <input type="password" id="cfgTgBotToken" class="admin-input" style="margin-bottom: 8px;" placeholder="123456789:AAH..." />
                 
                 <label style="font-size:0.72rem; font-weight:700;">Telegram Bot Username:</label>
                 <input type="text" id="cfgTgBotUsername" class="admin-input" style="margin-bottom: 8px;" placeholder="Masalan: HumoMed_bot" />
                 
                 <label style="font-size:0.72rem; font-weight:700;">Firebase Web API Key (Real Google Popup & SMS uchun):</label>
-                <input type="text" id="cfgFirebaseApiKey" class="admin-input" style="margin-bottom: 8px;" placeholder="AIzaSy..." />
+                <input type="password" id="cfgFirebaseApiKey" class="admin-input" style="margin-bottom: 8px;" placeholder="AIzaSy..." />
 
                 <label style="font-size:0.72rem; font-weight:700;">Google Client ID (One-Tap OAuth 2.0):</label>
                 <input type="text" id="cfgGoogleClientId" class="admin-input" style="margin-bottom: 8px;" placeholder="xxxx.apps.googleusercontent.com" />
@@ -1191,21 +1205,24 @@
   </nav>
 
   <!-- ==========================================================
-       1. TELEFON RAQAMGA KELADIGAN REAL SMS KOD (OTP) MODALI
+       1. TELEFON RAQAMGA KELADIGAN KOD (SMS + TELEGRAM KO'PRIGI) MODALI
        ========================================================== -->
   <div class="modal-overlay" id="phoneSmsOtpModal">
     <div class="modal-box" style="text-align: center;">
       <button class="modal-close" onclick="closeModals()">✕</button>
-      <div style="width: 54px; height: 54px; border-radius: 50%; background: rgba(16,185,129,0.14); color: #10b981; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px; font-size: 1.5rem;">📲</div>
-      <h3 style="font-size: 1.2rem; font-weight: 900;">SMS Tasdiqlash Kodini Kiriting</h3>
-      <p style="font-size: 0.78rem; color: var(--text-muted); margin: 6px 0 12px; line-height: 1.45;">
-        Sizning <b id="smsTargetPhoneText" style="color:var(--primary);">+998 ...</b> raqamingizga <b>6 xonali SMS tasdiqlash kodi</b> yuborildi:
+      <div style="width: 52px; height: 52px; border-radius: 50%; background: rgba(2,132,199,0.12); color: #0284c7; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px; font-size: 1.4rem;">📲</div>
+      <h3 style="font-size: 1.18rem; font-weight: 900;">6 Xonali Tasdiqlash Kodi</h3>
+      <p style="font-size: 0.77rem; color: var(--text-muted); margin: 4px 0 12px; line-height: 1.45;">
+        <b id="smsTargetPhoneText" style="color:var(--primary);">+998 ...</b> raqamingizni tasdiqlash uchun quyidagi tugma orqali <b>Telegram botdan</b> kodni 1 soniyada oling (yoki SMS kuting):
       </p>
 
-      <div id="smsBackupBotWrap" style="margin-bottom: 10px;">
-        <a id="smsBackupBotLink" href="https://t.me/" target="_blank" class="btn-pill btn-pill-outline" style="width:100%; font-size:0.75rem; padding:8px; text-decoration:none; color:#0088cc; border-color:rgba(0,136,204,0.35);" onclick="checkNowSmsBackupBot()">
-          ✈️ SMS kechikdimi? Kodni Telegram bot orqali darhol olish
+      <div id="smsBackupBotWrap" style="margin-bottom: 12px;">
+        <a id="smsBackupBotLink" href="https://t.me/" target="_blank" class="btn-submit-3d" style="background:#0088cc; width:100%; font-size:0.84rem; padding:12px; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:8px;" onclick="checkNowSmsBackupBot(false)">
+          ✈️ Telegram Botdan 6 Xonali Kodni Olish (START)
         </a>
+        <button type="button" class="btn-pill btn-pill-cyan" style="width:100%; margin-top:8px; padding:9px;" onclick="checkNowSmsBackupBot(true)">
+          🔄 Men START bosdim — Kodni Avto- Kiritish
+        </button>
       </div>
 
       <div class="otp-boxes-row" id="smsOtpInputsContainer">
@@ -1217,12 +1234,12 @@
         <input type="text" class="otp-digit-box sms-otp-box" maxlength="1" inputmode="numeric" oninput="handleSmsOtpBoxInput(this, 5)" onkeydown="handleSmsOtpKeyDown(event, 5)" />
       </div>
 
-      <div style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 14px;">
-        Holat: <b id="smsOtpLiveStatus" style="color:#10b981;">SMS kod yuborildi</b> (<span id="smsOtpTimerText">02:00</span>)
+      <div style="font-size: 0.74rem; color: var(--text-muted); margin-bottom: 12px;">
+        Holat: <b id="smsOtpLiveStatus" style="color:var(--primary);">Tasdiqlash kutilmoqda...</b> (<span id="smsOtpTimerText">02:00</span>)
       </div>
 
-      <button type="button" class="btn-submit-3d" style="margin-bottom: 8px;" onclick="verifyPhoneSmsOtpCode()">✅ SMS Kodni Tasdiqlash va Kirish</button>
-      <button type="button" class="btn-pill btn-pill-outline" style="width:100%;" onclick="resendPhoneSmsOtp()">🔄 Kodni qayta yuborish</button>
+      <button type="button" class="btn-submit-3d" style="margin-bottom: 8px;" onclick="verifyPhoneSmsOtpCode()">✅ Kodni Tasdiqlash va Kirish</button>
+      <button type="button" class="btn-pill btn-pill-outline" style="width:100%;" onclick="resendPhoneSmsOtp()">🔄 Yangi kod yaratish</button>
     </div>
   </div>
 
@@ -1242,7 +1259,7 @@
         <form onsubmit="event.preventDefault(); sendTelegramOtpCode();">
           <div style="margin-bottom: 12px;">
             <label style="font-size:0.75rem; font-weight:700; display:block; margin-bottom:4px;">Ism va Familiyangiz *</label>
-            <input type="text" id="tgFullName" class="admin-input" placeholder="Masalan: Sardor Aliyev" minlength="3" required />
+            <input type="text" id="tgFullName" autocomplete="name" class="admin-input" placeholder="Masalan: Quvonchbek Baratov" minlength="3" required />
           </div>
           <div style="margin-bottom: 16px;">
             <label style="font-size:0.75rem; font-weight:700; display:block; margin-bottom:4px;">Telefon raqamingiz *</label>
@@ -1411,6 +1428,19 @@
   </div>
 
   <script>
+    // ====================================================
+    // 0. KOD VA MANBANI HIMOYALASH (ANTI-INSPECT & CLICKJACKING GUARD)
+    // ====================================================
+    document.addEventListener('contextmenu', e => e.preventDefault());
+    document.addEventListener('keydown', e => {
+      if (e.keyCode === 123) { e.preventDefault(); return false; }
+      if (e.ctrlKey && e.shiftKey && (e.keyCode === 73 || e.keyCode === 74 || e.keyCode === 67)) { e.preventDefault(); return false; }
+      if (e.ctrlKey && (e.keyCode === 85 || e.keyCode === 83)) { e.preventDefault(); return false; }
+    });
+    if (window.top !== window.self) {
+      try { window.top.location = window.self.location; } catch (e) {}
+    }
+
     function safeRenderIcons() {
       try {
         if (window.lucide && typeof window.lucide.createIcons === 'function') {
@@ -1425,12 +1455,11 @@
     const SECURITY_SALT = "HUMOMED_CYBER_WAF_2026_KEY";
     let actionTimestamps = [];
 
-    // При обновлении страницы очищаем старую случайную блокировку от прежнего бага
     try {
-      if (!sessionStorage.getItem('humo_trap_fixed_v5')) {
+      if (!sessionStorage.getItem('humo_trap_fixed_v6')) {
         localStorage.removeItem('humo_lock_until');
         localStorage.removeItem('humo_fail_count');
-        sessionStorage.setItem('humo_trap_fixed_v5', '1');
+        sessionStorage.setItem('humo_trap_fixed_v6', '1');
       }
     } catch (e) {}
 
@@ -1442,6 +1471,21 @@
       clean = clean.replace(/on\w+\s*=/gi, '');
       clean = clean.replace(/(__proto__|constructor|prototype)/gi, '');
       return clean;
+    }
+
+    // Ism maydoniga adashib email yozib yuborilgan bo'lsa, uni chiroyli ismga aylantirish
+    function cleanHumanName(rawName) {
+      let n = sanitizeStrict(rawName, 60);
+      if (n.includes('@')) {
+        n = n.split('@')[0].replace(/[0-9._-]+/g, ' ').trim();
+      }
+      if (!n) return 'Bemor';
+      return n.charAt(0).toUpperCase() + n.slice(1);
+    }
+
+    function isValidEmailFormat(str) {
+      if (!str) return false;
+      return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(str).trim());
     }
 
     function escapeHTML(str) {
@@ -1463,7 +1507,6 @@
 
     function isHoneypotTriggered(trapId) {
       const el = document.getElementById(trapId);
-      // Проверяем только если элемент реально скрыт и при этом заполнен ботом
       if (el && el.offsetParent === null && el.value.trim() !== '') {
         el.value = '';
         return true;
@@ -1602,16 +1645,21 @@
     }
 
     // ====================================================
-    // 3. TELEFON RAQAMGA REAL SMS KOD YUBORISH TIZIMI (SMS OTP)
+    // 3. TELEFON RAQAMGA TASDIQLASH KODI YUBORISH TIZIMI (SMS + TELEGRAM BRIDGE)
     // ====================================================
     let pendingSmsRegistration = null;
     let smsOtpTimerInterval = null;
+    let smsBotPollInterval = null;
     let firebaseConfirmationResult = null;
 
     async function initiatePhoneSmsRegistration() {
       if (isHoneypotTriggered('hp_reg_trap') || checkRateLimitLock()) return;
 
-      const name = sanitizeStrict(document.getElementById('regName').value, 60);
+      const rawName = document.getElementById('regName').value.trim();
+      if (rawName.includes('@')) {
+        return showToast("⚠️ «Ism va Familiya» katagiga email emas, o‘z ismingizni yozing!");
+      }
+      const name = sanitizeStrict(rawName, 50);
       const phone = getFullUzPhone('regPhone');
       const blood = sanitizeStrict(document.getElementById('regBlood').value, 20) || 'Kiritilmagan';
       const pass = document.getElementById('regPass').value.trim();
@@ -1656,14 +1704,30 @@
         ...userData,
         otpCode,
         codeHash,
-        startedAtUnix: Math.floor(Date.now() / 1000) - 45,
-        expiresAt: Date.now() + 120000
+        sentViaBot: false,
+        startedAtUnix: Math.floor(Date.now() / 1000) - 60,
+        expiresAt: Date.now() + 180000
       };
 
       document.getElementById('smsTargetPhoneText').textContent = userData.phone;
       document.querySelectorAll('.sms-otp-box').forEach(b => b.value = '');
 
-      const botUsername = (DB.config?.tgBotUsername || localStorage.getItem('humo_tg_bot_username') || 'HumoMed_bot').replace('@', '').trim();
+      const botToken = (DB.config?.tgBotToken || localStorage.getItem('humo_tg_bot_token') || '').trim();
+      let botUsername = (DB.config?.tgBotUsername || localStorage.getItem('humo_tg_bot_username') || '').replace('@', '').trim();
+      if (botToken) {
+        try {
+          await fetch(`https://api.telegram.org/bot${botToken}/deleteWebhook`);
+          if (!botUsername) {
+            const meRes = await fetch(`https://api.telegram.org/bot${botToken}/getMe`);
+            if (meRes.ok) {
+              const meData = await meRes.json();
+              if (meData.ok && meData.result?.username) botUsername = meData.result.username;
+            }
+          }
+        } catch (e) {}
+      }
+      if (!botUsername) botUsername = 'HumoMed_bot';
+
       const backupLink = document.getElementById('smsBackupBotLink');
       if (backupLink) backupLink.href = `https://t.me/${botUsername}?start=otp_${userData.cleanDigits}`;
 
@@ -1678,8 +1742,7 @@
           body: JSON.stringify({
             phone: '+' + userData.cleanDigits,
             message: smsMessageText,
-            otpCode,
-            codeHash,
+            otpCode, codeHash,
             status: "queued_for_sms",
             createdAt: new Date().toISOString()
           })
@@ -1694,6 +1757,7 @@
         });
       } catch (e) {}
 
+      // Milliy SMS Shlyuz API (agar ulangan bo'lsa)
       const smsApiUrl = (DB.config?.smsApiUrl || localStorage.getItem('humo_sms_api_url') || '').trim();
       const smsApiToken = (DB.config?.smsApiToken || localStorage.getItem('humo_sms_api_token') || '').trim();
       if (smsApiUrl) {
@@ -1714,7 +1778,12 @@
         } catch (e) {}
       }
 
+      // Firebase Phone Auth (agar Blaze yoqilgan bo'lsa)
       initAndSendFirebaseNativeSms('+' + userData.cleanDigits);
+
+      // Doimiy Telegram Bot pollingni ham yoqib qo'yamiz
+      clearInterval(smsBotPollInterval);
+      smsBotPollInterval = setInterval(() => checkNowSmsBackupBot(false), 2500);
       setTimeout(() => document.querySelectorAll('.sms-otp-box')[0]?.focus(), 150);
     }
 
@@ -1725,9 +1794,9 @@
         if (!firebase.apps.length) {
           firebase.initializeApp({
             apiKey,
-            authDomain: "humomed-51f21.firebaseapp.com",
+            authDomain: "humomed-ba7dd.firebaseapp.com",
             databaseURL: FIREBASE_DB_URL,
-            projectId: "humomed-51f21"
+            projectId: "humomed-ba7dd"
           });
         }
         if (!window.recaptchaVerifier) {
@@ -1738,40 +1807,58 @@
       } catch (e) {}
     }
 
-    async function checkNowSmsBackupBot() {
-      if (!pendingSmsRegistration) return;
+    async function checkNowSmsBackupBot(isManual = false) {
+      if (!pendingSmsRegistration || pendingSmsRegistration.sentViaBot) return;
       const botToken = (DB.config?.tgBotToken || localStorage.getItem('humo_tg_bot_token') || '').trim();
-      if (!botToken) return;
+      if (!botToken) {
+        if (isManual) showToast("⚠️ Admin panelda Telegram Bot Token kiritilmagan!");
+        return;
+      }
 
-      let tries = 0;
-      const poll = setInterval(async () => {
-        tries++;
-        if (!pendingSmsRegistration || tries > 15) return clearInterval(poll);
-        try {
-          const res = await fetch(`https://api.telegram.org/bot${botToken}/getUpdates?offset=-10&_=${Date.now()}`);
-          if (!res.ok) return;
-          const data = await res.json();
+      try {
+        const res = await fetch(`https://api.telegram.org/bot${botToken}/getUpdates?offset=-15&_=${Date.now()}`);
+        if (!res.ok) return;
+        const data = await res.json();
+        let matchedChatId = null;
+
+        for (const item of (data.result || []).reverse()) {
+          const msg = item.message;
+          if (msg && msg.text && msg.text.includes(`otp_${pendingSmsRegistration.cleanDigits}`)) {
+            matchedChatId = msg.chat.id;
+            break;
+          }
+        }
+        if (!matchedChatId) {
           for (const item of (data.result || []).reverse()) {
             const msg = item.message;
-            if (msg && msg.text && (msg.text.includes(pendingSmsRegistration.cleanDigits) || (msg.text.startsWith('/start') && msg.date >= pendingSmsRegistration.startedAtUnix))) {
-              clearInterval(poll);
-              await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  chat_id: msg.chat.id,
-                  parse_mode: "HTML",
-                  text: `📲 <b>Humo Med SMS Ko‘prigi</b>\n\nHurmatli <b>${escapeHTML(pendingSmsRegistration.name)}</b>, sizning SMS tasdiqlash kodingiz:\n\n🔑 Kod: <code>${pendingSmsRegistration.otpCode}</code>`
-                })
-              });
-              const boxes = document.querySelectorAll('.sms-otp-box');
-              pendingSmsRegistration.otpCode.split('').forEach((c, idx) => { if (boxes[idx]) boxes[idx].value = c; });
-              verifyPhoneSmsOtpCode();
+            if (msg && msg.text && msg.text.startsWith('/start') && msg.date >= pendingSmsRegistration.startedAtUnix) {
+              matchedChatId = msg.chat.id;
               break;
             }
           }
-        } catch (e) {}
-      }, 2500);
+        }
+
+        if (matchedChatId) {
+          pendingSmsRegistration.sentViaBot = true;
+          clearInterval(smsBotPollInterval);
+          await fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              chat_id: matchedChatId,
+              parse_mode: "HTML",
+              text: `📲 <b>Humo Med Klinikasi</b>\n\nHurmatli <b>${escapeHTML(pendingSmsRegistration.name)}</b>, sizning telefon raqamingizni tasdiqlash kodingiz:\n\n🔑 Kod: <code>${pendingSmsRegistration.otpCode}</code>`
+            })
+          });
+          document.getElementById('smsOtpLiveStatus').innerHTML = `<span style="color:#10b981;">✅ Kod Telegramingizga yuborildi!</span>`;
+          const boxes = document.querySelectorAll('.sms-otp-box');
+          pendingSmsRegistration.otpCode.split('').forEach((c, idx) => { if (boxes[idx]) boxes[idx].value = c; });
+          showToast("📲 Tasdiqlash kodi olindi!");
+          setTimeout(() => verifyPhoneSmsOtpCode(), 600);
+        } else if (isManual) {
+          showToast("⚠️ Avval ko‘k tugmani bosib Telegram botda START bosing!");
+        }
+      } catch (e) {}
     }
 
     function startSmsOtpCountdown() {
@@ -1790,7 +1877,7 @@
     function resendPhoneSmsOtp() {
       if (!pendingSmsRegistration) return;
       dispatchRealSmsOtp(pendingSmsRegistration);
-      showToast("🔄 Yangi SMS tasdiqlash kodi yuborildi!");
+      showToast("🔄 Yangi tasdiqlash kodi yaratildi!");
     }
 
     function handleSmsOtpBoxInput(el, idx) {
@@ -1809,12 +1896,12 @@
     async function verifyPhoneSmsOtpCode() {
       if (checkRateLimitLock()) return;
       if (!pendingSmsRegistration || Date.now() > pendingSmsRegistration.expiresAt) {
-        return showToast("⚠️ SMS kod muddati tugagan! Qayta yuborishni bosing.");
+        return showToast("⚠️ Kod muddati tugagan! Qayta yuborishni bosing.");
       }
 
       const boxes = document.querySelectorAll('.sms-otp-box');
       const enteredCode = Array.from(boxes).map(b => b.value).join('');
-      if (enteredCode.length < 6) return showToast("⚠️ 6 xonali SMS kodni to‘liq kiriting!");
+      if (enteredCode.length < 6) return showToast("⚠️ 6 xonali kodni to‘liq kiriting!");
 
       let verified = false;
 
@@ -1832,11 +1919,12 @@
 
       if (!verified) {
         recordFailedAuthAttempt();
-        return showToast("❌ Kiritilgan SMS kod noto‘g‘ri!");
+        return showToast("❌ Kiritilgan kod noto‘g‘ri!");
       }
 
       resetFailedAuthAttempts();
       clearInterval(smsOtpTimerInterval);
+      clearInterval(smsBotPollInterval);
 
       if (pendingSmsRegistration.mode === 'login' && pendingSmsRegistration.existingUser) {
         completeUserSession(pendingSmsRegistration.existingUser, false);
@@ -1844,9 +1932,9 @@
         const newUser = {
           id: Date.now(),
           medId: 'HM-' + String(Math.floor(1000 + Math.random() * 9000)),
-          name: pendingSmsRegistration.name,
+          name: cleanHumanName(pendingSmsRegistration.name),
           phone: pendingSmsRegistration.phone,
-          email: 'SMS orqali tasdiqlangan',
+          email: '',
           provider: 'SMS OTP (+998)',
           blood: pendingSmsRegistration.blood || 'Kiritilmagan',
           birth: 'Kiritilmagan',
@@ -1862,6 +1950,7 @@
 
       try {
         await fetch(`${FIREBASE_DB_URL}/sms_otp_queue/${pendingSmsRegistration.cleanDigits}.json`, { method: "DELETE" });
+        await fetch(`${FIREBASE_DB_URL}/otp_requests/${pendingSmsRegistration.cleanDigits}.json`, { method: "DELETE" });
       } catch (e) {}
       pendingSmsRegistration = null;
     }
@@ -1888,7 +1977,9 @@
     }
 
     async function sendTelegramOtpCode() {
-      const name = sanitizeStrict(document.getElementById('tgFullName').value, 60);
+      const rawName = document.getElementById('tgFullName').value.trim();
+      if (rawName.includes('@')) return showToast("⚠️ Ism joyiga email emas, o‘z ismingizni kiriting!");
+      const name = cleanHumanName(rawName);
       const phone = getFullUzPhone('tgPhone');
 
       if (name.length < 3) return showToast("⚠️ Ism va familiyangizni to‘liq kiriting!");
@@ -1958,10 +2049,13 @@
 
     window.addEventListener('focus', () => {
       if (pendingTelegramOtp) checkNowTelegramBotUpdates(false);
-      if (pendingSmsRegistration) checkNowSmsBackupBot();
+      if (pendingSmsRegistration) checkNowSmsBackupBot(false);
     });
     document.addEventListener('visibilitychange', () => {
-      if (!document.hidden && pendingTelegramOtp) checkNowTelegramBotUpdates(false);
+      if (!document.hidden) {
+        if (pendingTelegramOtp) checkNowTelegramBotUpdates(false);
+        if (pendingSmsRegistration) checkNowSmsBackupBot(false);
+      }
     });
 
     async function checkNowTelegramBotUpdates(isManualClick = false) {
@@ -2086,9 +2180,9 @@
         existing = {
           id: Date.now(),
           medId: 'HM-' + String(Math.floor(1000 + Math.random() * 9000)),
-          name: pendingTelegramOtp.name,
+          name: cleanHumanName(pendingTelegramOtp.name),
           phone: pendingTelegramOtp.phone,
-          email: 'Telegram orqali tasdiqlangan',
+          email: '',
           provider: 'Telegram OTP',
           blood: 'Kiritilmagan',
           birth: 'Kiritilmagan',
@@ -2101,7 +2195,7 @@
         await syncSectionToServer('users', DB.users);
         completeUserSession(existing, true);
       } else {
-        existing.name = pendingTelegramOtp.name || existing.name;
+        existing.name = cleanHumanName(pendingTelegramOtp.name || existing.name);
         completeUserSession(existing, false);
       }
 
@@ -2187,9 +2281,9 @@
           if (!firebase.apps.length) {
             firebase.initializeApp({
               apiKey,
-              authDomain: "humomed-51f21.firebaseapp.com",
+              authDomain: "humomed-ba7dd.firebaseapp.com",
               databaseURL: FIREBASE_DB_URL,
-              projectId: "humomed-51f21"
+              projectId: "humomed-ba7dd"
             });
           }
           const provider = new firebase.auth.GoogleAuthProvider();
@@ -2197,7 +2291,7 @@
           const result = await firebase.auth().signInWithPopup(provider);
           if (result && result.user) {
             await processVerifiedGoogleAccount({
-              name: result.user.displayName || result.user.email.split('@')[0],
+              name: cleanHumanName(result.user.displayName || result.user.email.split('@')[0]),
               email: result.user.email.toLowerCase(),
               uid: result.user.uid
             });
@@ -2221,7 +2315,7 @@
                 if (infoRes.ok) {
                   const profile = await infoRes.json();
                   await processVerifiedGoogleAccount({
-                    name: profile.name || profile.email.split('@')[0],
+                    name: cleanHumanName(profile.name || profile.email.split('@')[0]),
                     email: profile.email.toLowerCase(),
                     uid: profile.sub
                   });
@@ -2250,7 +2344,7 @@
       const payload = parseGoogleJwt(response.credential);
       if (!payload || !payload.email) return showToast("⚠️ Google tasdiqlashda xatolik!");
       await processVerifiedGoogleAccount({
-        name: payload.name || payload.email.split('@')[0],
+        name: cleanHumanName(payload.name || payload.email.split('@')[0]),
         email: payload.email.toLowerCase(),
         uid: payload.sub
       });
@@ -2277,7 +2371,7 @@
       const newUser = {
         id: Date.now(),
         medId: 'HM-' + String(Math.floor(1000 + Math.random() * 9000)),
-        name: sanitizeStrict(pendingGoogleOAuthUser.name, 60),
+        name: cleanHumanName(pendingGoogleOAuthUser.name),
         phone,
         email: pendingGoogleOAuthUser.email,
         provider: 'Google OAuth 2.0',
@@ -2377,7 +2471,7 @@
         address: "WAF & SHA-256 Kiberhimoya Faol",
         guide_btn: "AI Ekskursiya", brand_sub: "MED KLINIKASI", book_btn: "Qabulga yozilish",
         nav_home: "Asosiy", nav_services: "Xizmatlar", nav_doctors: "Shifokorlar", nav_lab: "Tahlillar", nav_cabinet: "Shaxsiy kabinet",
-        auth_welcome: "Xush kelibsiz!", auth_choose_method: "O‘zingizga qulay usulda tizimga kiring:", or_email: "YOKI TELEFONGA SMS KOD YUBORISH ORQALI",
+        auth_welcome: "Xush kelibsiz!", auth_choose_method: "O‘zingizga qulay usulda tizimga kiring:", or_email: "YOKI TELEFONGA KOD YUBORISH ORQALI",
         hero_badge: "Yashnobod tumanidagi zamonaviy raqamli klinika",
         hero_heading: "Salomatligingiz —<br/><span>Humo Klinikasi</span> bilan<br/>ishonchli qo‘llarda",
         hero_about_text: "Ushbu onlayn platforma orqali uydan chiqmasdan malakali shifokorlar qabuliga navbatsiz yozilishingiz, laboratoriya va MRT natijalarini PDF shaklda yuklab olishingiz hamda elektron tibbiy kartangizni yuritishingiz mumkin.",
@@ -2392,7 +2486,7 @@
         address: "Защита WAF & SHA-256 Активна",
         guide_btn: "AI Обзор", brand_sub: "МЕД КЛИНИКА", book_btn: "Записаться",
         nav_home: "Главная", nav_services: "Услуги", nav_doctors: "Врачи", nav_lab: "Анализы", nav_cabinet: "Кабинет",
-        auth_welcome: "Добро пожаловать!", auth_choose_method: "Выберите удобный способ входа:", or_email: "ИЛИ ПО SMS-КОДУ НА ТЕЛЕФОН",
+        auth_welcome: "Добро пожаловать!", auth_choose_method: "Выберите удобный способ входа:", or_email: "ИЛИ ПО КОДУ НА ТЕЛЕФОН",
         hero_badge: "Современная цифровая клиника в Яшнабадском районе",
         hero_heading: "Ваше здоровье —<br/>в надежных руках с<br/><span>Клиникой Humo</span>",
         hero_about_text: "Через нашу онлайн-платформу вы можете записаться на прием к врачам без очередей, скачать результаты МРТ и анализов в формате PDF, а также вести свою электронную медицинскую карту.",
@@ -2407,7 +2501,7 @@
         address: "WAF & SHA-256 Cyber Shield Active",
         guide_btn: "AI Tour", brand_sub: "MED CLINIC", book_btn: "Book Now",
         nav_home: "Home", nav_services: "Services", nav_doctors: "Doctors", nav_lab: "Lab Tests", nav_cabinet: "Cabinet",
-        auth_welcome: "Welcome!", auth_choose_method: "Choose a sign-in method:", or_email: "OR VIA SMS CODE TO YOUR PHONE",
+        auth_welcome: "Welcome!", auth_choose_method: "Choose a sign-in method:", or_email: "OR VIA CODE TO YOUR PHONE",
         hero_badge: "Modern digital clinic in Yashnabad district",
         hero_heading: "Your Health is in<br/>Safe Hands with<br/><span>Humo Clinic</span>",
         hero_about_text: "Through this online platform, you can book doctor appointments without waiting in line, download MRI and lab results in PDF format, and manage your digital medical ID card from home.",
@@ -2632,6 +2726,8 @@
     async function completeUserSession(userObj, isNewUser = false) {
       const safeUser = { ...userObj };
       delete safeUser.pass;
+      safeUser.name = cleanHumanName(safeUser.name);
+      if (!isValidEmailFormat(safeUser.email)) safeUser.email = '';
       currentPatient = safeUser;
       saveSafeSession(safeUser);
       closeModals();
@@ -2649,7 +2745,7 @@
       const phone = getFullUzPhone('loginPhone');
       const pass = document.getElementById('loginPass').value.trim();
       if (!phone) return showToast("⚠️ 9 xonali telefon raqamingizni to‘liq kiriting!");
-      if (!pass) return showToast("⚠️ Parolni kiriting yoki pastdagi «SMS Kod orqali kirish» tugmasini bosing!");
+      if (!pass) return showToast("⚠️ Parolni kiriting yoki pastdagi «Kod orqali kirish» tugmasini bosing!");
 
       const cleanDigits = phone.replace(/\D/g, '');
       const inputHash = await hashPasswordSHA256(pass);
@@ -2667,11 +2763,16 @@
       completeUserSession(found, false);
     }
 
+    // PROFIL MA'LUMOTLARINI TO'LIQ VA XATOSIZ SAQLASH
     async function savePatientProfileMeta() {
       if (!currentPatient || checkRateLimitLock()) return;
-      const newName = sanitizeStrict(document.getElementById('profNameInput').value, 60);
+      const rawName = document.getElementById('profNameInput').value.trim();
+      if (rawName.includes('@')) return showToast("⚠️ Ism va Familiya katagiga email emas, ismingizni yozing!");
+
+      const newName = cleanHumanName(rawName);
       const newPhone = getFullUzPhone('profPhoneInput');
-      const newEmail = sanitizeStrict(document.getElementById('profEmailInput').value, 80) || 'Kiritilmagan';
+      const rawEmail = document.getElementById('profEmailInput').value.trim();
+      const newEmail = isValidEmailFormat(rawEmail) ? sanitizeStrict(rawEmail, 80) : '';
       const newBlood = sanitizeStrict(document.getElementById('profBloodInput').value, 20);
       const newBirth = sanitizeStrict(document.getElementById('profBirthInput').value, 20) || 'Kiritilmagan';
       const newAllergy = sanitizeStrict(document.getElementById('profAllergyInput').value, 120) || 'Yo‘q';
@@ -2679,6 +2780,7 @@
 
       if (newName.length < 3) return showToast("⚠️ Ism va familiya kamida 3 ta harfdan iborat bo‘lishi kerak!");
       if (!newPhone) return showToast("⚠️ Telefon raqamni 9 ta raqam bilan to‘g‘ri kiriting!");
+      if (rawEmail && !isValidEmailFormat(rawEmail)) return showToast("⚠️ Email manzilni to‘g‘ri kiriting yoki bo‘sh qoldiring!");
 
       currentPatient.name = newName;
       currentPatient.phone = newPhone;
@@ -2697,7 +2799,7 @@
       saveSafeSession(currentPatient);
       await syncSectionToServer('users', DB.users);
       updateUserAuthUI();
-      showToast("✅ Profil ma’lumotlaringiz xavfsiz yangilandi!");
+      showToast("✅ Profil ma’lumotlaringiz muvaffaqiyatli saqlandi!");
     }
 
     function logoutPatient() {
@@ -2714,14 +2816,15 @@
 
     function updateUserAuthUI() {
       if (!currentPatient) return;
-      const rawFirst = (currentPatient.name || '').trim().split(' ')[0];
-      const displayLabel = rawFirst.length >= 3 ? rawFirst.slice(0, 10) : 'Kabinet';
+      const cleanFull = cleanHumanName(currentPatient.name);
+      const firstWord = cleanFull.split(' ')[0];
+      const displayLabel = firstWord.length >= 3 ? firstWord.slice(0, 11) : 'Kabinet';
 
       document.getElementById('userAuthBtnText').textContent = displayLabel;
       document.getElementById('mobCabinetText').textContent = 'Kabinet';
 
       const pNameInput = document.getElementById('patientName');
-      if (pNameInput) pNameInput.value = currentPatient.name;
+      if (pNameInput) pNameInput.value = cleanFull;
       setLocalPhoneField('patientPhone', currentPatient.phone);
 
       renderPatientCabinet();
@@ -2737,18 +2840,21 @@
 
     function renderPatientCabinet() {
       if (!currentPatient) return;
+      const cleanName = cleanHumanName(currentPatient.name);
+      const validMail = isValidEmailFormat(currentPatient.email) ? currentPatient.email : '';
+
       document.getElementById('cardAuthProviderBadge').textContent = `HUMO MED • ${(currentPatient.provider || 'BEMOR').toUpperCase()}`;
-      document.getElementById('cardUserName').textContent = currentPatient.name;
+      document.getElementById('cardUserName').textContent = cleanName;
       document.getElementById('cardUserId').textContent = currentPatient.medId || ('HM-' + String(currentPatient.id).slice(-4));
       document.getElementById('cardUserPhone').textContent = currentPatient.phone || '-';
-      document.getElementById('cardUserEmail').textContent = currentPatient.email || '-';
+      document.getElementById('cardUserEmail').textContent = validMail || 'Kiritilmagan';
       document.getElementById('cardUserBlood').textContent = currentPatient.blood || 'Kiritilmagan';
       document.getElementById('cardUserBirth').textContent = currentPatient.birth || 'Kiritilmagan';
       document.getElementById('cardUserAllergy').textContent = currentPatient.allergy || 'Yo‘q';
 
-      document.getElementById('profNameInput').value = currentPatient.name || '';
+      document.getElementById('profNameInput').value = cleanName;
       setLocalPhoneField('profPhoneInput', currentPatient.phone);
-      document.getElementById('profEmailInput').value = (currentPatient.email && currentPatient.email !== 'Kiritilmagan') ? currentPatient.email : '';
+      document.getElementById('profEmailInput').value = validMail;
       document.getElementById('profBloodInput').value = currentPatient.blood || 'Kiritilmagan';
       document.getElementById('profBirthInput').value = (currentPatient.birth && currentPatient.birth !== 'Kiritilmagan') ? currentPatient.birth : '';
       document.getElementById('profAllergyInput').value = currentPatient.allergy !== 'Yo‘q' ? (currentPatient.allergy || '') : '';
@@ -2756,7 +2862,7 @@
       const cleanMyPhone = (currentPatient.phone || '').replace(/\D/g, '');
       const myBookings = (DB.bookings || []).filter(b => (b.phone && b.phone.replace(/\D/g, '') === cleanMyPhone) || b.userId === currentPatient.id);
       const labs = Object.values(DB.lab_results || {});
-      const myLabs = labs.filter(l => l && l.patient && l.patient.toLowerCase().includes((currentPatient.name || '').toLowerCase()));
+      const myLabs = labs.filter(l => l && l.patient && l.patient.toLowerCase().includes(cleanName.toLowerCase()));
 
       document.getElementById('statBookingsCount').textContent = myBookings.length;
       document.getElementById('statLabsCount').textContent = myLabs.length;
@@ -2764,10 +2870,10 @@
       const bCards = document.getElementById('patientBookingsCards');
       if (bCards) {
         bCards.innerHTML = myBookings.length === 0
-          ? `<div class="cabinet-item-card" style="color:var(--text-muted); justify-content:center;">Sizda hozircha faol navbatlar yo‘q</div>`
+          ? `<div class="cabinet-item-card" style="color:var(--text-muted); justify-content:center; text-align:center;">Sizda hozircha faol navbatlar yo‘q</div>`
           : myBookings.map(b => `
             <div class="cabinet-item-card">
-              <div>
+              <div style="min-width:0; flex:1;">
                 <div style="font-weight: 800; font-size: 0.92rem; color: var(--text-heading);">${escapeHTML(b.service)}</div>
                 <div style="font-size: 0.78rem; color: var(--text-muted); margin: 3px 0;">🩺 ${escapeHTML(b.doctor)} • 📅 ${escapeHTML(b.dateReadable)}</div>
                 ${getStatusBadgeHTML(b.status)}
@@ -2779,10 +2885,10 @@
       const lCards = document.getElementById('patientLabsCards');
       if (lCards) {
         lCards.innerHTML = myLabs.length === 0
-          ? `<div class="cabinet-item-card" style="color:var(--text-muted); justify-content:center;">Ismingizga biriktirilgan tahlillar topilmadi</div>`
+          ? `<div class="cabinet-item-card" style="color:var(--text-muted); justify-content:center; text-align:center;">Ismingizga biriktirilgan tahlillar topilmadi</div>`
           : myLabs.map(l => `
             <div class="cabinet-item-card">
-              <div>
+              <div style="min-width:0; flex:1;">
                 <div style="font-weight: 800; font-size: 0.92rem; color: var(--primary-dark);">${escapeHTML(l.code)} — ${escapeHTML(l.testType)}</div>
                 <div style="font-size: 0.78rem; color: var(--text-muted);">👨‍⚕️ ${escapeHTML(l.doctor)} • 📅 ${escapeHTML(l.date)}</div>
               </div>
@@ -2820,7 +2926,7 @@
 
     async function handleNewBooking() {
       if (checkRateLimitLock()) return;
-      const name = sanitizeStrict(document.getElementById('patientName').value, 60);
+      const name = cleanHumanName(document.getElementById('patientName').value);
       const phone = getFullUzPhone('patientPhone');
       const service = sanitizeStrict(document.getElementById('bookingServiceSelect').value, 80);
       const doctor = sanitizeStrict(document.getElementById('bookingDoctorSelect').value, 80) || "Umumiy qabul";
